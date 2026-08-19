@@ -1,0 +1,57 @@
+# macOS / iCloud
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Claude Code per-user config (含本地路径 / 个人 permission grants)
+.claude/settings.local.json
+
+# Python (script-extraction adapter / score-curve.py 跑过留下的)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.python-version
+
+# 用户项目数据（万一开发者在 oracle-bone 源码目录里跑了 oracle-init）
+# 这些文件应该在用户自己的 content project 里，不该污染源码 repo
+.oracle-state.json
+.oracle-cache/
+.oracle-hooks/
+.oracle-secrets.json
+predictions/
+works/
+videos/
+scripts/
+samples/
+candidates.md
+rubric_notes.md
+script_patterns.md
+benchmark.md
+user-profile.md
+content-plan.md
+audience-profiles.md
+audience-brief.md
+open-source-audit.md
+STATUS.md
+WORKFLOW.md
+content.db
+
+# adapter 跑过留下的
+.auth/
+.debug/
+content-analytics.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+*.log

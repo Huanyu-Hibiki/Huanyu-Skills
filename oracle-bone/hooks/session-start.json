@@ -1,0 +1,18 @@
+{
+  "_comment": "oracle-bone SessionStart hook. Auto-renders 4-6 line status report at every new conversation. Silently exits if not in an oracle-bone project (no .oracle-state.json).",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.oracle-hooks/session-start.sh",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}
