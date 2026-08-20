@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — script-extraction 五平台拟人化反爬（2026-08-20，第六批）
+- **平台档案自动分流**：B站/小红书/抖音/知乎 URL 自动识别，套用对应反爬档案（抖音/小红书自动 `impersonate=chrome` TLS 指纹拟真 + 1.5s 请求间隔；全局退避重试 3s→8s）
+- **curl-cffi 0.16.1b1** 加入 requirements——yt-dlp TLS/JA3 指纹拟真依赖（缺失自动降级并警告）
+- `--cookies-from-browser chrome/edge/firefox`：直接复用本机浏览器登录态（B站字幕、抖音/小红书流地址必需），免导出 cookies.txt
+- **视频号诚实拦截**：无公开网页提取器，URL 直接引导本地文件/粘稿；知乎纯文字回答标注"无需转录直接复制"
+- 反爬策略移植自 data-scientist-community 实战（真实登录态 + 拟真指纹 + 拟人节奏 + 退避不硬怼）；README 新增「五大平台支持」表 + 抖音实操序列
+- 修复：yt-dlp nightly `--retry-sleep` 新语法（`http:linear=3:8`）；字幕语言改为精确匹配（杜绝 YouTube 机翻轨 429）
+
 ### Added — script-extraction 真实转录管线（2026-08-19，第五批）
 - **adapters/script-extraction/transcribe.py**：URL/本地文件 → yt-dlp（**nightly**，字幕轨优先含 auto-ASR）→ ffmpeg 抽音频 → **faster-whisper** 转录（VAD + 段落分组）→ transcript.md（输出契约不变）
 - 模型三级解析：`--model-dir` > 本目录 `models/faster-whisper-<档位>/`（自动发现，gitignored）> 在线下载（失败时报错并指向 README 模型节）

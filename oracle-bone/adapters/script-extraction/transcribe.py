@@ -29,6 +29,62 @@ LOCAL_MODELS_DIR = HERE / "models"
 SUB_LANGS = "zh-Hans,zh-Hant,zh-CN,zh,zh-Hans_orig,en,en-US,en-GB"
 LANG_PRIORITY = ["zh-Hans", "zh-Hans_orig", "zh-Hant", "zh-CN", "zh", "en-US", "en-GB", "en"]
 
+# 五大平台档案（反爬要点移植自 data-scientist-community 的拟人化思路：真实登录态复用 +
+# TLS 指纹拟真 + 请求间隔 + 退避重试 [3s,8s]）。impersonate=None 表示平台不挑指纹。
+PLATFORM_PROFILES = {
+    "douyin": {
+        "domains": ["douyin.com", "iesdouyin.com"],
+        "impersonate": "chrome",       # 抖音校验 TLS/JA3 指纹，必须像真浏览器
+        "sleep_requests": 1.5,          # 请求间隔（秒）——别机器枪式连发
+        "cookies_hint": "网页版登录后 --cookies-from-browser chrome 复用登录态，成功率最高",
+    },
+    "xiaohongshu": {
+        "domains": ["xiaohongshu.com", "xhslink.com"],
+        "impersonate": "chrome",
+        "sleep_requests": 1.5,
+        "cookies_hint": "未登录常拿不到流地址；--cookies-from-browser chrome + 已登录浏览器",
+    },
+    "bilibili": {
+        "domains": ["bilibili.com", "b23.tv", "bilivideo.com"],
+        "impersonate": None,
+        "sleep_requests": 0,
+        "cookies_hint": "下载一般免登录；字幕轨必须 cookie（--cookies-from-browser chrome）",
+    },
+    "zhihu": {
+        "domains": ["zhihu.com"],
+        "impersonate": None,
+        "sleep_requests": 1,
+        "cookies_hint": "视频回答可提取；纯文字回答无需转录——直接复制文本学习表达",
+    },
+    "wechat-channels": {
+        "domains": ["channels.weixin.qq.com"],
+        "impersonate": None,
+        "sleep_requests": 0,
+        "unsupported": True,            # 无公开网页播放器，yt-dlp 无提取器
+        "cookies_hint": "不支持 URL——手机导出/录屏得本地文件后走本地路径，或手动粘稿",
+    },
+}
+
+# yt-dlp 全局拟人化配置（main 里按平台档案 + 用户参数装配）
+YT = {"impersonate": None, "sleep_requests": 0, "cookies_file": None,
+      "cookies_browser": None, "warned_impersonate": False}
+
+
+def curl_cffi_ok() -> bool:
+    try:
+        import curl_cffi  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def detect_platform(url: str):
+    low = url.lower()
+    for key, prof in PLATFORM_PROFILES.items():
+        if any(d in low for d in prof["domains"]):
+            return key
+    return None
+
 
 def die(msg: str, code: int = 1):
     print(f"❌ {msg}", file=sys.stderr)
@@ -60,37 +116,47 @@ def media_duration(path: Path):
 
 
 def ytdlp(args):
-    return run([sys.executable, "-m", "yt_dlp", "--no-playlist", *args])
+    """统一 yt-dlp 调用：注入拟人化参数（登录态 cookie + TLS 指纹 + 请求间隔 + 退避重试）。"""
+    cmd = [sys.executable, "-m", "yt_dlp", "--no-playlist",
+           "--retries", "3", "--retry-sleep", "http:linear=3:8"]  # 退避重试 3s→8s，节奏同 data-scientist-community
+    if YT["impersonate"]:
+        if curl_cffi_ok():
+            cmd += ["--impersonate", YT["impersonate"]]
+        elif not YT["warned_impersonate"]:
+            YT["warned_impersonate"] = True
+            print("⚠️ curl-cffi 未安装，跳过 TLS 指纹拟真——"
+                  "反爬严格的平台（抖音/小红书）可能失败。装法：--pre 装 'yt-dlp[curl-cffi]'", file=sys.stderr)
+    if YT["sleep_requests"] > 0:
+        cmd += ["--sleep-requests", str(YT["sleep_requests"])]
+    if YT["cookies_file"]:
+        cmd += ["--cookies", YT["cookies_file"]]
+    if YT["cookies_browser"]:
+        cmd += ["--cookies-from-browser", YT["cookies_browser"]]
+    return run(cmd + args)
 
 
-def fetch_url_meta(url: str, cookies: str | None):
-    cmd = ["-J", "--skip-download", url]
-    if cookies:
-        cmd = ["--cookies", cookies, *cmd]
-    r = ytdlp(cmd)
+def fetch_url_meta(url: str):
+    r = ytdlp(["-J", "--skip-download", url])
     if r.returncode != 0:
         die(f"yt-dlp 拉取信息失败：{r.stderr.strip()[:500]}")
     try:
         return json.loads(r.stdout)
     except json.JSONDecodeError:
-        die("yt-dlp 返回的元数据不是合法 JSON（可能遇到反爬/登录墙，试 --cookies 或手动粘稿）")
+        die("yt-dlp 返回的元数据不是合法 JSON（可能遇到反爬/登录墙，试 --cookies-from-browser chrome 或手动粘稿）")
 
 
-def download_media(url: str, tmpdir: Path, cookies: str | None) -> Path:
+def download_media(url: str, tmpdir: Path) -> Path:
     out_tpl = str(tmpdir / "src.%(ext)s")
-    cmd = ["-f", "bv*+ba/b", "--merge-output-format", "mp4", "-o", out_tpl, url]
-    if cookies:
-        cmd = ["--cookies", cookies, *cmd]
-    r = ytdlp(cmd)
+    r = ytdlp(["-f", "bv*+ba/b", "--merge-output-format", "mp4", "-o", out_tpl, url])
     if r.returncode != 0:
-        die(f"yt-dlp 下载失败：{r.stderr.strip()[:500]}")
+        die(f"yt-dlp 下载失败：{r.stderr.strip()[:500]}（反爬平台先试 --cookies-from-browser chrome）")
     files = sorted(tmpdir.glob("src.*"), key=lambda p: p.stat().st_size, reverse=True)
     if not files:
         die("yt-dlp 报成功但找不到下载文件")
     return files[0]
 
 
-def try_subtitles(url: str, tmpdir: Path, cookies: str | None):
+def try_subtitles(url: str, tmpdir: Path):
     sub_dir = tmpdir / "subs"
     sub_dir.mkdir()
     cmd = [
@@ -99,8 +165,6 @@ def try_subtitles(url: str, tmpdir: Path, cookies: str | None):
         "-o", str(sub_dir / "cap"),
         url,
     ]
-    if cookies:
-        cmd = ["--cookies", cookies, *cmd]
     r = ytdlp(cmd)
     caps = list(sub_dir.glob("cap*.vtt")) + list(sub_dir.glob("cap*.srt"))
     if not caps:
@@ -232,23 +296,59 @@ def main():
     ap.add_argument("--lang", default=None, help="强制语言（如 zh / en）；默认自动检测")
     ap.add_argument("--device", default="auto", help="cpu / cuda / auto（默认 auto）")
     ap.add_argument("--compute-type", default="auto", help="int8 / float16 / auto（默认 auto：cpu→int8, gpu→float16）")
-    ap.add_argument("--cookies", default=None, help="yt-dlp cookies.txt（B站等需登录的字幕源）")
+    ap.add_argument("--cookies", default=None, help="yt-dlp cookies.txt 文件（B站等需登录的字幕源）")
+    ap.add_argument("--cookies-from-browser", default=None,
+                    help="直接复用本机浏览器登录态（chrome/edge/firefox；反爬平台首选，需浏览器已登录）")
+    ap.add_argument("--impersonate", default="auto",
+                    help="TLS 指纹拟真目标（chrome/safari/off/auto=按平台档案；抖音/小红书自动启用 chrome）")
+    ap.add_argument("--sleep-requests", type=float, default=-1,
+                    help="每次请求间隔秒数（-1=按平台档案默认；抖音/小红书 1.5s 拟人节奏）")
     ap.add_argument("--force-whisper", action="store_true", help="跳过字幕轨，强制走 whisper 转录")
     args = ap.parse_args()
 
     if not ffmpeg_ok():
         die("ffmpeg/ffprobe 不在 PATH——whisper 路径必需（字幕轨路径可以无，但建议装）")
 
+    is_url = bool(re.match(r"https?://", args.input))
+    platform = detect_platform(args.input) if is_url else None
+    if platform == "wechat-channels":
+        die("视频号没有公开网页播放器，yt-dlp 无提取器。改用：\n"
+            "  a) 手机导出/录屏拿到本地视频文件 → transcribe.py <本地文件>\n"
+            "  b) 手动粘稿（apprentice 零依赖主路径）")
+
+    # 装配拟人化配置：平台档案打底，用户参数覆盖
+    prof = PLATFORM_PROFILES.get(platform, {})
+    YT["cookies_file"] = args.cookies
+    YT["cookies_browser"] = getattr(args, "cookies_from_browser")
+    if args.impersonate == "off":
+        YT["impersonate"] = None
+    elif args.impersonate != "auto":
+        YT["impersonate"] = args.impersonate
+    else:
+        YT["impersonate"] = prof.get("impersonate")
+    if args.sleep_requests >= 0:
+        YT["sleep_requests"] = args.sleep_requests
+    else:
+        YT["sleep_requests"] = prof.get("sleep_requests", 0)
+
     out_path = Path(args.out).resolve() / "transcript.md"
     tmpdir = Path(tempfile.mkdtemp(prefix="oracle-se-"))
     try:
-        is_url = bool(re.match(r"https?://", args.input))
         if is_url:
-            meta = fetch_url_meta(args.input, args.cookies)
+            plat_tag = platform or "generic"
+            extras = []
+            if YT["impersonate"]:
+                extras.append(f"impersonate={YT['impersonate']}")
+            if YT["sleep_requests"] > 0:
+                extras.append(f"sleep={YT['sleep_requests']}s")
+            if YT["cookies_browser"] or YT["cookies_file"]:
+                extras.append("cookies=on")
+            print(f"▶ 平台：{plat_tag}{'｜' + '｜'.join(extras) if extras else ''}")
+            meta = fetch_url_meta(args.input)
             title = meta.get("title") or "untitled"
             duration = meta.get("duration")
             source = args.input
-            sub = None if args.force_whisper else try_subtitles(args.input, tmpdir, args.cookies)
+            sub = None if args.force_whisper else try_subtitles(args.input, tmpdir)
             if sub:
                 cap_file, lang_tag, is_auto = sub
                 paras = subs_to_paragraphs(cap_file)
@@ -259,7 +359,7 @@ def main():
                     print(f"   时长 {fmt_dur(duration)}｜段落 {len(paras)}｜来源 {source}")
                     return
                 print("⚠️ 字幕轨下载到了但清洗后为空，转 whisper", file=sys.stderr)
-            media = download_media(args.input, tmpdir, args.cookies)
+            media = download_media(args.input, tmpdir)
         else:
             media = Path(args.input).expanduser().resolve()
             if not media.exists():

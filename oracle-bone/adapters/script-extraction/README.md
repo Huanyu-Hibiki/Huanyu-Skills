@@ -17,7 +17,30 @@ uv pip install --python .venv/Scripts/python.exe --pre -r requirements.txt   # W
 # uv pip install --python .venv/bin/python --pre -r requirements.txt          # macOS/Linux
 ```
 
-requirements 含 `--pre`：**yt-dlp 装 nightly 版**（平台反爬更新最快），faster-whisper 稳定版。
+requirements 含 `--pre`：**yt-dlp 装 nightly 版**（平台反爬更新最快），faster-whisper 稳定版；`curl-cffi` 是 **TLS 指纹拟真**依赖（抖音/小红书反爬必需——模拟真浏览器的 TLS/JA3 指纹，缺失时自动降级并警告）。
+
+## 五大平台支持（B站 / 小红书 / 抖音 / 视频号 / 知乎）
+
+transcribe.py 按 URL 自动识别平台，套用对应拟人化档案（TLS 指纹 + 请求间隔 + 退避重试 3s→8s）：
+
+| 平台 | 提取器 | 反爬要点 | 推荐用法 |
+|---|---|---|---|
+| **B站** | ✅ | 下载宽松；**字幕轨必须登录态** | `--cookies-from-browser chrome`（浏览器已登录B站） |
+| **抖音** | ✅ | 最严：校验 TLS 指纹 + 登录态 + 频控 | 网页版登录后 `--cookies-from-browser chrome`；档案自动 `impersonate=chrome` + 请求间隔 1.5s |
+| **小红书** | ✅ | 严：未登录常拿不到流地址 | 同抖音：登录浏览器 + `--cookies-from-browser chrome` |
+| **知乎** | ✅（视频回答） | 温和；**纯文字回答无需转录**——直接复制文本学表达 | 直接跑；间隔 1s 自动加 |
+| **视频号** | ❌ 无公开网页播放器 | 无法 URL 提取 | 手机导出/录屏 → 本地文件路径；或手动粘稿 |
+
+> `--cookies-from-browser chrome`（或 edge/firefox）直接读本机浏览器登录态，**不用导出 cookies.txt**。注意：读取时目标浏览器最好先退出（Windows 下 cookie 库会被运行中的浏览器锁住）。
+> 反爬思路移植自 data-scientist-community 的实战经验：真实登录态复用（人是登录着看的）+ 拟真指纹（流量像真浏览器）+ 拟人节奏（请求不连发）+ 退避重试（3s→8s，不硬怼）。**一次性拿稿用 yt-dlp 足够；要批量采集数据请走 `adapters/perf-data/auto-collect/`（Playwright 真浏览器管线）。**
+
+### 抖音实操序列（反爬最严，按序尝试）
+
+```bash
+$PY transcribe.py "<分享短链 v.douyin.com/...>" --out study/<博主>-apprentice/<标题>/ --cookies-from-browser chrome
+# 1️⃣ 浏览器先登录 douyin.com；2️⃣ 关闭浏览器（解锁 cookie 库）；3️⃣ 跑上面的命令
+# 仍被拦（风控期）→ 换手动方案：网页播放视频 → 复制"文案/字幕"或录屏导出本地文件 → 本地路径跑 whisper
+```
 
 ## 模型下载（whisper 路径必需，字幕轨路径不需要）
 
@@ -103,11 +126,13 @@ $PY transcribe.py "https://www.bilibili.com/video/BVxxxx" --out study/某博主-
 # 本地文件（跳过 yt-dlp，直接 ffmpeg + whisper）
 $PY transcribe.py "D:\downloads\demo.mp4" --out study/某博主-apprentice/某标题/
 
-# 指定档位 / 指定模型目录 / 强制 whisper / B站字幕需登录 cookie
+# 指定档位 / 指定模型目录 / 强制 whisper / 复用浏览器登录态（B站字幕、抖音、小红书）
 $PY transcribe.py <url> --model large-v3-turbo
 $PY transcribe.py <url> --model-dir /path/to/faster-whisper-medium
 $PY transcribe.py <url> --force-whisper
-$PY transcribe.py <url> --cookies cookies.txt
+$PY transcribe.py <url> --cookies-from-browser chrome     # chrome/edge/firefox（先退出该浏览器）
+$PY transcribe.py <url> --cookies cookies.txt             # 或传统 cookies 文件
+$PY transcribe.py <url> --impersonate off                  # 关闭 TLS 拟真（默认按平台档案自动）
 ```
 
 输出：`<out>/transcript.md`（来源 + 时长 + 转录方式标注 + 段落版全文）。
@@ -124,7 +149,9 @@ URL ──yt-dlp──> 字幕轨？──有──> VTT/SRT 清洗 ────
 
 ## 已知坑
 
-- **B 站字幕需登录 cookie**（无 cookie 时字幕轨拿不到，全靠本地 whisper）：浏览器导出 cookies.txt 后传 `--cookies`
+- **B 站字幕需登录 cookie**（无 cookie 时字幕轨拿不到，全靠本地 whisper）：`--cookies-from-browser chrome` 最省事
+- **抖音/小红书被拦**：确认 ①浏览器已登录 ②读取 cookie 时浏览器已退出 ③装了 curl-cffi（否则无 TLS 拟真）——仍失败说明进风控期，走录屏/文案复制
+- **`--cookies-from-browser` 读不到 cookie**：Windows 下 Chrome/Edge 运行中会锁 cookie 数据库，先完全退出浏览器再跑
 - **长视频转录耗时约 1:1 实时**（CPU int8 medium 档）——一律后台跑，不占前台
 - **转录产物立刻落盘**（`--out` 直接指向 `study/<博主>-apprentice/<标题>/`）——临时目录会被清
 - **转录准确度低于粘贴文本**（错字/漏字/标点不准）——能用"文案提取小程序/字幕导出"就别用 whisper

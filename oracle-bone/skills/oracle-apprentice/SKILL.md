@@ -30,7 +30,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 - **MIN_VIDEOS_PER_MASTER = 3** — 单博主至少拆 3 条才出"表达方法"结论（<3 只出单条拆解不出博主总结）
 - **OUTPUT_ROOT = 项目根 `study/`**（learn-from 的 samples 也在 study/ 下，互不冲突：`study/<博主名>-apprentice/`）
-- 视频转录走 `adapters/script-extraction/transcribe.py`（专属 `.venv`：faster-whisper + yt-dlp nightly；模型按 adapter README 预下载到 `models/faster-whisper-<档位>/`）；**手动粘稿是零依赖主路径**——转录管线不可用不阻塞
+- 视频转录走 `adapters/script-extraction/transcribe.py`（专属 `.venv`：faster-whisper + yt-dlp nightly + curl-cffi TLS 拟真；模型按 adapter README 预下载到 `models/faster-whisper-<档位>/`）。**平台范围：B站 / 小红书 / 抖音 / 知乎（视频回答）支持 URL；视频号无提取器走本地文件/粘稿；知乎纯文字直接复制**。**手动粘稿是零依赖主路径**——转录管线不可用不阻塞
 - state 补充字段 `apprentice_masters: []`（拆过的博主，防重复从零拆）
 
 ## Workflow
@@ -61,7 +61,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ### Phase 1: 输入分流
 
 - **URL** → 转录管线拉稿（字幕轨优先，无字幕走 whisper）：
-  `adapters/script-extraction/.venv/Scripts/python.exe adapters/script-extraction/transcribe.py <url> --out study/<博主名>-apprentice/<标题>/ [--cookies cookies.txt]`
+  `adapters/script-extraction/.venv/Scripts/python.exe adapters/script-extraction/transcribe.py <url> --out study/<博主名>-apprentice/<标题>/`
+  五平台分流（详见 adapter README「五大平台支持」）：B站/知乎直接跑；**抖音/小红书先让用户登录浏览器再加 `--cookies-from-browser chrome`**（TLS 拟真与请求间隔自动加）；视频号 URL → 引导用户手机导出/录屏走本地文件，或粘稿
   （macOS/Linux 用 `.venv/bin/python`；转录完 transcript.md 已在作品目录——**落盘即完成**）
 - **粘文稿** → 直接 Phase 3，问一句博主名（记档案用）
 - **只有博主名** → "先拆哪条？给我 URL 或粘稿"（**一次一条**——学深不学多）
