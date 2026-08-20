@@ -30,7 +30,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 - **MIN_VIDEOS_PER_MASTER = 3** — 单博主至少拆 3 条才出"表达方法"结论（<3 只出单条拆解不出博主总结）
 - **OUTPUT_ROOT = 项目根 `study/`**（learn-from 的 samples 也在 study/ 下，互不冲突：`study/<博主名>-apprentice/`）
-- 视频转录走 `adapters/script-extraction/`（yt-dlp + ffmpeg + whisper，按 adapter README 配置）；**手动粘稿是零依赖主路径**——转录管线不可用不阻塞
+- 视频转录走 `adapters/script-extraction/transcribe.py`（专属 `.venv`：faster-whisper + yt-dlp nightly；模型按 adapter README 预下载到 `models/faster-whisper-<档位>/`）；**手动粘稿是零依赖主路径**——转录管线不可用不阻塞
 - state 补充字段 `apprentice_masters: []`（拆过的博主，防重复从零拆）
 
 ## Workflow
@@ -55,12 +55,14 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 ### Phase 0: 预检
 
-- 检查转录管线（yt-dlp / ffmpeg / whisper 按需）——缺失**不阻塞**，降级手动粘稿
+- 检查转录管线：`.venv` 存在 + ffmpeg 在 PATH + `models/faster-whisper-*/` 已下载（按 adapter README）——任一缺失**不阻塞**，降级手动粘稿
 - 读 state 的 apprentice_masters：该博主拆过 → "X 已拆过 N 条，这次是追加"，读旧档案做增量
 
 ### Phase 1: 输入分流
 
-- **URL** → 转录管线拉稿（字幕优先，无字幕走 whisper；转录完立刻把 transcript 落盘——临时目录会被清）
+- **URL** → 转录管线拉稿（字幕轨优先，无字幕走 whisper）：
+  `adapters/script-extraction/.venv/Scripts/python.exe adapters/script-extraction/transcribe.py <url> --out study/<博主名>-apprentice/<标题>/ [--cookies cookies.txt]`
+  （macOS/Linux 用 `.venv/bin/python`；转录完 transcript.md 已在作品目录——**落盘即完成**）
 - **粘文稿** → 直接 Phase 3，问一句博主名（记档案用）
 - **只有博主名** → "先拆哪条？给我 URL 或粘稿"（**一次一条**——学深不学多）
 

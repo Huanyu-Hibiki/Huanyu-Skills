@@ -45,6 +45,9 @@ content.db
 .debug/
 content-analytics.db
 
+# script-extraction 预下载的 whisper 模型（1.5GB+，不入库）
+adapters/script-extraction/models/
+
 # Editor / IDE
 .vscode/
 .idea/

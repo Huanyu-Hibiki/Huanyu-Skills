@@ -1,0 +1,3 @@
+--pre
+faster-whisper>=1.1.0
+yt-dlp[default]>=2025.1.1

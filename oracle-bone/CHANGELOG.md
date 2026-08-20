@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — script-extraction 真实转录管线（2026-08-19，第五批）
+- **adapters/script-extraction/transcribe.py**：URL/本地文件 → yt-dlp（**nightly**，字幕轨优先含 auto-ASR）→ ffmpeg 抽音频 → **faster-whisper** 转录（VAD + 段落分组）→ transcript.md（输出契约不变）
+- 模型三级解析：`--model-dir` > 本目录 `models/faster-whisper-<档位>/`（自动发现，gitignored）> 在线下载（失败时报错并指向 README 模型节）
+- **README 模型下载双源指南**：ModelScope（pengzhendong/faster-whisper-* 系列，国内推荐）与 HuggingFace（Systran/faster-whisper-*，含 hf-mirror 镜像法），统一落位 `models/faster-whisper-<档位>/`
+- 专属 `.venv`（faster-whisper 1.2.1 + ctranslate2 4.8.1 + yt-dlp nightly 2026.08.19，uv 三步 setup 与 auto-collect 同构）
+- oracle-apprentice Phase 0/1 接线：预检（venv/ffmpeg/模型）+ URL 分支精确命令 + 落盘即完成；手动粘稿仍是零依赖主路径
+
 ### Improved — init 采访协议强化（2026-08-19）
 - oracle-init 新增 🔴「采访执行协议」：一次只问一个问题、用户答完再问下一个、每问追问 ≤2 轮、每 Phase 复述确认、问完关键问题才产出档案文档
 - 用户档案采访 6 问 → 8 问：新增 **内容风格**（口吻/节奏/视觉调性）与 **内容喜好**（喜欢做的题材 + 喜欢看的领域，cold-start seed 选题种子）
