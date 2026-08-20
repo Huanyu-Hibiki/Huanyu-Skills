@@ -37,6 +37,21 @@ adapters/script-extraction/
 
 校验标准：目录里有 `model.bin` 即合法。不下载时 transcribe.py 会尝试在线下载到 `~/.cache/huggingface/hub/`（国内网络常失败，所以推荐预下载）。
 
+### 已有本地模型？（不用重新下载）
+
+faster-whisper 默认只扫 `~/.cache/huggingface/hub/models--Systran--...` 自动下载格式——你手动下载的模型（如在 `~/.cache/huggingface/manual/Systran/faster-whisper-medium`，或任何含 `model.bin` 的目录）它**看不见**。两种接法：
+
+```bash
+# 法 1（推荐）：目录 junction 零拷贝接入自动发现（Windows）
+mklink /J models\faster-whisper-medium "C:\Users\<你>\.cache\huggingface\manual\Systran\faster-whisper-medium"
+#     macOS/Linux 等价：ln -s <已有模型目录> models/faster-whisper-medium
+
+# 法 2：每次跑时显式指定
+$PY transcribe.py <input> --model-dir "C:\Users\<你>\.cache\huggingface\manual\Systran\faster-whisper-medium"
+```
+
+> `models/` 已 gitignore；junction/symlink 不占额外空间。
+
 | 档位 | 大小 | 适用 |
 |---|---|---|
 | tiny / base | ~75MB / ~145MB | 快速试验，错字多 |
