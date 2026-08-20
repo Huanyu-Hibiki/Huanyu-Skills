@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — 工具脚本接线闭环（2026-08-20，第七批）
+- **score-curve.py 此前零引用**（自述供 bump/status 参考但从未接线）→ 三处接入：oracle-bump Phase 0 诊断前置（偏差方向序列决定 rubric bump vs bucket-only 分流）+ FAIL 诊断报告成因定位；oracle-status Inputs/分轨校准行（平均偏差 + bucket 命中率，交叉核验 state 偏差队列）；oracle-compass-retro Phase 4.5 新增"预测系统修订候选"
+- **dashboard.py → oracle-status**（自述供 status 消费但未接）→ Inputs 表 + 📈 健康度"实绩快照新鲜度"行（超过一个复盘周期未更新 = Path B 用户手动档拖延信号）
+- 边界已实测：score-curve 对无样本项目输出"无有效校准样本"退出；dashboard 无库时 `{"ok":false,"message":"no_runs"}`——status 只读调用不崩
+
 ### Added — script-extraction 五平台拟人化反爬（2026-08-20，第六批）
 - **平台档案自动分流**：B站/小红书/抖音/知乎 URL 自动识别，套用对应反爬档案（抖音/小红书自动 `impersonate=chrome` TLS 指纹拟真 + 1.5s 请求间隔；全局退避重试 3s→8s）
 - **curl-cffi 0.16.1b1** 加入 requirements——yt-dlp TLS/JA3 指纹拟真依赖（缺失自动降级并警告）

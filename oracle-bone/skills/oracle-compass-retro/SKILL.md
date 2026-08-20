@@ -34,6 +34,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 | `audience-profiles.md` | 各轨画像（对照实际观众） |
 | `rubric_notes.md` / `script_patterns.md` | 当前预测逻辑 / 写作 pattern |
 | 各作品 predictions + report.md + 定稿 | 历史表现与实绩 |
+| `python <skill包>/tools/score-curve.py <项目根> --json` | 预测系统收敛（分轨偏差方向 / bucket 命中率）——账号级诊断素材：预测持续高估是预期管理问题，不是内容问题 |
 | `benchmark.md` / `study/**` | 对标参照 |
 
 ## Workflow
@@ -144,6 +145,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 - 增删轨建议：[如"破圈轨连续 3 期垫底且与画像不符，建议降占比或删轨"]（依据）
 - 画像修订候选：[如"评论区实际人群与 audience-profiles 的画像 X 偏差大——建议修订该轨画像"]
 - 成功指标修订候选：[如"该轨指标'涨粉'连续无信号，建议换成'同频评论数'"]
+- 预测系统修订候选：[score-curve 显示某轨连续 N 期同向偏差（如持续高估 40%+）→ 建议跑 /oracle-bump（方向性偏差）或 --bucket-only（命中低但方向随机）；预测系统健康则明说"预测收敛良好，无需动"]
 - 反向校验：[规划没问题的证据——避免为改而改]
 ```
 

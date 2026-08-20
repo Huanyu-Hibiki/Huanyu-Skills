@@ -44,6 +44,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 | 该轨校准池 ≥5（默认）+ 上次 bump 后 ≥1 新样本 | 硬约束：无新样本拒绝；样本少软约束：显式标注后仍走全流程 |
 | **诊断前置**：「本公式能否解决 retro 暴露的偏差？」 | 答案 no 或混合且核心偏差在 no 侧（如平台分发问题 rubric 修不了）→ **在 Phase 0 直接拒绝进 Phase 1**，省掉后面工作量 |
 
+诊断证据先跑收敛工具（确定性重算，不靠记忆）：`python tools/score-curve.py <项目根> --track <id> --json` → 该轨偏差方向序列（连续高估/低估？）+ 平均绝对偏差 + bucket 命中率。「retro 暴露的偏差」以此数据交叉核对 state 的 consecutive_directional_errors——**公式修不了方向性系统偏差以外的命中问题**（bucket 命中低但方向随机 → 该跑 --bucket-only 而不是 rubric bump）。
+
 校准池 = `state.calibration_samples_by_track[<track>]` 登记的该轨样本；cross 样本两轨各计 0.5。**一次只 bump 一轨**——`--propose` 跨轨公式 → 拒绝，按轨各算一次。
 
 ### Phase 1: 写出新公式完整方程
@@ -91,7 +93,7 @@ Glob `<NNN>_*/predictions/*.md`，筛该轨（header Track 匹配）+ 有完整�
 | 2. 推迟 bump 等样本 | 提升 <20pp 或样本 <5（N<5 时 THRESHOLD 极难达标是统计噪声不是公式错） |
 | 3. 记 v2 候选但 v1 保留 | 提升明显（>20pp）但绝对值仍 <0.8 → 候选标 disabled 留作下次起点 |
 
-**诊断报告必含**：新旧一致率对比 + pairwise 回归数（FAIL 也显式报）+ 失败样本偏差成因（维度没捕获 vs 权重错配）+「能否解决 retro 暴露的偏差」明确 yes/no。
+**诊断报告必含**：新旧一致率对比 + pairwise 回归数（FAIL 也显式报）+ 失败样本偏差成因（维度没捕获 vs 权重错配——用 `score-curve.py --track <id>` 的分样本偏差序列定位：偏差集中在特定 bucket / 特定维度缺失时）+「能否解决 retro 暴露的偏差」明确 yes/no。
 
 **断点续跑**：写 `bump_in_progress` 状态（phase_completed / termination_reason / 双方公式 / 诊断），下次 session 读它跳过已完成 phase。
 

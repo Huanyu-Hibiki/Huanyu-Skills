@@ -37,6 +37,8 @@ allowed-tools: Bash(*), Read, Glob, Grep
 | `<NNN>_*/predictions/*.md` | 校准样本数核验 |
 | `candidates.md` | 候选池规模 |
 | `rubric_notes.md` | 行数 / 各轨版本 |
+| `python tools/score-curve.py <项目根> --json` | 预测收敛（分轨平均绝对偏差 / bucket 命中率 / 偏差方向序列）——无样本时输出"无有效校准样本"，直接跳过该行 |
+| `python tools/dashboard.py --db <项目根>/content-analytics.db`（db 存在时） | 实绩快照新鲜度 + 五维指标概览（`{"ok":false,"message":"no_runs"}` → 标"暂无快照数据"） |
 | `.oracle-cache/usage.jsonl`（如有） | 使用频率 |
 
 ## Workflow
@@ -60,7 +62,9 @@ if not state:
 | **待复盘（分轨分窗口）** | pending_retros 展开 due_windows：已过 due_at 且未 done 的 |
 | **轨道占比执行情况** | 最近 N 期（默认 5）已发布作品的 track 分布 vs mix_ratio → "破圈轨 40% 计划 / 最近 5 期实际 20%——该补稀轨" |
 | 池大小 | candidates.md 中 tier != skip 的条数（分轨统计） |
-| 同向偏差队列 | consecutive_directional_errors（分轨） |
+| 同向偏差队列 | consecutive_directional_errors（分轨）；与 score-curve 的偏差方向序列交叉核验（state 是 retro 登记的，score-curve 是从 prediction 文件重算的——不一致时以文件为准并提示补登记） |
+| 预测收敛（分轨） | score-curve --json：样本数 / 平均绝对偏差 / bucket 命中率——支撑触发器 7 的 bump 判断（偏差幅度序列比"≥3 同向"计数更细） |
+| 数据快照新鲜度 | content-analytics.db 最后快照日期（dashboard.py）——超过一个复盘周期未更新 → Path B 用户可能在手动档拖延 |
 | in_progress 陈旧度 | now - in_progress_session.started_at |
 
 ### Phase 3: 检测建议触发器（按优先级）
@@ -95,8 +99,8 @@ if not state:
 规划：双轨 — 破圈 40% + 转化 60%
 
 📊 分轨校准
-  破圈轨   rubric v2 · 样本 12 · 🟢 中（中枢 ±25%）
-  转化轨   rubric v1 · 样本 6  · 🟡 偏低（±40%）
+  破圈轨   rubric v2 · 样本 12 · 🟢 中（中枢 ±25%）· 预测偏差 32% / bucket 命中 8/12
+  转化轨   rubric v1 · 样本 6  · 🟡 偏低（±40%）· 预测偏差 41%（连续 3 次高估）
   （总样本 18，其中 1 条 retroactive 不计）
 
 📦 Buffer：3 篇（🟢 绿）· 按你的 cadence = 6 天，节奏稳定
@@ -112,6 +116,7 @@ if not state:
 
 📈 健康度
   rubric_notes.md: 412 行（健康）· hooks ✅ · 跨模型审核 ❌（未配置）
+  实绩快照: 2 天前（auto-collect）· 详细看板: python tools/dashboard.py --db content-analytics.db
 
 下一步建议（按优先级）：
 1. /oracle-retro（006 获客案例 T+7d）
