@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved — init 采访协议强化（2026-08-19）
+- oracle-init 新增 🔴「采访执行协议」：一次只问一个问题、用户答完再问下一个、每问追问 ≤2 轮、每 Phase 复述确认、问完关键问题才产出档案文档
+- 用户档案采访 6 问 → 8 问：新增 **内容风格**（口吻/节奏/视觉调性）与 **内容喜好**（喜欢做的题材 + 喜欢看的领域，cold-start seed 选题种子）
+- user-profile.template.md 同步新增「内容风格」「内容喜好」节；主 SKILL.md 档案表与 README 同步
+
+### Improved — darwin 优化第一轮（2026-08-19）
+- Runtime 中立性：README 安装节三层结构（runtime 路径表）+ install.sh `--target <dir>`（参数可组合、缺参报错）
+- 盲预测「污染边界」定义：其他作品实绩 = 合法锚点输入，仅当前作品自身数据构成污染（消除过度拒绝歧义）
+- 主 SKILL.md 🔴/🛑 视觉检查点 ×4；hooks 对非 hook runtime 的降级注记；文件清单修正（删 2 幽灵引用、补 4 个 tools）
+- 打包卫生：`.venv`/`__pycache__`/`content-analytics.db` 保持 gitignore 排除
+
 ### Added — v0.1.0 全量构建（2026-08-19）
 - 骨架：主 SKILL.md（总协议 + 26 子 skill 路由表 + 三原则 + 轨道机制 + 协作契约）+ README + install/uninstall + LICENSE + .gitignore
 - shared-references 12 份核心协议 + migrations/registry.md（schema 1.0）

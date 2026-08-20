@@ -40,7 +40,7 @@ oracle-bone **不硬编码任何内容分层**。`/oracle-init` 通过采访为�
 
 | 档案 | 内容 | 被谁消费 |
 |---|---|---|
-| `user-profile.md` | 创作者档案：变现方式 / 客单价 / 专业优势 / 形象三词 / 内容红线 | seed / learn-from / who-for / cover |
+| `user-profile.md` | 创作者档案：变现方式 / 客单价 / 专业优势 / 形象三词 / 内容风格 / 内容喜好 / 内容红线 | seed / learn-from / who-for / cover |
 | `content-plan.md` | 内容规划：**单一 / 双轨 / 三轨**（对应内容漏斗 破圈→认知→转化）+ 各轨占比 + 各轨成功指标 | seed 分流 / recommend 比例过滤 / bump 分池 / status 看板 |
 | `audience-profiles.md` | 各轨受众画像（含"一般关注"人群） | simulate-audience / who-for / seed 受众校准 |
 
