@@ -63,7 +63,7 @@ oracle-shoot 自己**不**写预测内容——预测落盘逻辑全在 oracle-p
 ### Phase 2: 确认作品目录 + 询问稿子一致性
 
 1. 确认 `<NNN>_<标题>/` 存在（oracle-seed 应已建）→ 缺失则按 [content-folder-schema.md](../../shared-references/content-folder-schema.md) 补建（不反问用户"要不要补"——缺失就补，一步做完）
-2. 询问用户：
+2. 🔴 **CHECKPOINT**（三选一决定 v2/redo 路径，不能默认跳过）：询问用户：
 
 ```
 制作「<title>」的时候，实际用的稿子和 scripts/<id>.md 一致吗？
