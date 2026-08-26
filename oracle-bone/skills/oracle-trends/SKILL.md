@@ -69,7 +69,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 **粗打分 ≠ 正式预测**：基于 snapshot 的"值不值得展开写"粗筛，预测必须基于最终稿重新打。
 
-### Phase 5: 排序 + 询问
+### Phase 5: 排序 + 🔴 入池确认（CHECKPOINT——写入 candidates.md 前用户拍板）
 
 ```
 🔥 抓热点完成。
