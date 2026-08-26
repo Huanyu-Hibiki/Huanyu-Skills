@@ -44,6 +44,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Skill
 
 ### Phase 1: dry-run
 
+🔴 **CHECKPOINT**：dry-run 计划展示后停在确认门（DRY_RUN_BY_DEFAULT——没过这扇门不碰 state）：
+
 ```
 📋 迁移计划
 当前: 1.0 → 目标: 1.1
