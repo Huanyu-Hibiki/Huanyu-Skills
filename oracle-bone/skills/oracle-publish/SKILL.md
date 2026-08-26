@@ -185,6 +185,8 @@ hook 行为预期：只动 metadata 段应放行。hook 误拦 → 报 bug，**�
 ## Refusals
 
 - 「我顺手把预测段也改一下」 → 拒绝。走 `_redo.md` 路径
+- 「合规 BLOCKER 没清但我赶时间，先发了再说」 → 拒绝。BLOCKER 未清就发布 = 拿账号赌运气；走 compliance 改稿闭环
+- 「上次发布忘清 shoots，这次顺手一起清」 → 拒绝合并操作。每次 publish 只处理本期；旧残留单独补跑（合并清队会把 buffer 波动归因算错）
 - 「URL 等会补，先记时间」 → 允许（URL 可后补；published_at + platform 必填）
 - 「跳过 metadata 更新，直接清 in_progress_session」 → 拒绝。元数据是复盘关键上下文
 
