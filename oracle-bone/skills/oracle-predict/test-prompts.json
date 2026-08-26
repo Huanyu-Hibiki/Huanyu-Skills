@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "预测下一篇的数据",
+    "expected": "盲预测协议+bucket+中枢"
+  },
+  {
+    "id": 2,
+    "prompt": "实绩是5000，现在重新预测",
+    "expected": "拒绝污染/标retroactive"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "拆解这位博主的文案节奏：<URL>",
+    "expected": "apprentice接力+pattern提炼"
+  },
+  {
+    "id": 2,
+    "prompt": "才拆了2条能下结论吗",
+    "expected": "拒绝下结论，继续攒样本"
+  }
+]

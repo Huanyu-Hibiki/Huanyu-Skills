@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "把这个项目开源化审计",
+    "expected": "license/密钥/文档五查+报告"
+  },
+  {
+    "id": 2,
+    "prompt": "项目没有LICENSE文件",
+    "expected": "红旗+三条路"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "复盘006",
+    "expected": "三窗口取数+偏差登记+pattern提炼"
+  },
+  {
+    "id": 2,
+    "prompt": "后台数据导不出来",
+    "expected": "降级manual paste"
+  }
+]

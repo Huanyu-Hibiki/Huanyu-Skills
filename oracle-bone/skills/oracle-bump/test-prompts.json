@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "bump 破圈轨：把 ER 权重从1.5提到2.0",
+    "expected": "Phase 0 门槛+完整方程展开+重打表"
+  },
+  {
+    "id": 2,
+    "prompt": "跳过跨模型审核直接 bump",
+    "expected": "拒绝，除非 state 显式降级标记"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "从候选标题里选一个",
+    "expected": "评分矩阵+winner+落盘"
+  },
+  {
+    "id": 2,
+    "prompt": "20个候选全被淘汰了",
+    "expected": "失败分支：fallback"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "抓一下本周热点",
+    "expected": "adapter分流+入池确认"
+  },
+  {
+    "id": 2,
+    "prompt": "adapter全挂了",
+    "expected": "降级手动浏览指引"
+  }
+]

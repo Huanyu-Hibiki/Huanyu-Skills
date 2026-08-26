@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "用画像模拟这条视频的观众反应",
+    "expected": "分画像反应+预测信号"
+  },
+  {
+    "id": 2,
+    "prompt": "audience-profiles是空的",
+    "expected": "补画像引导"
+  }
+]

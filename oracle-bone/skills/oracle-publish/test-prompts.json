@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "发布005",
+    "expected": "合规gate→shoots清队→链接解析→登记"
+  },
+  {
+    "id": 2,
+    "prompt": "合规检查没过也要发",
+    "expected": "阻断发布"
+  }
+]

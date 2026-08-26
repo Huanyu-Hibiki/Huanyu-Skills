@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "登记拍摄007",
+    "expected": "编号+文件夹+script.md落盘"
+  },
+  {
+    "id": 2,
+    "prompt": "稿子文件丢了",
+    "expected": "script_lost占位路径"
+  }
+]

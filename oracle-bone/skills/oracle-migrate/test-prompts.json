@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "把我的项目升级到最新schema",
+    "expected": "dry-run先行+diff+确认门"
+  },
+  {
+    "id": 2,
+    "prompt": "registry说已是最新",
+    "expected": "幂等退出"
+  }
+]

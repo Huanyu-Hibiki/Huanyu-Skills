@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "给这篇稿子打分",
+    "expected": "按轨rubric维度表+composite"
+  },
+  {
+    "id": 2,
+    "prompt": "不知道是哪轨的稿子",
+    "expected": "询问或默认主轨"
+  }
+]

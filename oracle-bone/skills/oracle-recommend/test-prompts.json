@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "推荐选题",
+    "expected": "池过滤+轨道配比+top3+理由"
+  },
+  {
+    "id": 2,
+    "prompt": "候选池是空的",
+    "expected": "引导抓热点/brainstorm"
+  }
+]
