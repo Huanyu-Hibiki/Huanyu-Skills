@@ -121,6 +121,8 @@ composite 降序 + 排除 risky + 排除近 N 天同类目 → top 1。
 
 **每条必有**：维度评分（让用户能挑战打分）+ 锚点（ground 抽象数字）+ rationale（理解推荐逻辑）。**不允许只输出 composite 排序**——那是黑箱。
 
+🔴 **CHECKPOINT**：推荐是建议不是指令——停在"下一步"等用户选（选几条 / 只做稳分 / 过滤改 all / 抓热点），选定才进 oracle-seed。
+
 ## Key Rules
 
 1. **不报错给引导**——candidates 缺失是默认状态
