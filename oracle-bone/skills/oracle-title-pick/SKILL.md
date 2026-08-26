@@ -35,6 +35,14 @@ allowed-tools: Bash(*), Read, Edit, Glob
 - 与用户档案人设冲突（轻浮、讨好算法）
 - **直接复用 draft 标题行 / 文件夹名 / 工作标题**——pick 的职责是挑面向观众的新标题，不是确认工作标题
 
+## 失败分支
+
+| 如果 | 则 |
+|---|---|
+| 上下文没有候选（新 session 直接调 pick） | 引导先跑 /oracle-title，或用户直接贴候选清单——不凭空造候选评审 |
+| 候选**全部**被淘汰 | 不硬选"矮子里的将军"——回 /oracle-title「再来一轮」（换结构组合），或用户自拟后直接确认 |
+| `<draft-path>` 缺失 | 可继续（原稿是可选校验输入），但输出标注「⚠️ 未做内容匹配校验」 |
+
 ## 流程
 
 1. 逐条过淘汰标准 → 淘汰不合格（附原因）
@@ -58,11 +66,13 @@ allowed-tools: Bash(*), Read, Edit, Glob
 
 ## 确认后的改名同步（三处一致）
 
+🔴 **CHECKPOINT**：确认后触发**改名级联**（改稿标题行 + 目录名 + 文件名 + prediction 同步）——破坏性批量操作，必须停在 "yes / 换一个 / 我自己改" 等用户拍板：
+
 用户 yes → **自动执行**：
 
 1. **改稿标题行**：draft 第一行 `# ...` 替换为最优标题
 2. **改作品目录名**：`mv <NNN>_<初始标题>/ → <NNN>_<最佳标题>/`
-   - Windows 注意：文件夹名去冒号等非法字符；rename 被进程锁 → copy+delete fallback（见 `references/platform-notes.md`）；改名前检查文件管理器/笔记软件是否锁着目录
+   - Windows 注意：文件夹名去冒号等非法字符；rename 被进程锁 → copy+delete fallback（见 `../../references/platform-notes.md`）；改名前检查文件管理器/笔记软件是否锁着目录
 3. **改脚本文件名**：`mv scripts/<初始>.md → scripts/<最佳>.md`
 4. **同步 prediction header**：prediction 已存在 → 只改 Title / Script Path 字段（**绝不动 v1 段**）；不存在 → 后续 predict 直接用新标题
 
