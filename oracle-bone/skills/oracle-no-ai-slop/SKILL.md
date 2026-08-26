@@ -39,7 +39,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ## Constants
 
-- **MODE = detect**（默认）— 用户说"直接改/帮我改"才切 edit
+- **MODE = detect**（默认）— 🔴 **模式门**：用户说"直接改/帮我改"才切 edit，AI 不擅自改稿
 - **PRESERVE_VOICE = true**
 
 ## 16 种 AI 模式（检测清单）
