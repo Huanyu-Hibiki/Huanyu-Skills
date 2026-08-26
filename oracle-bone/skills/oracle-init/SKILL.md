@@ -111,7 +111,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 - 平台集 → `platforms[]`（多平台同步分发是默认建议；平台选择策略 = 内容形态 × 商业模式 × 用户画像，Phase 2/4 采访后可回来微调）
 - 选 b → 追问"大概多少条？想现在 import 还是先跳过？"（import 流程：用户提供历史数据 → 建 作品目录 + reconstructed prediction，标 NOT FOR CALIBRATION，`baseline_plays` 取中位数回填；不阻塞主流程）
 
-### Phase 2: 用户档案采访（6 问）→ user-profile.md
+### Phase 2: 用户档案采访（8 问）→ user-profile.md
 
 > 采访逻辑：**商业模式决定内容定位**（高端餐厅做高端内容，街头面馆做接地气内容）。先搞清楚你怎么收钱，才知道内容该做成什么样。
 
