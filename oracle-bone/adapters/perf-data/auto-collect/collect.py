@@ -124,7 +124,7 @@ def collect_one(name: str, args, out_dir: Path) -> dict:
                     continue
                 try:
                     dp = session.navigate(detail_url_tpl.format(wid=wid), timeout_ms=30000)
-                    extra = mod.detail_steps(dp) or {}
+                    extra = mod.detail_steps(dp, wid=wid) or {}
                     if extra.get("_official_export_path"):
                         meta.setdefault("official_exports", []).append(extra["_official_export_path"])
                         extra = {k: v for k, v in extra.items() if not k.startswith("_")}
@@ -141,6 +141,13 @@ def collect_one(name: str, args, out_dir: Path) -> dict:
         for wid, extra in detail_rows.items():
             if wid in items:
                 items[wid] = {**extra, **{k: v for k, v in items[wid].items() if v}}
+
+        # 详情期监听到的详情/分析 API 数据（五维）补进列表行——只填空字段，不覆盖列表值
+        for wid, api_row in collector.items.items():
+            if wid in items:
+                for k, v in api_row.items():
+                    if v and not items[wid].get(k):
+                        items[wid][k] = v
 
         unified = normalize_rows(name, list(items.values()), source_file=f"{name}-live")
         unified = filter_by_date(unified, min_date=min_date)

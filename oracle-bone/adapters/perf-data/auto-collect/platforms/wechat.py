@@ -10,8 +10,14 @@
 """
 
 LIST_URL = "https://channels.weixin.qq.com/platform/post/list"
+# 详情入口：留在助手平台，detail_steps 点「数据中心」触发详情 API（监听层收五维）
+DETAIL_URL = "https://channels.weixin.qq.com/platform/post/list"
 
-ENDPOINTS = ["post/post_list"]
+ENDPOINTS = [
+    "post/post_list",
+    # 详情/数据 API 候选：finderassistant-bin 家族全收（parse 对未知形状返回空，无害）
+    "finderassistant-bin",
+]
 
 AUTH_MARKERS = {
     "login_hint": ["扫码登录", "微信扫码", "登录视频号"],
@@ -50,7 +56,93 @@ def parse_list_response(payload: dict) -> dict:
             "收藏量": _n(it.get("favCount")),
         })
     total = data.get("totalCount") or len(rows)
+    rows.extend(_five_dim_rows(payload))  # 详情/数据中心载荷分支（五维）
     return {"items": rows, "total": total}
+
+
+# ── 五维增量指标（参照 douyin 统一键；视频号叫法：完播率/平均播放时长）──
+
+_JSON_TERMS = {
+    "完播率": ("completionRate", "completion_rate", "finishRate", "finish_rate"),
+    "5s完播率": ("fiveSecondCompletionRate", "completion_rate_5s"),
+    "平均播放时长": ("avgPlayDuration", "avg_play_duration", "avgViewSecond",
+                  "avg_view_second", "averagePlayTime"),
+    "封面点击率": ("coverClickRate", "cover_click_rate", "clickRate", "click_rate"),
+    "跳出率": ("bounceRate", "bounce_rate_2s", "bounce_rate_3s"),
+}
+_BOUNCE_CALIBER = {"bounce_rate_2s": "2s", "bounce_rate_3s": "3s"}
+_ID_KEYS = ("objectId", "object_id", "finderId", "id")
+_DOM_TERMS = {
+    "完播率": ("完播率", "完整播放率"),
+    "平均播放时长": ("平均播放时长", "人均播放时长"),
+    "跳出率": ("跳出率",),
+    "5s完播率": ("5秒完播率", "5s完播率"),
+}
+
+
+def _fmt_pct(v):
+    s = str(v).strip()
+    if not s:
+        return ""
+    if "%" in s:
+        return s.replace(" ", "")
+    try:
+        f = float(s)
+    except ValueError:
+        return s
+    return f"{f * 100:.1f}%" if 0 < f <= 1 else f"{f:.1f}%"
+
+
+def _fmt_sec(v):
+    try:
+        f = float(str(v).strip())
+        if f > 36000:
+            f /= 1000
+        return f"{f:.1f}s"
+    except (TypeError, ValueError):
+        return str(v)
+
+
+def _five_dim_from_obj(o: dict) -> dict:
+    hits, caliber = {}, ""
+    for key, names in _JSON_TERMS.items():
+        for n in names:
+            v = o.get(n)
+            if v not in (None, "", 0, "0"):
+                hits[key] = _fmt_sec(v) if key == "平均播放时长" else _fmt_pct(v)
+                if n in _BOUNCE_CALIBER:
+                    caliber = _BOUNCE_CALIBER[n]
+                break
+    if caliber:
+        hits["跳出率口径"] = caliber
+    return hits if len([k for k in hits if k != "跳出率口径"]) >= 2 else {}
+
+
+def _five_dim_rows(payload) -> list:
+    rows = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            dim = _five_dim_from_obj(o)
+            if dim:
+                wid = ""
+                for ik in _ID_KEYS:
+                    if o.get(ik):
+                        wid = str(o.get(ik))
+                        # 与列表行同规则：export/UzFf... 取尾段做 ID
+                        if "/" in wid:
+                            wid = wid.split("/")[-1][:40]
+                        break
+                if wid:
+                    rows.append({"作品ID": wid, **dim})
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+
+    walk(payload)
+    return rows
 
 
 def _n(v):
@@ -80,8 +172,49 @@ def extract_dom_card(card) -> dict | None:
         return None
 
 
-def detail_steps(page):
-    return {}
+def detail_steps(page, wid=None):
+    """点「数据中心」触发详情/数据 API——监听层收五维（collect 统一回流）+ 页面文本双保险刮取。"""
+    out = {}
+    try:
+        page.get_by_text("数据中心", exact=True).first.click(timeout=6000)
+        page.wait_for_timeout(3000)
+        out = _scrape_five_dim_text(page.inner_text("body", timeout=8000))
+    except Exception:
+        pass
+    return out
+
+
+_PCT_RE = r"(\d+(?:\.\d+)?\s*%)"
+_DUR_RE = r"(\d+(?:\.\d+)?\s*(?:秒|s\b)|\d+分\d+秒|\d{1,2}:\d{2}(?::\d{2})?)"
+
+
+def _dur_norm(v: str) -> str:
+    import re as _re
+    v = v.strip()
+    m = _re.match(r"^(\d+)分(\d+)秒$", v)
+    if m:
+        return f"{int(m.group(1)) * 60 + int(m.group(2))}s"
+    m = _re.match(r"^(\d{1,2}):(\d{2})(?::(\d{2}))?$", v)
+    if m:
+        h, mi, s = int(m.group(1)), int(m.group(2)), int(m.group(3) or 0)
+        return f"{h * 3600 + mi * 60 + s}s"
+    m = _re.match(r"^(\d+(?:\.\d+)?)\s*(?:秒|s)$", v, _re.IGNORECASE)
+    if m:
+        return f"{float(m.group(1)):.1f}s"
+    return v
+
+
+def _scrape_five_dim_text(text: str) -> dict:
+    import re as _re
+    out = {}
+    for key, labels in _DOM_TERMS.items():
+        vre = _DUR_RE if key == "平均播放时长" else _PCT_RE
+        for lab in labels:
+            m = _re.search(_re.escape(lab) + r"[\s:：]*" + vre, text)
+            if m:
+                out[key] = _dur_norm(m.group(1)) if key == "平均播放时长" else m.group(1).replace(" ", "")
+                break
+    return out
 
 
 def post_navigate(page):

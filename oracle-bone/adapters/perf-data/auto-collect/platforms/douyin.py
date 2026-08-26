@@ -121,6 +121,6 @@ def extract_dom_card(card) -> dict | None:
         return None
 
 
-def detail_steps(page):
+def detail_steps(page, wid=None):
     """详情页数据已由监听层 metrics 覆盖（五维直接在列表响应里），无需逐作品进详情页。"""
     return {}

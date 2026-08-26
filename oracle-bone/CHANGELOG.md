@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 三平台五维详情采集（2026-08-26，第十批）
+- **B站/小红书/视频号补齐五维增量指标**（对齐抖音统一键：封面点击率/跳出率+口径/5s完播率/完播率/平均播放时长）——此前三平台只有播放/点赞/收藏/评论基本计数
+- 采集路径：B站=本卡片「数据」弹窗刮取+XHR 监听；小红书=「数据分析」触发 analyze/note_detail API；视频号=「数据中心」触发详情 API；均为 DOM 叫法刮取 + API 容错解析双源
+- 容错解析器：递归扫载荷中 ≥2 个五维候选字段的对象（snake/camel 字段名候选全覆盖），百分数智能格式化（0.452→45.2%），时长归一（毫秒/分秒/mm:ss→Xs）；未知形状静默返回空
+- collect.py：detail_steps 传 wid（B站按卡片定位）；详情期监听数据自动回流列表行（只填空字段）；修复 B站导出死代码（原 detail_steps 因缺 DETAIL_URL 从未被执行）
+- B站诚实边界：无 2s/3s 跳出率与 5s完播指标——留空不硬凑
+- README 新增「五维增量指标采集」节（--details N 用法 + 平台叫法映射表 + 校准指引）
 ### Fixed — Adapter 铁律：封杀 computer-use 替代采集（2026-08-26，第九批，Hermes 实战反馈 II）
 - **根因**：Hermes 自带 computer-use skill（"Load whenever computer_use tool is available"）随时抢活；oracle-bone 的 `<skill包>` 占位符 + 裸 `python` 命令在非 Claude runtime 解析不了 → 模型滑向视觉操作
 - 伞 SKILL.md 新增「🔴 Adapter 铁律」：adapter 一律 Bash 调脚本、解释器必须用 adapter 自带 .venv（含 `<包根>` 解析规则与 Windows/Unix 路径）、禁止 computer-use/GUI/亲手开浏览器替代

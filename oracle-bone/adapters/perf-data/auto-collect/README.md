@@ -54,6 +54,26 @@ python collect.py wechat --auth-only        # 视频号：微信扫码（会话�
 .venv/Scripts/python.exe -c "from core.browser import BrowserSession; BrowserSession('douyin', headless=False, fresh=True).__enter__()"
 ```
 
+## 五维增量指标采集（`--details N`，参照抖音统一键）
+
+抖音的 work_list 列表 API 自带五维（cover_click_rate / bounce_rate_2s / completion_rate_5s / completion_rate / avg_view_second），零成本。其余平台五维在**单作品数据页/数据分析页**，要加 `--details N`（逐作品进详情，慢，建议 ≤20）：
+
+| 平台 | 采集路径 | 指标叫法映射 | 备注 |
+|---|---|---|---|
+| 抖音 | 列表 API 直出 | 原生字段 | 无需 --details |
+| B站 | 稿件管理页本卡片「数据」弹窗刮取 + 弹窗 XHR 监听 | 完播率(播放完成率) / 平均播放时长(人均播放时长) / 封面点击率(点击率) | **无跳出率/5s完播——留空不硬凑** |
+| 小红书 | 侧栏「数据分析」触发 analyze/note_detail API | 完播率 / 平均播放时长(平均观看时长) / 封面点击率(点击率) / 5s完播率 | 一次点击全量回包，重复触发幂等 |
+| 视频号 | 「数据中心」触发详情 API + 页面文本刮取 | 完播率 / 平均播放时长 / 跳出率 / 5s完播率 | finderassistant-bin 家族全监听 |
+
+统一输出键（data_normalizer 透传，dashboard 五维闸门直接消费）：`封面点击率` `跳出率(+跳出率口径)` `5s完播率` `完播率` `平均播放时长`。
+
+双源设计：详情页 **DOM 文本按平台叫法刮取**（标签 → 紧随的 %/时长值）+ **详情 API 响应容错解析**（递归扫 ≥2 个候选字段的对象，字段名候选含 snake/camel 两式）——collect 主循环会把详情期监听到的数据自动回流进列表行（只填空字段不覆盖）。平台改版后某指标刮不到 → 留空，跑 `--debug` 看弹窗实际文本/响应 URL 校准 `_DOM_TERMS` / `_JSON_TERMS` 词表。
+
+```bash
+# 例：四平台连采 + 每平台前 20 条补五维详情
+.venv/Scripts/python.exe collect.py all --days 30 --details 20
+```
+
 ## 日常采集
 
 ```bash
