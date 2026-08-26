@@ -134,7 +134,7 @@ BLOCKER/HIGH 未清零 → 最终状态 HOLD。只有 REVIEW/EDIT → CONDITIONA
 - 平台差异：同一句是否需要不同版本
 - 发布前 checklist
 
-用户确认"保存报告"后写入作品目录 `compliance/<date>_<id>_compliance.md`。默认不覆盖原稿、不改标题、不动预测。
+🔴 **CHECKPOINT**：用户确认"保存报告"后写入作品目录 `compliance/<date>_<id>_compliance.md`。默认不覆盖原稿、不改标题、不动预测。
 
 两层都没问题：
 
@@ -148,7 +148,7 @@ BLOCKER/HIGH 未清零 → 最终状态 HOLD。只有 REVIEW/EDIT → CONDITIONA
 
 ### Phase 5: 改稿闭环（audit-only 默认）
 
-默认只给风险+依据+最小处理方向。用户明确说"改稿/生成安全版本"才 rewrite：
+默认只给风险+依据+最小处理方向。🔴 **改稿门**：用户明确说"改稿/生成安全版本"才 rewrite（audit-only 是默认，不倒置）：
 1. 只对报告列出的句子最小改写，不为"看起来安全"把事实改空话
 2. 新闻/医疗/投资/法律/功效/指控类 → 优先补来源/资质/限定语，不只换词
 3. 外链/联系方式/商业合作 → 按平台规则删、改平台内合法入口或补披露；**不提供绕过方案**
