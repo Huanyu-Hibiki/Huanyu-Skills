@@ -33,6 +33,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ## Workflow
 
+### Phase -1: 前置校验（失败早退）
+
+| 如果 | 则 |
+|---|---|
+| 作品编号在 state / 文件系统都找不到 | 报错并列最近作品编号，不猜 |
+| 找到了但无定稿文件（只有 prediction / report） | 停止：衍生从定稿提取观点——提示先补定稿，不用记忆脑补 |
+| retro 的 content-assets.md 不存在 | 正常继续（可选输入，非依赖） |
+| 提不出可独立成立的观点（全是 summary 句） | 明确报「本期不适合衍生」并退出——硬编 = 产出简介换皮 |
+
 ### Phase 0: 读定稿 + 提取可独立成立的观点
 
 1. 读作品定稿正文段（+ retro 阶段 `content-assets.md` 如有——复盘验证过的观点优先用）
@@ -68,11 +77,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ### Phase 3: 落盘
 
+🔴 **CHECKPOINT**：落盘前完整展示两形态正文（不是摘要），用户 yes 后写入：
+
 ```
 <NNN>_<标题>/derivatives/
 ├── 图文.md
 └── 短文.md
 ```
+
+观点只适配一种形态 → 只落盘该形态，Phase 4 明说「本期 1 形态：<原因>」，不硬凑第二份。
 
 ### Phase 4: 发布时机提示
 
