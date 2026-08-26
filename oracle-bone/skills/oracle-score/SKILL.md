@@ -36,7 +36,7 @@ allowed-tools: Read, Glob, Grep
 1. 读 state → 不存在提示先跑 /oracle-init
 2. 读 draft → 不存在报错停止
 3. **识别轨道**：draft header 的 Track 字段 → 交叉题标明后两轨各打一次
-4. 读 `rubric_notes.md` **该轨节**——不存在（cold-start 第 1 篇）→ 从对应 starter（opinion-video-zero / conversion-video）读 v0 等权公式，不写文件不阻塞，控制台加 ⚠️ 提示
+4. 读 `rubric_notes.md` **该轨节**——不存在（cold-start 第 1 篇）→ 从对应 starter（`starter-rubrics/opinion-video-zero.md` / `starter-rubrics/conversion-video.md`，相对 oracle-bone 包根）读 v0 等权公式，不写文件不阻塞，控制台加 ⚠️ 提示
 
 ### Step 2: 识别公式与维度
 
