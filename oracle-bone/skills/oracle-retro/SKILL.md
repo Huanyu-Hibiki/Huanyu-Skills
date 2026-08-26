@@ -158,6 +158,8 @@ Edit 追加三处：prediction 复盘段 + brief 验证段 + audit 验证段。
 
 ### Phase 6: 写入 rubric_notes + script_patterns
 
+🔴 **CHECKPOINT · 写入门**：写入前展示清单（哪些观察进 rubric_notes / 哪些 pattern 进 script_patterns / 哪些不写及原因），用户确认后一次写入。
+
 - 6a：按 [observation-lifecycle.md](../../shared-references/observation-lifecycle.md) 观察记录模板追加到该轨 `## 观察记录`；检测跨样本 pattern（≥2 样本支持 → 升"重大跨样本观察"段）
 - 6b：Phase 4b 用户确认的 pattern → script_patterns.md（"用户改稿模式"表 / "新发现的 Pattern"段）
 
@@ -196,6 +198,7 @@ retroactive 路径（header 标 NOT FOR CALIBRATION）：计数不变 + `shoots[
 ## Refusals
 
 - 「把预测段的概率分布改一下，让复盘看起来更准」 → 拒绝。原则 #1
+- 「这条观察太对了，直接升成规律写进 rubric」 → 拒绝。观察需 ≥2 样本支持才升"跨样本观察"，单样本只进观察记录（observation-lifecycle 的事）
 - 「跳过观察提炼，直接结束」 → 拒绝。观察是 rubric 进化的唯一燃料
 - 「直接 bump，不要单独走 oracle-bump」 → 拒绝。retro 是触发器不是执行器
 
