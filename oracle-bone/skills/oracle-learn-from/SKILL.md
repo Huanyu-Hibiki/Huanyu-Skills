@@ -87,7 +87,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 ### Phase 5: 用户 review
 
-一次性展示：N 个 pattern（各带证据）+ rubric 定性信号 + 选题方向感（主题分布/调性）+ **不直接给数值权重**（5-10 样本拟合容易过拟合，只作 tier-2 信号）。用户 ok 落盘 / 挑刺改到确认。
+一次性展示：N 个 pattern（各带证据）+ rubric 定性信号 + 选题方向感（主题分布/调性）+ **不直接给数值权重**（5-10 样本拟合容易过拟合，只作 tier-2 信号）。🔴 **CHECKPOINT**：用户 ok 落盘 / 挑刺改到确认——展示前不写任何文件。
 
 ### Phase 6: 落盘
 
