@@ -37,18 +37,18 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 `args.sources or state.enabled_trend_sources（默认 ["manual-paste"]）`。为空 → 输出引导（临时跑用 `— sources:`；永久改 state 数组）。
 
-**adapter 一览**（详见 `adapters/trend-sources/`，每份文档化：依赖/fetch 接口/输出 schema/失败模式/稳定性星级）：
+**adapter 一览**（文档在 `adapters/trend-sources/`——文档化：依赖/fetch 接口/输出 schema/失败模式/稳定性星级；**未文档化的 adapter 跑前需现场确认端点可用性，失败按优雅降级 skip**）：
 
-| Adapter | 机制 | 依赖 |
-|---|---|---|
-| `manual-paste` | 用户粘贴 URL/标题列表 → WebFetch 拓展 snippet | 无（永远能用，兜底） |
-| `hackernews` | HN Algolia API | 无 key |
-| `reddit-rising` | 公开 .json 端点 | 无 key |
-| `youtube-trending` | YouTube Data API | API key |
-| `bilibili-popular` | B 站 popular 接口 | 无（部分端点需登录态） |
-| `xhs-explore` / `douyin-hot` | 平台接口 | cookie（缺则 skip） |
-| `thirdparty-paid` | 新榜/飞瓜等 | 用户自接 |
-| `audience-feedback` | **从自己受众反馈找选题**：已发作品评论区高赞/追问 + 私信咨询 + 粉丝群高频问题 → 提取"用户追问/抱怨/困惑"生成候选 | 无 |
+| Adapter | 机制 | 依赖 | 文档 |
+|---|---|---|---|
+| `manual-paste` | 用户粘贴 URL/标题列表 → WebFetch 拓展 snippet | 无（永远能用，兜底） | ✅ |
+| `hackernews` | HN Algolia API | 无 key | ✅ |
+| `reddit-rising` | 公开 .json 端点 | 无 key | ❌ 待文档化——现场验证 |
+| `youtube-trending` | YouTube Data API | API key | ❌ 待文档化——现场验证 |
+| `bilibili-popular` | B 站 popular 接口 | 无（部分端点需登录态） | ✅ |
+| `xhs-explore` / `douyin-hot` | 平台接口 | cookie（缺则 skip） | ❌ 待文档化——现场验证；反爬严，参考 `adapters/script-extraction/README.md` 五平台策略 |
+| `thirdparty-paid` | 新榜/飞瓜等 | 用户自接 | ✅（`custom-API.md` 模板） |
+| `audience-feedback` | **从自己受众反馈找选题**：已发作品评论区高赞/追问 + 私信咨询 + 粉丝群高频问题 → 提取"用户追问/抱怨/困惑"生成候选 | 无 | ✅ |
 
 ### Phase 1-2: fetch + normalize
 
