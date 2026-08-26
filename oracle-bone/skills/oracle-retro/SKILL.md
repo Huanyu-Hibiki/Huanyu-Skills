@@ -78,12 +78,13 @@ allowed-tools: Bash(*), Read, Edit, Write, Glob, Grep, Skill
 
 1. **auto-collect（一键采集，推荐）**——`adapters/perf-data/auto-collect/`：
    ```bash
-   cd <skill包>/adapters/perf-data/auto-collect
-   python collect.py all --days 30        # 四平台连采（首次使用每平台先跑 --auth-only 本人扫码授权）
+   # <PY> = auto-collect 自带 .venv 的 python（见包根 SKILL.md「Adapter 铁律」；Windows 是 .venv/Scripts/python.exe）
+   <PY> <包根>/adapters/perf-data/auto-collect/collect.py all --days 30   # 四平台连采（首次每平台先 --auth-only 本人扫码）
    ```
+   🚫 禁止 computer-use/GUI 自动化/亲手开浏览器替代本脚本采集——脚本失败走降级路径，不换方式。
    产物 `.oracle-cache/collections/<ts>/unified.json`（统一 schema）→ 直接进本 Phase 的实绩段提取。采集后顺手存快照供 compass-retro 用：
    ```bash
-   python tools/snapshot_store.py archive --db <项目根>/content-analytics.db --input <unified.json>
+   <PY> <包根>/tools/snapshot_store.py archive --db <项目根>/content-analytics.db --input <unified.json>
    ```
    按 prediction header 的 Platform 字段过滤该作品的数据行（`平台作品键` 前缀匹配）。
    **失败不阻塞**：授权过期 → 提示用户 `--auth-only` 重授权后重试一次；仍失败 → 降级下一条路径。

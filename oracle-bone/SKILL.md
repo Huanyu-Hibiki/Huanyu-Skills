@@ -1,6 +1,6 @@
 ---
 name: oracle-bone
-description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"迁移"。**首次使用必须先跑 /oracle-init。**
+description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"采集数据"/"拉数据"/"迁移"。**首次使用必须先跑 /oracle-init。**
 argument-hint: "[draft-path] [— mode: cold-start|calibration]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 ---
@@ -300,6 +300,16 @@ oracle-bone/
 └── examples/
     └── script_patterns.example.md     # script_patterns 全填示例
 ```
+
+### 🔴 Adapter 铁律（所有 runtime 通用，含 Hermes/Codex 等）
+
+1. **所有 adapter 都是确定性 Bash 脚本**——数据采集/转录/解析一律通过 shell 调脚本完成。**禁止**用 computer-use / GUI 自动化 / 视觉识别 / 亲手开浏览器点页面来替代 adapter 干活。脚本坏了 → 报错因 + 按各 adapter README 的失败模式速查修，**换方式采集 = 绕过校准数据的确定性来源 = 拒绝**
+2. **解释器必须用 adapter 自带的 `.venv`**（依赖隔离，系统 python 没装 playwright/faster-whisper）：
+   - `<包根>` = 本 SKILL.md 所在目录（`skills/oracle-*/SKILL.md` 的上两级）
+   - Windows：`<包根>\adapters\perf-data\auto-collect\.venv\Scripts\python.exe`
+   - macOS/Linux：`<包根>/adapters/perf-data/auto-collect/.venv/bin/python`
+   - `.venv` 不存在 → 按该 adapter README 的安装节先建（uv venv + uv pip install），不要换系统 python 硬跑
+3. **登录态/授权问题**照各 adapter 的协议办（如 auto-collect 的 `NEEDS_AUTH` 退出码 → 跑 `--auth-only`），不要自创恢复动作
 
 ---
 

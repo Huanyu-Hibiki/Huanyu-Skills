@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — Adapter 铁律：封杀 computer-use 替代采集（2026-08-26，第九批，Hermes 实战反馈 II）
+- **根因**：Hermes 自带 computer-use skill（"Load whenever computer_use tool is available"）随时抢活；oracle-bone 的 `<skill包>` 占位符 + 裸 `python` 命令在非 Claude runtime 解析不了 → 模型滑向视觉操作
+- 伞 SKILL.md 新增「🔴 Adapter 铁律」：adapter 一律 Bash 调脚本、解释器必须用 adapter 自带 .venv（含 `<包根>` 解析规则与 Windows/Unix 路径）、禁止 computer-use/GUI/亲手开浏览器替代
+- compass-retro / retro 的采集命令改为可执行形态（`<PY>` + `<包根>` 显式解析）+ 就地 🚫 禁令；伞触发词补「采集数据/拉数据」
 ### Fixed — auto-collect 登录门重写（2026-08-26，第八批，Hermes 实战反馈）
 - **根因**：网页登录态 1-2 周过期后，采集路径检测到未授权只塞一行错误就关窗口——headful 下二维码闪现即关（"不提醒不等待"），headless 下完全不可见；AI agent 拿不到机制信息开始自由发挥（挨个开浏览器/检查 Edge）
 - headful 失效 → 弹登录页 + 大声提示 + **轮询等扫码 3 分钟**（`wait_for_login`，30s 节奏提醒），成功自动继续采集

@@ -51,13 +51,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 **数据获取（按优先级）**：
 1. **自动采集（推荐）**——项目根有 `content-analytics.db`（快照库）时：
    ```bash
+   # <PY> = auto-collect 自带 .venv 的 python（见包根 SKILL.md「Adapter 铁律」；Windows 是 .venv/Scripts/python.exe）
    # 快照过期（最近 run 距今 >3 天）先补采：
-   python <skill包>/adapters/perf-data/auto-collect/collect.py all --days 30
-   python <skill包>/tools/snapshot_store.py archive --db content-analytics.db --input <unified.json>
+   <PY> <包根>/adapters/perf-data/auto-collect/collect.py all --days 30
+   <PY> <包根>/tools/snapshot_store.py archive --db content-analytics.db --input <unified.json>
    # 出看板（diff + 分位阈值 + 规则建议 + 五维 A/B 粗分）：
-   python <skill包>/tools/dashboard.py --db content-analytics.db --markdown
+   <PY> <包根>/tools/dashboard.py --db content-analytics.db --markdown
    ```
    dashboard 输出直接填本 Phase 事实表 + Phase 2.5 闸门 + Phase 4.5 建议素材。
+   🚫 **采集只走上面这条脚本路径——禁止 computer-use/GUI 自动化/亲手开浏览器当采集器**（确定性脚本才能保证校准数据可信；脚本失败走下面的 manual 分支，不是换方式）。
 2. **manual paste**——无快照库时按原流程问用户要数。
 
 **🔴 登录态协议（采集报"未授权"时照此办理，禁止自由发挥）**：
