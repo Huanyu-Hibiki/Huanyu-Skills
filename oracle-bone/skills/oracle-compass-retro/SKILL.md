@@ -149,7 +149,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 - 反向校验：[规划没问题的证据——避免为改而改]
 ```
 
-**边界**：修订建议必须双向（有"改"的建议也要有"不改"的校验）；用户拍板后同步 `state.tracks`（definitions + mix_ratio + mix_ratio_note 追加修订记录）和 content-plan.md / audience-profiles.md。
+**边界**：修订建议必须双向（有"改"的建议也要有"不改"的校验）；🔴 **CHECKPOINT · 拍板门**——用户明确拍板前只出候选不动 plan/state，拍板后同步 `state.tracks`（definitions + mix_ratio + mix_ratio_note 追加修订记录）和 content-plan.md / audience-profiles.md。
 
 ### Phase 5: 协作自进化（SkillOpt 式）
 
