@@ -1,0 +1,32 @@
+# 个人敏感信息（完整版访谈档案，含产品/故事/商业模式）
+interview-profile.md
+interview-profile.local.md
+*.local.md
+
+# 版权内容（第三方原库，不入公开仓库）
+reference/
+reference.zip
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python（如果有脚本）
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 临时文件
+*.tmp
+*.bak
+*.log
