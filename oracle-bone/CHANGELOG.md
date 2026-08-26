@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — auto-collect 登录门重写（2026-08-26，第八批，Hermes 实战反馈）
+- **根因**：网页登录态 1-2 周过期后，采集路径检测到未授权只塞一行错误就关窗口——headful 下二维码闪现即关（"不提醒不等待"），headless 下完全不可见；AI agent 拿不到机制信息开始自由发挥（挨个开浏览器/检查 Edge）
+- headful 失效 → 弹登录页 + 大声提示 + **轮询等扫码 3 分钟**（`wait_for_login`，30s 节奏提醒），成功自动继续采集
+- headless 失效 → 立即退出码 2 + 尾行 `NEEDS_AUTH=<平台>`（机器可读）；`--auth-only` 等待加上限 10 分钟 + `AUTH_FAILED` 退出码
+- `all` 收尾汇总失效平台 + 逐平台恢复命令；单平台失效不弃整轮
+- compass-retro SKILL.md 新增「🔴 登录态协议」（profile 位置/与日常浏览器无关/过期属正常/唯一恢复路径），README 新增「登录态生命周期」
+
 ### Fixed — 工具脚本接线闭环（2026-08-20，第七批）
 - **score-curve.py 此前零引用**（自述供 bump/status 参考但从未接线）→ 三处接入：oracle-bump Phase 0 诊断前置（偏差方向序列决定 rubric bump vs bucket-only 分流）+ FAIL 诊断报告成因定位；oracle-status Inputs/分轨校准行（平均偏差 + bucket 命中率，交叉核验 state 偏差队列）；oracle-compass-retro Phase 4.5 新增"预测系统修订候选"
 - **dashboard.py → oracle-status**（自述供 status 消费但未接）→ Inputs 表 + 📈 健康度"实绩快照新鲜度"行（超过一个复盘周期未更新 = Path B 用户手动档拖延信号）

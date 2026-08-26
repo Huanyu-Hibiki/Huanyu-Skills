@@ -113,6 +113,33 @@ class BrowserSession:
                 return "authorized"
         return "unknown"
 
+    def wait_for_login(self, auth_markers: dict, timeout_s: int = 180, poll_s: int = 5,
+                       platform: str = "") -> bool:
+        """等待用户完成扫码/登录（仅 headful 有意义）。
+
+        每 poll_s 秒轮询一次 auth_status；authorized 即返回 True；
+        超时返回 False。期间打印进度提醒（每 30s 一次），绝不静默关闭窗口。
+        """
+        plat = platform or self.platform
+        deadline = time.time() + timeout_s
+        last_remind = 0.0
+        while time.time() < deadline:
+            status = self.auth_status(auth_markers)
+            if status == "authorized":
+                # 双重确认，防登录页跳转瞬间误判
+                time.sleep(2)
+                if self.auth_status(auth_markers) == "authorized":
+                    print(f"  [{plat}] ✅ 登录成功，继续采集")
+                    return True
+            elapsed = int(deadline - time.time())
+            if time.time() - last_remind >= 30:
+                print(f"  [{plat}] ⏳ 等待扫码/登录…（剩余 {elapsed // 60}m{elapsed % 60:02d}s，"
+                      f"浏览器窗口里操作即可）")
+                last_remind = time.time()
+            time.sleep(poll_s)
+        print(f"  [{plat}] ⌛ 等待超时（{timeout_s}s）——登录态未确认")
+        return False
+
     def screenshot_debug(self, out_path: Path):
         out_path.parent.mkdir(parents=True, exist_ok=True)
         self.page.screenshot(path=str(out_path), full_page=False)

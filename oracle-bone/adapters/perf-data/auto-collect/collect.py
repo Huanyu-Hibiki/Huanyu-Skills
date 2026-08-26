@@ -80,9 +80,25 @@ def collect_one(name: str, args, out_dir: Path) -> dict:
         if hasattr(mod, "post_navigate"):
             mod.post_navigate(page)
         meta["auth"] = session.auth_status(mod.AUTH_MARKERS)
-        if meta["auth"] == "unauthorized":
-            meta["errors"].append("未授权——请先跑 --auth-only 本人登录")
-            return meta
+        if meta["auth"] in ("unauthorized", "unknown"):
+            # 登录态失效/不确定——分模式处理，绝不闪关窗口
+            if args.headless:
+                meta["errors"].append(
+                    f"未授权（headless 模式，无法展示扫码）——恢复命令："
+                    f"{sys.executable} collect.py {name} --auth-only（会弹浏览器等你扫码）")
+                meta["needs_auth"] = True
+                return meta
+            # headful：浏览器已开着登录页——大声提示 + 轮询等待扫码
+            print(f"\n🔔 [{name}] 登录态已过期（网页登录通常 1-2 周失效，正常现象）。"
+                  f"\n🔔 浏览器窗口已打开登录页——请现在用手机{name}App扫码，"
+                  f"我在这等你（最长 3 分钟）：")
+            ok = session.wait_for_login(mod.AUTH_MARKERS, timeout_s=180, platform=name)
+            if not ok:
+                meta["errors"].append(
+                    f"等待登录超时——恢复命令：{sys.executable} collect.py {name} --auth-only")
+                meta["needs_auth"] = True
+                return meta
+            meta["auth"] = "authorized"
         if args.debug:
             session.screenshot_debug(out_dir / f"{name}-list.png")
 
@@ -156,37 +172,27 @@ def main():
     names = list(PLATFORM_MODULES) if args.platform == "all" else [args.platform]
 
     if args.auth_only:
+        auth_failed = []
         for name in names:
             mod = load_platform(name)
             print(f"\n[{name}] 打开授权页：{mod.LIST_URL}")
-            print(f"[{name}] 请在弹出的浏览器窗口里完成登录/扫码。")
-            print(f"[{name}] 授权成功会自动继续；中途想放弃就直接关闭浏览器窗口。")
+            print(f"[{name}] 🔔 请现在在弹出的浏览器窗口里扫码/登录（最长等 10 分钟）——我在这等你。")
             with BrowserSession(name, headless=False) as session:
                 session.navigate(mod.LIST_URL)
-                status = ""
-                idle_rounds = 0
-                while True:
-                    session.page.wait_for_timeout(3000)
-                    prev = status
-                    status = session.auth_status(mod.AUTH_MARKERS)
-                    if status != prev:
-                        print(f"  授权状态：{status}")
-                        idle_rounds = 0
-                    else:
-                        idle_rounds += 1
-                    if status == "authorized":
-                        # 再确认一轮，防止误判（登录页一闪而过）
-                        session.page.wait_for_timeout(2000)
-                        if session.auth_status(mod.AUTH_MARKERS) == "authorized":
-                            break
-                    if idle_rounds >= 3:
-                        print(f"  （等待登录中… 直接在窗口里扫码即可，本提示每 15s 一次）")
-                        idle_rounds = 0
-                print(f"[{name}] ✅ 授权完成：{status}")
-        print("\n全部平台授权流程结束。")
+                ok = session.wait_for_login(mod.AUTH_MARKERS, timeout_s=600, platform=name)
+                if ok:
+                    print(f"[{name}] ✅ 授权完成，登录态已存入 ~/oracle-bone-profiles/{name}")
+                else:
+                    print(f"[{name}] ❌ 10 分钟内未完成登录——跳过（登录态未保存）")
+                    auth_failed.append(name)
+        if auth_failed:
+            print(f"\nAUTH_FAILED={','.join(auth_failed)}（可单独重跑：collect.py <平台> --auth-only）")
+            sys.exit(2)
+        print("\n全部平台授权完成。以后日常采集可加 --headless 后台跑。")
         return
 
     all_unified = []
+    needs_auth = []
     for idx, name in enumerate(names):
         if idx and args.platform == "all":
             print(f"⏳ 平台间隔 {PLATFORM_INTERVAL_S}s（防频控）...")
@@ -196,12 +202,24 @@ def main():
             result = collect_one(name, args, out_dir)
             all_unified.extend(result["unified"])
             print(json.dumps(result["meta"], ensure_ascii=False, indent=2))
+            if result["meta"].get("needs_auth"):
+                needs_auth.append(name)
         except Exception as e:
             print(f"❌ [{name}] 采集失败：{e}")
             (out_dir / f"{name}-error.txt").write_text(str(e), encoding="utf-8")
 
     save_run_artifacts(out_dir, all_unified, {}, {"platforms": names, "total_unified": len(all_unified)})
     print(f"\n✅ 完成：{len(all_unified)} 条统一数据 → {out_dir / 'unified.json'}")
+    if needs_auth:
+        print(f"\n⚠️ {len(needs_auth)} 个平台登录态失效未采集：{'、'.join(needs_auth)}")
+        print("恢复（一次一条，弹浏览器扫码，脚本会等你）：")
+        for n in needs_auth:
+            print(f"  {sys.executable} {Path(__file__).resolve()} {n} --auth-only")
+        print(f"NEEDS_AUTH={','.join(needs_auth)}")
+        print("下一步：")
+        print(f"  python tools/snapshot_store.py archive --db {project / 'content-analytics.db'} --input {out_dir / 'unified.json'}")
+        print(f"  python tools/dashboard.py --db {project / 'content-analytics.db'} --markdown")
+        sys.exit(2)
     print("下一步：")
     print(f"  python tools/snapshot_store.py archive --db {project / 'content-analytics.db'} --input {out_dir / 'unified.json'}")
     print(f"  python tools/dashboard.py --db {project / 'content-analytics.db'} --markdown")

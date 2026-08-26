@@ -106,11 +106,20 @@ platforms/wechat.py   视频号助手（端点候选态——首跑必 --debug �
   4. 把 URL 特征回填 `platforms/wechat.py` 的 `ENDPOINTS`（收窄后重跑，监听数据更全）
 - 部分账号详情页有完播率/平均播放时长（需要 `--details N` 逐作品进详情页）
 
+## 登录态生命周期（"之前能采、现在要扫码"不是故障）
+
+- 网页登录态（cookie）通常 **1-2 周过期**（视频号更短）——过期后平台弹扫码页，属正常轮换
+- 登录态存在 `~/oracle-bone-profiles/<平台>/`（Playwright 专用持久 Profile），**与本机日常 Chrome/Edge 是否登录无关**
+- **headful 采集**遇到失效：脚本自动弹登录页并**等你扫码（最长 3 分钟）**——扫码完成自动继续采集
+- **headless 采集**遇到失效：立即退出码 2 + 尾行 `NEEDS_AUTH=<平台列表>`——逐平台跑 `--auth-only` 恢复（弹浏览器等 10 分钟）后重跑
+- AI agent 须知：拿到 `NEEDS_AUTH` 不要尝试其他浏览器、不要检查日常浏览器登录——唯一恢复路径就是 auth-only 重新扫码
+
 ## 失败模式速查
 
 | 症状 | 处理 |
 |---|---|
 | 授权页循环 | `--auth-only` 重新本人登录 |
+| 退出码 2 + `NEEDS_AUTH=...` | 登录态过期——对列出平台逐个 `--auth-only` 扫码恢复 |
 | 列表加载超时 | 平台改版 → `--debug` 截图看 DOM，校准 platforms/*.py 里的 SELECTORS |
 | 监听 0 条响应 | 后端 API 路径变了 → `--debug` 打印所有响应 URL，更新 ENDPOINTS |
 | 单作品详情失败 | 框架自动跳过记 error，不阻塞整批（断点续跑补） |
