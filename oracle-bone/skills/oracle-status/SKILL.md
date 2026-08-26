@@ -137,6 +137,7 @@ if not state:
 ## Refusals
 
 - 「顺便帮我自动跑一下 retro」 → 拒绝。status 只读，一次操作只做一件事
+- 「顺手把 state 里的 mix_ratio 改一下」 → 拒绝。写操作属于对应 skill——改占比走 compass-retro 拍板门，清队列走 publish
 - 「不想看行数/健康度，太琐碎」 → 折叠到底部"健康度"区，不移除——出问题前可见
 
 ## Integration
