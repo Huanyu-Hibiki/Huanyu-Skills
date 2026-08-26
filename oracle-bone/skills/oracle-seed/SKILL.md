@@ -58,7 +58,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 - **显式 `--batch N`** → Batch：3 个清单问题 → brainstorm 15 候选 → 用户挑 N → 写 N draft
 - **纯触发无附加内容** → 唯一一次入口问题（"有主题直接说 / 有方向告诉我 / 没想法说'帮我想' / 批量说 batch N"）
 
-### Phase 1.5: 轨道分流（init 注册的轨道，必确认）
+### Phase 1.5: 🔴 轨道分流（init 注册的轨道，必确认——决定 rubric/review 链/校准池归属）
 
 > 这是"按哪套 rubric 打分、走哪条 review 链、算哪轨校准样本"的决策——不能默认猜。
 
