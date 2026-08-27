@@ -120,7 +120,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 | 触发条件 | 一线处理 | 仍失败兜底 |
 |---|---|---|
-| 路由目标不存在（如 `cheat-on-content` 未安装，`/cheat-seed` 不可达） | 告知缺失项 + 指向其 README 安装章节 | 把待执行需求暂记 `founder-ip/pending-routes.md`（一行一条），安装后补跑；**不硬生成执行层产物** |
+| 路由目标不存在（如 `cheat-on-content` 未安装，`/cheat-seed` 不可达） | 告知缺失项 + 指向其 README 安装章节 | 把待执行需求暂记 `founder-ip/pending-routes.md`（一行一条：日期 + 需求 + 目标 skill；该文件由本表创建，安装后按行补跑、跑完划掉）；**不硬生成执行层产物** |
 | 子 skill 产出文档互相矛盾（如 strategy 使命 vs canvas 变现策略） | 以 strategy-memo（L1 根基）为准，向用户明示冲突 | 提示跑矛盾方的 `--review` 修订对齐；对齐前该组文档不作为 cheat 执行层的上下文 |
 | 当前目录不是 IP 项目目录（无 `founder-ip/`，用户只是咨询） | 正常路由，提示"产出将落在 `<当前目录>/founder-ip/`" | 用户指定其他目录 → 按指定目录落盘并回显路径 |
 
