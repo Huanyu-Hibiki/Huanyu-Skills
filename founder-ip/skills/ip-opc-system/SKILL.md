@@ -128,7 +128,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 3. **可持续 > 高产出**——每周 2 条听起来好，但崩了就全停。
    设计可持续的节奏，比追求高产更重要。
 
-准备好开始吗？
+准备好开始吗？（🔴 等你确认后开始 5 问，一次一问）
 ```
 
 ---
@@ -274,6 +274,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ---
 
+**🔴 CHECKPOINT · 落盘前确认**：5 问全部答完后，先向用户完整复述将写入的 SOP 决策（工具链盘点 / Day1-Day2 日程 + 每周节奏 / AI 协作边界 / 分发策略 / 瓶颈优化方案），**逐条确认后才生成文件**。日程表逐时段过一遍——用户"再想想"→ 回到对应问题重问。（confirm 模式若已逐条确认，仅复述日程与瓶颈方案等新增推导项）
+
+---
+
 ### Phase 3 ｜ 生成 opc-sop.md
 
 ```markdown
@@ -413,5 +417,6 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 | 日期 | 修订内容 |
 |---|---|
+| 2026-08-26（二次） | 新增 2 处显性检查点：首屏启动门（🔴 等确认后开始）、落盘前 CHECKPOINT（🔴 复述 5 项 SOP 决策逐条确认后才生成文件）|
 | 2026-08-26 | 补全 Phase 0 检测流程（4 份上游产物检查 + confirm/interview 模式分派 + 已有 SOP 路由到 --optimize）；引用资源接入生态地图 references/huanyu-ip-cheat-pulsehub-system-map（原孤儿资源）|
 | 2026-07-27 | 初版创建，对应徐沪生第 8 章 OPC 改造版 |
