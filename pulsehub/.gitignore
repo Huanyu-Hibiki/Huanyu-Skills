@@ -1,0 +1,5 @@
+# Node dependencies (restore with: cd _core/pulse-resolve && pnpm install)
+node_modules/
+
+# Runtime state
+*.log

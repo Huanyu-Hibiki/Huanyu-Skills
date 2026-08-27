@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "找小红书上关于无线耳机的笔记，要能评论的那种", "expected": "读 _shared/recipes/rednote.md，优先 RSSHub，输出原始 URL 列表交 pulse-resolve，不做分析"},
+  {"id": 2, "prompt": "搜合同审查相关的内容", "expected": "默认全量平台（小红书+B站+知乎+抖音），每平台跑完汇报一次，全部跑完前不进分析"},
+  {"id": 3, "prompt": "页面提示需要登录", "expected": "立刻停下告知用户处理登录，不自行换搜索引擎绕路（P1）"}
+]

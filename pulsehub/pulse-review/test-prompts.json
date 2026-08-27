@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "复盘一下获客体系", "expected": "读 6 个档案文件 → 完整性检查 + 衔接断点检查 → 健康度报告（总分+最该修的 3 个断点）"},
+  {"id": 2, "prompt": "体检（但 ~/.pulsehub 下没有项目目录）", "expected": "输出'体系未初始化：先跑 pulse-init'，不对空模板硬打分"},
+  {"id": 3, "prompt": "顺便帮我把文案改自然点", "expected": "拒绝：内容质检归 pulse-humanize、skill 迭代归 pulse-evolve，review 只做体系体检"}
+]

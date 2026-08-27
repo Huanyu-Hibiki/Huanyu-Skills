@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "优化获客skill，最近的文案老跑偏", "expected": "闭环：harvest 执行记录 → mine 模式 → 3 种修法 → bounded edit 1-3 处 → 🛑 hold-out 验证门 + 用户确认"},
+  {"id": 2, "prompt": "数据反馈.md 一直是空的", "expected": "拒绝进化：没有真实数据只在主观判断打转，先让用户回填几轮"},
+  {"id": 3, "prompt": "新的获客体系跑通了，把旧的删了", "expected": "三道门：闭环跑通+用户明确说移除+README 同步，缺一不删（反模式 N1）"}
+]

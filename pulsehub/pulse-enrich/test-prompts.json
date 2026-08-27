@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "这 5 个 URL 哪个最值得评论？", "expected": "元数据抓取 + 信号检测 + 高中低评分排序，返回 top 2；逐页抓取间隔 2-3 分钟"},
+  {"id": 2, "prompt": "这个抖音视频里有没有提到我们的产品？", "expected": "音轨下载 + whisper 转录 + 扫产品提及，报时间点"},
+  {"id": 3, "prompt": "Whisper 装不上", "expected": "跳过转录只用标题+描述检测，标 no_transcript，不编造元数据"}
+]

@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "这个链接是什么 https://xhslink.com/a/abc123", "expected": "展开短链，输出 platform=rednote + workId + xsec_token 的 ResolvedLink"},
+  {"id": 2, "prompt": "这 50 个 URL 里有没有重复的？", "expected": "按 (platform, workId) 分组去重并报告重复对"},
+  {"id": 3, "prompt": "pnpm 不存在，CLI 跑不了", "expected": "切手工解析模式（按平台表），小红书缺 xsec_token 如实标记，不猜不伪造"}
+]
