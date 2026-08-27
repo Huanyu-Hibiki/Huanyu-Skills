@@ -116,8 +116,8 @@ cheat-seed → score → predict → shoot → publish → retro
 | 频率 | 动作 |
 |---|---|
 | 每月 | `/ip-opc-system --optimize`（流水线 + GEO 自检）|
-| 每季度 | `/ip-strategy --review` + `/ip-business-model --review` |
-| 每半年 | `/ip-persona --review` + `/ip-content-funnel --review` |
+| 每季度 | `/ip-strategy --review` + `/ip-business-model --review` + `/ip-content-funnel --review` |
+| 每半年 | `/ip-persona --review` |
 
 ---
 
@@ -155,7 +155,7 @@ cheat-seed → score → predict → shoot → publish → retro
 | `ip-persona` | 5 | 人设定位文档（三要素 + 起源故事 + 表达风格）| 一次性 + 半年回顾 |
 | `ip-content-funnel` | 3+6.1+6.2 | 年度内容漏斗（三轨比例 + 选题库 + GEO 覆盖）| 半年/年度更新 |
 | `ip-business-model` | 4 | 商业画布（咨询枢纽 + 流量/转化分离）| 季度更新 |
-| `ip-opc-system` | 8（改造版）| OPC 生产 SOP（生产日程（示例基线 2 天 1 期）+ AI 协作 + GEO 自检）| 持续优化 |
+| `ip-opc-system` | 8（改造版）| OPC 生产 SOP：生产日程（示例基线 2 天 1 期）+ AI 协作 + GEO 自检 | 持续优化 |
 
 ---
 

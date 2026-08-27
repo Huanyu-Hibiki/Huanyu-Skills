@@ -413,7 +413,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
      把"咨询枢纽 + 双分支"变现路径画布化
 
   3. → /ip-content-funnel（基于 persona + business-model 定内容漏斗）
-     把 ABC 比例 + 双系列 + 利他选题库规划出来
+     把三轨比例 + 系列定位 + 利他选题库规划出来
 
   4. → /ip-opc-system（整合 + SOP）
      最后跑，把战略层和现有 cheat-on-content 执行层串起来
