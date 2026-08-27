@@ -165,7 +165,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 1. **徐沪生《个人IP全流程拆解》原书**（主方法论）：路径见 [shared-references/xu-husheng-essence.md](shared-references/xu-husheng-essence.md)（精华提炼，按章节索引）+ [shared-references/xu-content-funnel-deep.md](shared-references/xu-content-funnel-deep.md)（内容漏斗三层模型 + 蟑螂药/米其林等案例深度展开）。徐沪生讲的是创始人 IP 的"**道**"——为什么做、不做什么、长期主义。姊妹书**《做号》（完整书版，162 图）**独家增量已提炼至 [shared-references/xu-zuohao-index.md](shared-references/xu-zuohao-index.md)：自序"转型不转行"起源故事范本（ip-persona Q2 用）+ 第五章选题挖掘问题清单（cheat-seed 深挖用）。
 
-2. **用户深度访谈结论**（具体场景）：路径见 [shared-references/interview-profile.md](shared-references/interview-profile.md)（28 问完整记录 + 关键决策清单）。这是用户的具体情况，优先级最高。
+2. **使用者访谈档案**（具体场景）：路径见 [shared-references/interview-profile.md](shared-references/interview-profile.md)（28 问完整记录 + 关键决策清单——**每个使用者自己的档案**，模板见 interview-profile.example.md）。这是使用者的具体情况，优先级最高。
 
 3. **dontbesilent 知识库**（实战派补充）：路径见 [shared-references/dontbesilent-index.md](shared-references/dontbesilent-index.md)（4,176 个知识原子索引）。dontbesilent 讲的是商业变现的"**术**"——怎么定价、对标、转化、避免商业幻觉。原库为**外部可选配置**（版权内容，不在仓库内），获取方式见 [README.md](README.md) 的"外部 reference 配置"段。
 

@@ -3,7 +3,7 @@ name: ip-opc-system
 description: >
   OPC 内容生产流水线整合 skill，对应徐沪生《个人IP全流程拆解》第 8 章（OPC 改造版）。
   徐沪生讲的是"编导+摄影+剪辑"的团队配置，对 OPC 不适用。本 skill 把它改造为"创始人 + AI + 自动化"的流水线。
-  整合现有工具链（cheat-on-content + 剪映 + Hyperframe/Remotion + Hermes Agent），定制 2 天 1 期的标准日程、AI 协作边界、瓶颈优化方案。
+  盘点你的现有工具链（选题/脚本/拍摄/剪辑/包装/分发），定制可持续的生产日程（示例：2 天 1 期）、AI 协作边界、瓶颈优化方案。
   产出 opc-sop.md（持续优化）。
   founder-ip 系统的收尾 skill，建议最后跑。触发词："OPC系统"/"ip-opc-system"/"生产流水线"/"2天1期怎么排"/"内容SOP"。
 argument-hint: "[— mode: interview|confirm|optimize]"
@@ -139,7 +139,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 读取 interview-profile.md 的"模块⑥ OPC 资源约束"段 + "现有流水线"段，逐条确认：
 - 现有工具链（档案中列出的工具清单）
 - 时间投入（每周 X 小时）
-- 实测效率（X 天 1 期）
+- 实测效率（档案"现有流水线"段的节奏记录；无则现场问）
 - 瓶颈（档案中记录的瓶颈项）
 
 用户确认 → 进 Phase 3。用户调整 → 走对应问题。
@@ -167,7 +167,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 **Q2 ｜ 2 天 1 期标准日程**
 
-> "你说实测 2 天能完成 1 期。把这两天具体怎么排，文档化。"
+> "常见的可持续节奏是 2 天 1 期（示例基线，按你的实测调整）。把这两天具体怎么排，文档化："
 
 引导用户拆解（参考实测）：
 
