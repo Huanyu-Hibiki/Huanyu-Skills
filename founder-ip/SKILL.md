@@ -26,7 +26,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 1. **方法论基于可追溯源，不凭空发明**：所有战略建议必须可追溯到（a）徐沪生原书章节、（b）用户访谈结论、（c）dontbesilent 知识库原子、（d）PLG 三大增长资产印证 之一。不接受"我觉得应该 X"这类无依据判断。完整引用：[shared-references/xu-husheng-essence.md](shared-references/xu-husheng-essence.md) + [shared-references/interview-profile.md](shared-references/interview-profile.md) + [shared-references/dontbesilent-index.md](shared-references/dontbesilent-index.md) + [shared-references/plg-three-assets.md](shared-references/plg-three-assets.md) + [shared-references/linkloud-growth-playbook.md](shared-references/linkloud-growth-playbook.md)。
 
-2. **战略文档 immutable，变更需 version bump**：战略备忘录/人设文档/商业画布一旦定稿，`## 决策` 段不可改——只能往 `## 修订记录` 段追加。改战略 = 重大事件，需要明示理由 + 影响评估。完整规范：[shared-references/strategy-immutability.md](shared-references/strategy-immutability.md)。
+2. **战略文档 immutable，变更需 version bump**：分两级——**strategy-memo / persona-charter 严格不可改**（`## 决策` 段定稿后只能往 `## 修订记录` 追加，改战略 = 重大事件，需明示理由 + 影响评估）；**business-model-canvas / content-funnel 季度可调但留痕**（调整必须写入修订记录段并附数据依据）。完整规范：[shared-references/strategy-immutability.md](shared-references/strategy-immutability.md)。
 
 3. **执行层不重造**：本系统**不**生成单条视频的选题/脚本/预测/复盘——那是 cheat-on-content 的领地。本系统只产出**战略/规划/SOP 文档**。如用户要求"帮我写这条视频的脚本"，路由到 `/cheat-seed` 而非在本系统内处理。
 
