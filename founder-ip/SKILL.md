@@ -22,11 +22,11 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 ## 三条不可妥协原则
 
-任何一条被违反，整个战略层退化为"拍脑袋的自嗨"。如果用户要求打破其中任何一条，**拒绝执行并说明原因**。
+任何一条被违反，整个战略层退化为"拍脑袋的自嗨"。🔴 **STOP：如果用户要求打破其中任何一条，拒绝执行并说明原因**（不是软化措辞，是拒绝）。
 
 1. **方法论基于可追溯源，不凭空发明**：所有战略建议必须可追溯到（a）徐沪生原书章节、（b）用户访谈结论、（c）dontbesilent 知识库原子、（d）PLG 三大增长资产印证 之一。不接受"我觉得应该 X"这类无依据判断。完整引用：[shared-references/xu-husheng-essence.md](shared-references/xu-husheng-essence.md) + [shared-references/interview-profile.md](shared-references/interview-profile.md) + [shared-references/dontbesilent-index.md](shared-references/dontbesilent-index.md) + [shared-references/plg-three-assets.md](shared-references/plg-three-assets.md) + [shared-references/linkloud-growth-playbook.md](shared-references/linkloud-growth-playbook.md)。
 
-2. **战略文档 immutable，变更需 version bump**：分两级——**strategy-memo / persona-charter 严格不可改**（`## 决策` 段定稿后只能往 `## 修订记录` 追加，改战略 = 重大事件，需明示理由 + 影响评估）；**business-model-canvas / content-funnel 季度可调但留痕**（调整必须写入修订记录段并附数据依据）。完整规范：[shared-references/strategy-immutability.md](shared-references/strategy-immutability.md)。
+2. **战略文档 immutable，变更需 version bump**：分级保护——**strategy-memo / persona-charter 严格不可改**（`## 决策` 段定稿后只能往 `## 修订记录` 追加，改战略 = 重大事件，需明示理由 + 影响评估）；**business-model-canvas / content-funnel 季度可调但留痕**（调整必须写入修订记录段并附数据依据）。完整规范：[shared-references/strategy-immutability.md](shared-references/strategy-immutability.md)。
 
 3. **执行层不重造**：本系统**不**生成单条视频的选题/脚本/预测/复盘——那是 cheat-on-content 的领地。本系统只产出**战略/规划/SOP 文档**。如用户要求"帮我写这条视频的脚本"，路由到 `/cheat-seed` 而非在本系统内处理。
 
@@ -116,7 +116,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 ---
 
-## 必须拒绝的请求
+## 🔴 必须拒绝的请求（任一命中 → 拒绝并说明原因，不静默执行、不软化后照做）
 
 - 「帮我直接写这条视频的脚本」 → 路由到 `/cheat-seed`，本系统不做执行层
 - 「战略文档我改个字就行，不用记录修订」 → 违反原则 #2。改战略必须 `## 修订记录` 追加
