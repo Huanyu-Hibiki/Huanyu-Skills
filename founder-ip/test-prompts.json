@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "我该不该做IP？帮我开始创始人IP战略", "expected": "路由到 ip-strategy 入口，做 mode detection（检查 strategy-memo.md / interview-profile.md），给出文档完整度提示，不越权直接做执行层的事"},
+  {"id": 2, "prompt": "创始人IP状态 / ip-status", "expected": "输出 5 份核心文档完整度看板（✅/⚠️ + 定稿日期）+ 下次回顾时间 + 与 cheat-on-content 衔接建议"},
+  {"id": 3, "prompt": "帮我直接写这条视频的脚本", "expected": "礼貌拒绝并路由到 /cheat-seed，说明战略层/执行层分工（原则 #3），不产生任何单条视频脚本"}
+]
