@@ -23,6 +23,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - [shared-references/xu-husheng-essence.md](../../shared-references/xu-husheng-essence.md)
 - [shared-references/interview-profile.md](../../shared-references/interview-profile.md)
 - [shared-references/geo-china-guide.md](../../shared-references/geo-china-guide.md) ⭐ GEO 月度自检
+- [references/huanyu-ip-cheat-pulsehub-system-map-2026-07-28.md](references/huanyu-ip-cheat-pulsehub-system-map-2026-07-28.md)（生态系统地图，Q1 工具链盘点 / Q3 AI 边界参考）
 - 上游产物：strategy-memo.md + persona-charter.md + content-funnel.md + business-model-canvas.md
 
 ---
@@ -83,6 +84,20 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
 
 ## Workflow
+
+### Phase 0 ｜ 检测上游依赖 + 现有工具链
+
+1. 检查 4 份上游产物（strategy-memo / persona-charter / content-funnel / business-model-canvas）：
+   - 全部存在 → 读取时间承诺（每周 X 小时）/ 表达风格 / 系列定位，作为 5 问的预填起点
+   - 部分/全部缺失 → 警告"本 skill 是整合层，缺失文档对应的定制项只能现场访谈补齐（精度降）"——不阻断，但建议先补上游
+2. 检查 `interview-profile.md`：
+   - 存在 → `confirm` 模式（读取"模块⑥ OPC 资源约束"段逐条确认后进 Phase 3）
+   - 不存在 → `interview` 模式（完整 5 问）
+3. 检查 `opc-sop.md`：
+   - 已存在 → 🔴 提示"已有 SOP（YYYY-MM-DD 定稿）。月度优化走 `/ip-opc-system --optimize`；要重排流程 = 结构性变更，走 `## 月度修订记录` 追加而非覆盖"
+4. 告知用户当前模式，再进 Phase 1 首屏。
+
+---
 
 ### Phase 1 ｜ 首屏
 
@@ -398,4 +413,5 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 | 日期 | 修订内容 |
 |---|---|
+| 2026-08-26 | 补全 Phase 0 检测流程（4 份上游产物检查 + confirm/interview 模式分派 + 已有 SOP 路由到 --optimize）；引用资源接入生态地图 references/huanyu-ip-cheat-pulsehub-system-map（原孤儿资源）|
 | 2026-07-27 | 初版创建，对应徐沪生第 8 章 OPC 改造版 |
