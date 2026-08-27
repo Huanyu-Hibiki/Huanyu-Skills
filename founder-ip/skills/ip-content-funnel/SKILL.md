@@ -179,7 +179,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 #### Q2.5 ｜ 守正出奇节奏（时间维度）
 
-> ⭐ ABC 是**类型比例**，守正出奇是**时间节奏**——两者正交。
+> ⭐ 三轨比例是**类型比例**，守正出奇是**时间节奏**——两者正交。
 > 完整方法论见 [loop-diagnostics.md](../../shared-references/loop-diagnostics.md) 第三部分
 
 > "守正出奇：先铺 70 分精准内容跑通模型（守正），价值感立住后再定期试爆（出奇）。顺序不能反。

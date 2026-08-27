@@ -194,7 +194,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 5. **循环诊断方法论**（四阶段状态机 + 数据诊断 + 守正出奇 + 价格带场域）：路径见 [shared-references/loop-diagnostics.md](shared-references/loop-diagnostics.md)（提炼自开源 ip-strategist skill，与三源体系融合）
    - **四阶段状态机**：起号期/稳定上升期/瓶颈期/爆款后续航——`ip-strategy --review` 的阶段判断工具
    - **数据诊断简版**：波赞比/赞粉比/完播曲线异常点/控制变量——`ip-opc-system --optimize` 的月度自检
-   - **守正出奇节奏**：70分铺量+定期试爆+偶尔转化（时间维度，与 ABC 类型比例正交）——`ip-content-funnel` 的节奏设计
+   - **守正出奇节奏**：70分铺量+定期试爆+偶尔转化（时间维度，与三轨类型比例正交）——`ip-content-funnel` 的节奏设计
    - **价格带场域匹配**：0-50元短视频 / 几千-几千直播间 / 几千+私域——`ip-business-model` 的成交场域校验
    - **认知沉淀三档归档**：✅ 已验证 / ❓ 待验证 / ❌ 已证伪——所有 `--review` 模式的修订记录规范
    - 引用格式：`[循环诊断 阶段]` / `[循环诊断 完播曲线]` / `[循环诊断 守正出奇]` / `[循环诊断 价格带]`
