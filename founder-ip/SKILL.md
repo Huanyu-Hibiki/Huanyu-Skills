@@ -229,9 +229,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 ## 当前版本
 
-- **版本**：1.1.0
+- **版本**：1.2.0
 - **创建日期**：2026-07-27
-- **最近变更**：2026-08-26 darwin 优化轮——轨命名全链路统一 / 六支补齐显性检查点 / strategy-immutability.md 断链修复（L1/L2/L3）/ 模板去个人化 / 新增失败分支表（详见各子 skill 修订记录与 `auto-optimize/20260826-2251` 分支）
+- **最近变更**：2026-08-26 分发通用化——confirm 模式/前言措辞去定制、shared-references 场景示例声明化（工程合规示例标注"替换为你的领域"）、移除个人生态地图与本地路径、README 多 runtime 安装；此前 1.1.0 为 darwin 优化轮（轨命名统一 / 显性检查点 / 断链修复 / 三段式 Refusals）
 - **方法论来源**：徐沪生《个人IP全流程拆解》（MinerU 解析版）
-- **访谈对象**：OPC 创始人，工程合规 AI 领域，28 问深度访谈
+- **访谈框架**：28 问深度访谈（每个用户建立自己的 `shared-references/interview-profile.md`，模板见 `interview-profile.example.md`，已被 .gitignore 排除不入库）
 - **下一步**：用户确认后从 `/ip-strategy` 开始

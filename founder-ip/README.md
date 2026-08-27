@@ -28,18 +28,26 @@
 ## 安装
 
 ### 前置条件
-- [opencode](https://opencode.ai) CLI
-- 已安装 `cheat-on-content` skill（执行层，可选但强烈推荐）
+- 任一 skills-compatible 运行时（opencode / Claude Code / Codex / Cursor 等）
+- （可选但推荐）`cheat-on-content` skill 作为执行层——未安装时本系统自动降级运行，不阻断
 
 ### 安装步骤
 
 ```bash
-# 1. clone 到 opencode 的 skill 目录
-git clone https://github.com/geats0422/founder-ip.git ~/.opencode/skills/founder-ip
-# 或 Windows: D:\work\OPC\.opencode\skill\founder-ip
+# 1. clone 到你的运行时 skills 目录（按 runtime 选路径）
+git clone https://github.com/geats0422/founder-ip.git <你的 skills 目录>/founder-ip
+```
 
-# 2. 复制访谈档案模板
-cd ~/.opencode/skills/founder-ip/shared-references/
+| Runtime | skills 目录 |
+|---|---|
+| opencode | `~/.opencode/skills/` |
+| Claude Code | `~/.claude/skills/` |
+| Codex | `~/.codex/skills/` |
+| 通用（多 agent 共享） | `~/.agents/skills/` |
+
+```bash
+# 2. 复制访谈档案模板（每个使用者一份，含个人数据，已被 .gitignore 排除）
+cd <你的 skills 目录>/founder-ip/shared-references/
 cp interview-profile.example.md interview-profile.md
 
 # 3. 编辑 interview-profile.md，填入你的具体情况

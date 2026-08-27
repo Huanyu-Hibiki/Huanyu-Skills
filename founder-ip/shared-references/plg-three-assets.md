@@ -150,7 +150,7 @@
 - **真实过程**：不藏钩子，完整呈现推理和踩坑
 - **长期坚持**：多年持续输出，形成复利
 
-> 💡 **对你的启发**：Pieter Levels 的全公开模式适合 C 端数字游民，**不适合你的 B 端工程合规场景**（详见 `founder-ip/shared-references/geo-china-guide.md` 和 interview-profile.md 的 BiP 半公开策略）。但他的"三板斧引擎"逻辑完全适用。
+> 💡 **启示**：Pieter Levels 的全公开模式适合 C 端数字游民，**不适合 B 端高客单场景**（详见 `founder-ip/shared-references/geo-china-guide.md` 和 interview-profile.md 的 BiP 半公开策略）。但他的"三板斧引擎"逻辑完全适用。
 
 ---
 

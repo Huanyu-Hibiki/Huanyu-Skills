@@ -23,7 +23,6 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - [shared-references/xu-husheng-essence.md](../../shared-references/xu-husheng-essence.md)
 - [shared-references/interview-profile.md](../../shared-references/interview-profile.md)
 - [shared-references/geo-china-guide.md](../../shared-references/geo-china-guide.md) ⭐ GEO 月度自检
-- [references/huanyu-ip-cheat-pulsehub-system-map-2026-07-28.md](references/huanyu-ip-cheat-pulsehub-system-map-2026-07-28.md)（生态系统地图，Q1 工具链盘点 / Q3 AI 边界参考）
 - 上游产物：strategy-memo.md + persona-charter.md + content-funnel.md + business-model-canvas.md
 
 ---
@@ -138,10 +137,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 #### Mode: confirm 简化流程
 
 读取 interview-profile.md 的"模块⑥ OPC 资源约束"段 + "现有流水线"段，逐条确认：
-- 现有工具链（cheat-on-content + 剪辑 skill + 剪映 + Hyperframe/Remotion + Hermes Agent）
-- 时间投入（每周 10-15h）
-- 实测效率（2 天 1 期）
-- 瓶颈（剪辑耗时 + 出镜表现）
+- 现有工具链（档案中列出的工具清单）
+- 时间投入（每周 X 小时）
+- 实测效率（X 天 1 期）
+- 瓶颈（档案中记录的瓶颈项）
 
 用户确认 → 进 Phase 3。用户调整 → 走对应问题。
 
@@ -225,8 +224,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 **Q4 ｜ 多平台分发策略**
 
-> "基于访谈，你做 7 个平台（视频号 + 公众号 + 抖音 + B 站 + 小红书 + 即刻）。
-> 但运营要聚焦。定一下主投入 vs 纯分发。"
+> "多平台分发很常见（如视频号+公众号+抖音+B站+小红书+即刻）。但运营要聚焦——先定下**主投入 vs 纯分发**（下表为示例，按你的实际平台替换）："
 
 引导用户填表：
 
@@ -249,8 +247,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 **Q5 ｜ 瓶颈优化**
 
-> "基于访谈，你的瓶颈是：剪辑耗时 + 出镜表现 + 战略缺失。
-> 战略缺失已经被前 4 个 skill 解决。剩下两个怎么优化？"
+> "最常见的两大瓶颈：**剪辑耗时 + 出镜表现**（战略缺失已由前 4 个 skill 解决）。
+> 先从访谈档案确认你的实际瓶颈，再按候选方案优化："
 
 #### 瓶颈 1：剪辑耗时
 
@@ -419,6 +417,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 | 日期 | 修订内容 |
 |---|---|
+| 2026-08-26（四次） | 分发通用化：confirm 模式改为读档案字段（不再写死特定工具链/工时/瓶颈）；Q4/Q5 前言去除"基于访谈你是…"的定制称呼；移除个人生态地图引用（文件移出仓库，使用者可自建放回 references/ 并自行挂链）|
 | 2026-08-26（三次） | Refusals 升级三段式表（拒绝请求/依据/拒后出路），出路接入 AI 边界表/守正出奇/失败分支表等既有机制 |
 | 2026-08-26（二次） | 新增 2 处显性检查点：首屏启动门（🔴 等确认后开始）、落盘前 CHECKPOINT（🔴 复述 5 项 SOP 决策逐条确认后才生成文件）|
 | 2026-08-26 | 补全 Phase 0 检测流程（4 份上游产物检查 + confirm/interview 模式分派 + 已有 SOP 路由到 --optimize）；引用资源接入生态地图 references/huanyu-ip-cheat-pulsehub-system-map（原孤儿资源）|
