@@ -14,7 +14,7 @@
 
 1. **为什么做个人 IP**（`ip-strategy`）——立项决心、防网红思维坑、时间承诺、成功标准
 2. **人设怎么定**（`ip-persona`）——内容型/专家型/真实型、起源故事、表达风格
-3. **内容漏斗怎么设计**（`ip-content-funnel`）——ABC 比例、双系列、利他选题库、GEO 长尾覆盖
+3. **内容漏斗怎么设计**（`ip-content-funnel`）——三轨内容比例（A 破圈 / C 认知 / B 转化）、系列定位、利他选题库、GEO 长尾覆盖
 4. **商业模式怎么搭**（`ip-business-model`）——咨询枢纽、流量/转化视频分离、变现路径
 5. **OPC 流水线怎么整合**（`ip-opc-system`）——生产日程（示例基线：2 天 1 期）、AI 协作边界、瓶颈优化
 
@@ -68,6 +68,7 @@ shared-references/
 ├── plg-three-assets.md            # PLG 三大增长资产（scaleX 实战印证）
 ├── linkloud-growth-playbook.md    # LinkLoud 增长方法论（scaleX 实战印证）
 ├── loop-diagnostics.md            # 循环诊断（四阶段/数据诊断/守正出奇/价格带场域）
+├── strategy-immutability.md       # 战略文档修改纪律（L1 严格不可改 / L2 季度留痕 / L3 月度滚动）
 └── interview-profile.example.md   # 访谈档案模板（复制为 interview-profile.md 后填写）
 ```
 
@@ -152,16 +153,16 @@ cheat-seed → score → predict → shoot → publish → retro
 |---|---|---|---|
 | `ip-strategy` | 1+2+9 | 战略备忘录（为什么做 + 防坑 + 立项决心）| 一次性 + 季度回顾 |
 | `ip-persona` | 5 | 人设定位文档（三要素 + 起源故事 + 表达风格）| 一次性 + 半年回顾 |
-| `ip-content-funnel` | 3+6.1+6.2 | 年度内容漏斗（ABC 比例 + 选题库 + GEO 覆盖）| 半年/年度更新 |
+| `ip-content-funnel` | 3+6.1+6.2 | 年度内容漏斗（三轨比例 + 选题库 + GEO 覆盖）| 半年/年度更新 |
 | `ip-business-model` | 4 | 商业画布（咨询枢纽 + 流量/转化分离）| 季度更新 |
-| `ip-opc-system` | 8（改造版）| OPC 生产 SOP（2 天 1 期 + AI 协作 + GEO 自检）| 持续优化 |
+| `ip-opc-system` | 8（改造版）| OPC 生产 SOP（生产日程（示例基线 2 天 1 期）+ AI 协作 + GEO 自检）| 持续优化 |
 
 ---
 
 ## 三条不可妥协原则
 
 1. **方法论基于可追溯源，不凭空发明**
-2. **战略文档 immutable，变更需 version bump**
+2. **战略文档分级保护，变更需留痕**（strategy-memo / persona-charter 严格不可改；canvas / funnel 季度可调须附数据依据，详见 `shared-references/strategy-immutability.md`）
 3. **执行层不重造**（单条视频的选题/脚本/预测/复盘，走 cheat-on-content）
 
 ---
