@@ -157,9 +157,10 @@ def test_cli_smoke_stdout_is_single_json_object():
     payload = json.loads(proc.stdout)
     assert set(payload) == {"agents", "duplicates", "health_issues"}
     assert len(payload["agents"]) == 3
-    # Task 6 scope: placeholders for task 7.
-    assert payload["duplicates"] == []
-    assert payload["health_issues"] == []
+    # Task 7: duplicates and health_issues are now populated (fixture tree has
+    # one cross-agent duplicate and four unhealthy skills).
+    assert [d["name"] for d in payload["duplicates"]] == ["alpha-skill"]
+    assert len(payload["health_issues"]) == 4
 
 
 def test_home_prefix_paths_expanded_to_absolute(tmp_path, monkeypatch):
@@ -227,3 +228,124 @@ def test_disabled_agent_skipped(tmp_path):
 
     result = build(registry)
     assert [a["name"] for a in result["agents"]] == ["live"]
+
+
+# ---------------------------------------------------------------------------
+# Task 7: health checks (has_skill_md / frontmatter_ok / health_issues) and
+# cross-agent duplicate detection (duplicates).
+# ---------------------------------------------------------------------------
+
+
+def issues_for(result, skill_name):
+    return [i for i in result["health_issues"] if i["skill"] == skill_name]
+
+
+def test_missing_skill_md_flagged_and_skill_still_listed():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "no-manifest")
+    assert entry["has_skill_md"] is False
+    assert entry["frontmatter_ok"] is False
+    # Still enumerated as a skill entry (a dir without SKILL.md is not dropped).
+    assert entry["name"] == "no-manifest"
+
+    issues = issues_for(result, "no-manifest")
+    assert [i["issue"] for i in issues] == ["missing_skill_md"]
+    assert issues[0]["detail"]  # one-sentence human-readable detail
+    assert set(issues[0]) == {"skill", "issue", "detail"}
+
+
+def test_unterminated_fence_reported_as_frontmatter_broken():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "broken-frontmatter")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is False
+
+    issues = issues_for(result, "broken-frontmatter")
+    assert [i["issue"] for i in issues] == ["frontmatter_broken"]
+
+
+def test_missing_description_key_reported_as_frontmatter_broken(tmp_path):
+    # Complete fences, but the required `description` key is absent; the name
+    # key also mismatches the dir, which must NOT stack a second issue.
+    agent = tmp_path / "agent"
+    skill = agent / "no-desc"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(
+        "---\nname: wrong-name\n---\n\n# wrong-name\n",
+        encoding="utf-8",
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        "  - name: tmp-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./agent\n",
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "no-desc")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is False
+
+    issues = issues_for(result, "no-desc")
+    assert [i["issue"] for i in issues] == ["frontmatter_broken"]
+
+
+def test_long_description_reported_as_desc_too_long():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "long-desc")
+    # fixtures/README.md claims "exactly 1200" but the on-disk fixture is 1199
+    # (off-by-one at generation time); either way it is far past the 1024 cap.
+    assert entry["desc_len"] == 1199
+    assert entry["desc_len"] > 1024
+    issues = issues_for(result, "long-desc")
+    assert [i["issue"] for i in issues] == ["desc_too_long"]
+
+
+def test_frontmatter_name_differs_from_dir_reported_as_name_mismatch():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "name-mismatch")
+    # A mismatching-but-present name key is not a broken frontmatter.
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is True
+
+    issues = issues_for(result, "name-mismatch")
+    assert [i["issue"] for i in issues] == ["name_mismatch"]
+
+
+def test_cross_agent_duplicate_alpha_skill_reported_with_two_locations():
+    result = build()
+
+    duplicates = {d["name"]: d for d in result["duplicates"]}
+    assert "alpha-skill" in duplicates
+    assert set(duplicates) == {"alpha-skill"}  # only fixture duplicate
+
+    locations = duplicates["alpha-skill"]["locations"]
+    assert len(locations) == 2
+    assert all(Path(loc).name == "alpha-skill" for loc in locations)
+    assert any("fake-opencode" in loc for loc in locations)
+    assert any("fake-claude" in loc for loc in locations)
+
+
+def test_healthy_skills_produce_no_issues():
+    result = build()
+
+    flagged = {i["skill"] for i in result["health_issues"]}
+    assert flagged == {"no-manifest", "broken-frontmatter", "long-desc", "name-mismatch"}
+
+    healthy = (
+        ("fake-opencode", "alpha-skill"),
+        ("fake-opencode", "beta-skill"),
+        ("fake-claude", "good-skill"),
+    )
+    for agent_name, skill_name in healthy:
+        entry = skill_entry(result, agent_name, skill_name)
+        assert entry["has_skill_md"] is True
+        assert entry["frontmatter_ok"] is True
+        assert entry["desc_len"] < 1024
