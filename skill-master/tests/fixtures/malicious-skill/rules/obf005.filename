@@ -1,0 +1,3 @@
+OBF-005 fixture pointer: this rule triggers on FILE NAMES, not content.
+The actual sample is the sibling file `invoice.pdf.exe` in this directory
+(double extension .pdf + .exe). Its content is irrelevant by design.

@@ -1,0 +1,4 @@
+# Golden files are compared byte-for-byte by tests/test_report.py —
+# disable git's autocrlf translation so checkout stays identical to what
+# the renderer wrote (LF-only, UTF-8).
+tests/golden/** -text

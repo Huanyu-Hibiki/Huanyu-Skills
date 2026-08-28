@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="skill-master">
+<title>x-mastery-mentor Skill 分析 · skill-master 报告</title>
+<style>
+/* ==================== 基础与版式 ==================== */
+* { box-sizing: border-box; }
+:root {
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f3f4f6;
+  --paper: #ffffff;
+  --accent: #334155;
+  --sev-critical: #dc2626;   /* critical 红 */
+  --sev-high: #ea580c;       /* high 橙 */
+  --sev-medium: #ca8a04;     /* medium 黄（深琥珀，白底可读） */
+  --sev-low: #6b7280;        /* low 灰 */
+  --score-color: #ca8a04;    /* 与默认 score-mid 一致，score-* class 会覆盖 */
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 28px 40px;
+  background: var(--paper);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+section, main { scroll-margin-top: 64px; }
+
+/* ==================== 页头 ==================== */
+.report-header {
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+.report-header h1 {
+  margin: 0 0 6px;
+  font-size: clamp(22px, 4vw, 30px);
+  line-height: 1.3;
+}
+.report-header .meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ==================== 页面导航 ==================== */
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 10px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  z-index: 10;
+}
+.page-nav a {
+  color: var(--accent);
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.page-nav a:hover { background: #f1f5f9; color: #0f172a; }
+
+/* ==================== 章节标题 ==================== */
+h2 {
+  font-size: 20px;
+  margin: 30px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--line);
+}
+
+/* ==================== 概览统计卡片 ==================== */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.card {
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--muted);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--paper);
+}
+.card-label { margin: 0; font-size: 13px; color: var(--muted); }
+.card-value { margin: 2px 0 0; font-size: 32px; font-weight: 700; line-height: 1.2; }
+.card-hint { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+/* 分数色阶（渲染器按 0-24/25-59/60-79/80-100 选择其一挂到 .score-card 上） */
+.score-low      { --score-color: #16a34a; }  /* 0-24 绿 */
+.score-mid      { --score-color: #ca8a04; }  /* 25-59 黄 */
+.score-high     { --score-color: #ea580c; }  /* 60-79 橙 */
+.score-critical { --score-color: #dc2626; }  /* 80-100 红 */
+.score-card { border-top-color: var(--score-color); }
+.score-card .card-value { font-size: 40px; color: var(--score-color); }
+
+/* severity 计数卡色阶 */
+.card.sev-critical { border-top-color: var(--sev-critical); }
+.card.sev-high     { border-top-color: var(--sev-high); }
+.card.sev-medium   { border-top-color: var(--sev-medium); }
+.card.sev-low      { border-top-color: var(--sev-low); }
+
+/* ==================== 正文章节（.analysis 作用域） ==================== */
+.analysis h3 { font-size: 17px; margin: 22px 0 8px; }
+.analysis h4 { font-size: 15px; margin: 18px 0 6px; }
+.analysis p { margin: 8px 0; }
+.analysis ul, .analysis ol { margin: 8px 0; padding-left: 24px; }
+.analysis li { margin: 3px 0; }
+.analysis code, .findings-table code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+.analysis pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  overflow: auto;
+  line-height: 1.5;
+}
+.analysis pre code { background: none; border: none; color: inherit; padding: 0; }
+.analysis blockquote {
+  margin: 10px 0;
+  padding: 6px 14px;
+  border-left: 4px solid var(--line);
+  background: #f8fafc;
+  color: var(--muted);
+}
+.analysis table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 14px;
+}
+.analysis th, .analysis td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.analysis th { background: #f1f5f9; }
+
+/* 渲染器注入的章节内导航（可选） */
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 10px 14px;
+  margin: 0 0 18px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+}
+.toc a { color: #1d4ed8; }
+
+/* ==================== 安全风险表 ==================== */
+.findings-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+.findings-table th, .findings-table td {
+  border: 1px solid var(--line);
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.findings-table thead th {
+  background: #f1f5f9;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.findings-table tbody tr:nth-child(even) { background: #fafafa; } /* 斑马纹 */
+/* 行级 severity 色阶（须声明在斑马纹之后以覆盖之） */
+.findings-table tr.sev-critical { background: #fef2f2; }
+.findings-table tr.sev-high     { background: #fff7ed; }
+.findings-table tr.sev-medium   { background: #fefce8; }
+.findings-table tr.sev-low      { background: #f8fafc; }
+/* severity 徽章（severity 单元格内输出 <span class="sev sev-…">） */
+.sev {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #fff;
+  white-space: nowrap;
+}
+.sev.sev-critical { background: var(--sev-critical); }
+.sev.sev-high     { background: var(--sev-high); }
+.sev.sev-medium   { background: var(--sev-medium); }
+.sev.sev-low      { background: var(--sev-low); }
+/* 空发现占位行 */
+.findings-table td.empty { color: var(--muted); text-align: center; }
+
+/* ==================== 页脚 ==================== */
+.report-footer {
+  margin-top: 34px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.report-footer p { margin: 0; }
+
+/* ==================== 响应式（窄屏） ==================== */
+@media (max-width: 640px) {
+  .page { padding: 16px 14px 24px; }
+  h2 { font-size: 18px; }
+  .card-value { font-size: 26px; }
+  .score-card .card-value { font-size: 32px; }
+}
+
+/* ==================== 打印 ==================== */
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; font-size: 12px; }
+  .page { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+  .page-nav { display: none; }
+  a { color: inherit; }
+  .analysis pre {
+    background: #f8fafc;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    white-space: pre-wrap;
+  }
+  .findings-table { font-size: 11px; }
+  .findings-table thead { display: table-header-group; } /* 跨页重复表头 */
+  .card, .findings-table tr, h2, .analysis pre { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="report-header">
+    <h1>x-mastery-mentor Skill 分析</h1>
+    <p class="meta">生成时间：2026-08-28 12:00</p>
+  </header>
+
+  <nav class="page-nav">
+    <a href="#overview">概览</a>
+    <a href="#analysis">分析详情</a>
+    <a href="#findings">安全风险</a>
+  </nav>
+
+  <section class="overview" id="overview">
+    <h2>概览</h2>
+    <div class="cards">
+      <div class="card score-card score-high">
+        <p class="card-label">风险评分</p>
+        <p class="card-value">66</p>
+        <p class="card-hint">0-100，分数越高风险越大</p>
+      </div>
+      <div class="card sev-critical">
+          <p class="card-label">Critical</p>
+          <p class="card-value">1</p>
+        </div>
+          <div class="card sev-high">
+          <p class="card-label">High</p>
+          <p class="card-value">1</p>
+        </div>
+          <div class="card sev-medium">
+          <p class="card-label">Medium</p>
+          <p class="card-value">1</p>
+        </div>
+          <div class="card sev-low">
+          <p class="card-label">Low</p>
+          <p class="card-value">1</p>
+        </div>
+    </div>
+  </section>
+
+  <main class="analysis" id="analysis">
+    <h2>分析详情</h2>
+    <section id="功能定位">
+<h2 id="功能定位">功能定位</h2>
+<p>这是一个 <strong>提示词工程</strong> 类 skill，负责 <code>X/Twitter</code> 运营指导。</p>
+<h3>覆盖场景</h3>
+<ul>
+<li>选题挖掘</li>
+<li>推文写作</li>
+<li>涨长策略</li>
+</ul>
+</section>
+
+<section id="工作流拆解">
+<h2 id="工作流拆解">工作流拆解</h2>
+<ol>
+<li>读取项目档案</li>
+<li>匹配触发词</li>
+<li>生成内容建议</li>
+</ol>
+<h4>边界情况</h4>
+<p>非 X 运营话题不触发。</p>
+<pre><code>trigger_words = ["写推文", "涨粉", "X算法"]</code></pre>
+</section>
+
+<section id="可借鉴点">
+<h2 id="可借鉴点">可借鉴点</h2>
+<p>把方法论拆成 <strong>可执行清单</strong> 是亮点。</p>
+</section>
+  </main>
+
+  <section class="findings" id="findings">
+    <h2>安全风险</h2>
+    <table class="findings-table">
+      <thead>
+        <tr>
+          <th>severity</th>
+          <th>规则 ID</th>
+          <th>文件</th>
+          <th>行号</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="sev-critical">
+            <td><span class="sev sev-critical">critical</span></td>
+            <td>EXFIL-001</td>
+            <td>scripts/collect.py</td>
+            <td>42</td>
+            <td>敏感文件外传到外部域名</td>
+          </tr>
+          <tr class="sev-high">
+            <td><span class="sev sev-high">high</span></td>
+            <td>EXEC-002</td>
+            <td>scripts/setup.sh</td>
+            <td>13</td>
+            <td>远程脚本直接执行</td>
+          </tr>
+          <tr class="sev-medium">
+            <td><span class="sev sev-medium">medium</span></td>
+            <td>OBFUS-004</td>
+            <td>skills/x/helpers.md</td>
+            <td>7</td>
+            <td>base64 混淆的网络请求</td>
+          </tr>
+          <tr class="sev-low">
+            <td><span class="sev sev-low">low</span></td>
+            <td>STYLE-007</td>
+            <td>SKILL.md</td>
+            <td>0</td>
+            <td>描述冗长，建议精简</td>
+          </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="report-footer">
+    <p>本报告由 skill-master 自动生成 · 单文件离线可读（无外部依赖）· 仅供安全评估参考</p>
+  </footer>
+
+</div>
+</body>
+</html>

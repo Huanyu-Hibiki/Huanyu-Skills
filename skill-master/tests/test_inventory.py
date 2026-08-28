@@ -1,0 +1,556 @@
+"""Tests for scripts/inventory.py — agent/skill enumeration (task 6).
+
+Covers: mini-yaml parsing of the frozen agents.yaml schema subset,
+installed detection, skill enumeration, description reading, size_kb,
+--agent filtering, CLI stdout-as-JSON contract, and failure exit codes.
+"""
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+FIXTURES_DIR = PROJECT_ROOT / "tests" / "fixtures" / "agents-tree"
+FIXTURE_YAML = FIXTURES_DIR / "agents-tree.yaml"
+
+sys.path.insert(0, str(SCRIPTS_DIR))
+
+import inventory  # noqa: E402
+
+
+def run_cli(yaml_path, *extra_args, timeout=60):
+    """Run inventory.py as a subprocess and return the completed process."""
+    return subprocess.run(
+        [sys.executable, str(SCRIPTS_DIR / "inventory.py"), "--agents", str(yaml_path), *extra_args],
+        capture_output=True,
+        text=True,
+        cwd=PROJECT_ROOT,
+        timeout=timeout,
+    )
+
+
+def build(yaml_path=FIXTURE_YAML, agent_filter=None):
+    """Build the inventory dict in-process."""
+    return inventory.build_inventory(Path(yaml_path), agent_filter=agent_filter)
+
+
+def agent_entry(result, name):
+    return next(a for a in result["agents"] if a["name"] == name)
+
+
+def skill_entry(result, agent_name, skill_name):
+    agent = agent_entry(result, agent_name)
+    return next(s for s in agent["skills"] if s["name"] == skill_name)
+
+
+def test_fake_agents_enumerated_with_expected_skills():
+    result = build()
+
+    opencode = agent_entry(result, "fake-opencode")
+    assert opencode["installed"] is True
+    assert [s["name"] for s in opencode["skills"]] == ["alpha-skill", "beta-skill"]
+
+    claude = agent_entry(result, "fake-claude")
+    assert claude["installed"] is True
+    assert sorted(s["name"] for s in claude["skills"]) == [
+        "alpha-skill",
+        "broken-frontmatter",
+        "good-skill",
+        "long-desc",
+        "name-mismatch",
+        "no-manifest",
+    ]
+
+
+def test_not_installed_agent_marked_with_empty_skills():
+    result = build()
+
+    missing = agent_entry(result, "not-installed-agent")
+    assert missing["installed"] is False
+    assert missing["skills"] == []
+    assert missing["path"]  # still reports the expected path
+    # Not an error: the other agents are still enumerated.
+    assert len(result["agents"]) == 3
+
+
+def test_agent_filter_cli_returns_only_named_agent():
+    proc = run_cli(FIXTURE_YAML, "--agent", "fake-claude")
+
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert [a["name"] for a in payload["agents"]] == ["fake-claude"]
+    assert len(payload["agents"][0]["skills"]) == 6
+
+
+def test_description_and_desc_len_reading():
+    result = build()
+
+    alpha = skill_entry(result, "fake-opencode", "alpha-skill")
+    expected = (
+        "Healthy fixture skill in the fake-opencode tree, used to verify "
+        "inventory enumeration and cross-agent duplicate detection."
+    )
+    assert alpha["description"] == expected
+    assert alpha["desc_len"] == len(expected)
+
+    # No SKILL.md at all -> nulls.
+    no_manifest = skill_entry(result, "fake-claude", "no-manifest")
+    assert no_manifest["description"] is None
+    assert no_manifest["desc_len"] is None
+
+    # SKILL.md exists but frontmatter is unterminated -> nulls.
+    broken = skill_entry(result, "fake-claude", "broken-frontmatter")
+    assert broken["description"] is None
+    assert broken["desc_len"] is None
+
+
+def test_size_kb_positive_and_one_decimal():
+    result = build()
+
+    for agent_name in ("fake-opencode", "fake-claude"):
+        for skill in agent_entry(result, agent_name)["skills"]:
+            assert isinstance(skill["size_kb"], (int, float))
+            assert skill["size_kb"] > 0
+            assert round(skill["size_kb"], 1) == skill["size_kb"]
+
+
+def test_bad_yaml_schema_violation_fails(tmp_path):
+    # CLI contract: unknown top-level key -> non-zero exit + error JSON.
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("foo: bar\n", encoding="utf-8")
+    proc = run_cli(bad)
+
+    assert proc.returncode != 0
+    payload = json.loads(proc.stdout)
+    assert "error" in payload
+
+    # Unit level: unsupported key inside an entry -> parse error.
+    nested = tmp_path / "nested.yaml"
+    nested.write_text(
+        "agents:\n"
+        "  - name: x\n"
+        "    enabled: true\n"
+        "    extra: 1\n"
+        "    paths:\n"
+        "      - ./x\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(inventory.YamlParseError):
+        inventory.parse_agents_yaml(nested.read_text(encoding="utf-8"))
+
+
+def test_missing_yaml_path_fails():
+    proc = run_cli(PROJECT_ROOT / "tests" / "fixtures" / "agents-tree" / "no-such.yaml")
+
+    assert proc.returncode != 0
+    payload = json.loads(proc.stdout)
+    assert "error" in payload
+
+
+def test_cli_smoke_stdout_is_single_json_object():
+    proc = run_cli(FIXTURE_YAML)
+
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert set(payload) == {"agents", "duplicates", "health_issues"}
+    assert len(payload["agents"]) == 3
+    # Task 7: duplicates and health_issues are now populated (fixture tree has
+    # one cross-agent duplicate and four unhealthy skills).
+    assert [d["name"] for d in payload["duplicates"]] == ["alpha-skill"]
+    assert len(payload["health_issues"]) == 4
+
+
+def test_home_prefix_paths_expanded_to_absolute(tmp_path, monkeypatch):
+    """`~/...` and `%USERPROFILE%/...` path prefixes must expand to absolute paths
+    (via USERPROFILE), with existence detection still correct."""
+    home = tmp_path / "home"
+    agent_dir = home / "agent-a"
+    skill_dir = agent_dir / "skill-one"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: skill-one\ndescription: tmp skill under a fake home.\n---\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("USERPROFILE", str(home))
+
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        "  - name: tilde-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ~/agent-a\n"
+        "  - name: envvar-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - %USERPROFILE%/agent-a\n"
+        "  - name: envvar-backslash-missing\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - %USERPROFILE%\\no-such-dir\n",
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+
+    for agent_name in ("tilde-agent", "envvar-agent"):
+        entry = agent_entry(result, agent_name)
+        assert entry["installed"] is True
+        assert Path(entry["path"]).is_absolute()
+        assert Path(entry["path"]).exists()
+        assert [s["name"] for s in entry["skills"]] == ["skill-one"]
+
+    missing = agent_entry(result, "envvar-backslash-missing")
+    assert missing["installed"] is False
+    # Expanded even though the directory does not exist.
+    assert Path(missing["path"]).is_absolute()
+    assert missing["path"] == (home / "no-such-dir").resolve().as_posix()
+    assert not Path(missing["path"]).exists()
+
+
+def test_disabled_agent_skipped(tmp_path):
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        f"  - name: ghost\n"
+        "    enabled: false\n"
+        "    paths:\n"
+        f"      - {FIXTURES_DIR.as_posix()}/fake-opencode\n"
+        f"  - name: live\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        f"      - {FIXTURES_DIR.as_posix()}/fake-claude\n",
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+    assert [a["name"] for a in result["agents"]] == ["live"]
+
+
+# ---------------------------------------------------------------------------
+# Task 7: health checks (has_skill_md / frontmatter_ok / health_issues) and
+# cross-agent duplicate detection (duplicates).
+# ---------------------------------------------------------------------------
+
+
+def issues_for(result, skill_name):
+    return [i for i in result["health_issues"] if i["skill"] == skill_name]
+
+
+def test_missing_skill_md_flagged_and_skill_still_listed():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "no-manifest")
+    assert entry["has_skill_md"] is False
+    assert entry["frontmatter_ok"] is False
+    # Still enumerated as a skill entry (a dir without SKILL.md is not dropped).
+    assert entry["name"] == "no-manifest"
+
+    issues = issues_for(result, "no-manifest")
+    assert [i["issue"] for i in issues] == ["missing_skill_md"]
+    assert issues[0]["detail"]  # one-sentence human-readable detail
+    assert set(issues[0]) == {"skill", "issue", "detail"}
+
+
+def test_unterminated_fence_reported_as_frontmatter_broken():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "broken-frontmatter")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is False
+
+    issues = issues_for(result, "broken-frontmatter")
+    assert [i["issue"] for i in issues] == ["frontmatter_broken"]
+
+
+def test_missing_description_key_reported_as_frontmatter_broken(tmp_path):
+    # Complete fences, but the required `description` key is absent; the name
+    # key also mismatches the dir, which must NOT stack a second issue.
+    agent = tmp_path / "agent"
+    skill = agent / "no-desc"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(
+        "---\nname: wrong-name\n---\n\n# wrong-name\n",
+        encoding="utf-8",
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        "  - name: tmp-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./agent\n",
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "no-desc")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is False
+
+    issues = issues_for(result, "no-desc")
+    assert [i["issue"] for i in issues] == ["frontmatter_broken"]
+
+
+def test_long_description_reported_as_desc_too_long():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "long-desc")
+    # fixtures/README.md claims "exactly 1200" but the on-disk fixture is 1199
+    # (off-by-one at generation time); either way it is far past the 1024 cap.
+    assert entry["desc_len"] == 1199
+    assert entry["desc_len"] > 1024
+    issues = issues_for(result, "long-desc")
+    assert [i["issue"] for i in issues] == ["desc_too_long"]
+
+
+def test_frontmatter_name_differs_from_dir_reported_as_name_mismatch():
+    result = build()
+
+    entry = skill_entry(result, "fake-claude", "name-mismatch")
+    # A mismatching-but-present name key is not a broken frontmatter.
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is True
+
+    issues = issues_for(result, "name-mismatch")
+    assert [i["issue"] for i in issues] == ["name_mismatch"]
+
+
+def test_cross_agent_duplicate_alpha_skill_reported_with_two_locations():
+    result = build()
+
+    duplicates = {d["name"]: d for d in result["duplicates"]}
+    assert "alpha-skill" in duplicates
+    assert set(duplicates) == {"alpha-skill"}  # only fixture duplicate
+
+    locations = duplicates["alpha-skill"]["locations"]
+    assert len(locations) == 2
+    assert all(Path(loc).name == "alpha-skill" for loc in locations)
+    assert any("fake-opencode" in loc for loc in locations)
+    assert any("fake-claude" in loc for loc in locations)
+
+
+def test_healthy_skills_produce_no_issues():
+    result = build()
+
+    flagged = {i["skill"] for i in result["health_issues"]}
+    assert flagged == {"no-manifest", "broken-frontmatter", "long-desc", "name-mismatch"}
+
+    healthy = (
+        ("fake-opencode", "alpha-skill"),
+        ("fake-opencode", "beta-skill"),
+        ("fake-claude", "good-skill"),
+    )
+    for agent_name, skill_name in healthy:
+        entry = skill_entry(result, agent_name, skill_name)
+        assert entry["has_skill_md"] is True
+        assert entry["frontmatter_ok"] is True
+        assert entry["desc_len"] < 1024
+
+
+# ---------------------------------------------------------------------------
+# Code-quality fixes: error boundary, BOM tolerance, empty frontmatter values,
+# junction loop guard, DESC_MAX_CHARS boundary, yaml quote stripping,
+# duplicate-location dedup.
+# ---------------------------------------------------------------------------
+
+
+def make_tmp_skill_tree(tmp_path, skill_name, skill_md_text):
+    """Create <tmp_path>/agent/<skill_name>/SKILL.md and return the skill dir."""
+    skill = tmp_path / "agent" / skill_name
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(skill_md_text, encoding="utf-8")
+    return skill
+
+
+def make_registry(tmp_path, entries):
+    """Write a registry yaml with the given (name, enabled, [paths]) entries."""
+    lines = ["agents:"]
+    for name, enabled, paths in entries:
+        lines.append(f"  - name: {name}")
+        lines.append(f"    enabled: {'true' if enabled else 'false'}")
+        lines.append("    paths:")
+        for p in paths:
+            lines.append(f"      - {p}")
+    registry = tmp_path / "registry.yaml"
+    registry.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return registry
+
+
+def test_gbk_yaml_outputs_error_json_not_traceback(tmp_path):
+    """[HIGH] Any unexpected failure (e.g. GBK-encoded yaml breaking utf-8
+    decoding) must still produce a single error JSON on stdout + exit 1."""
+    bad = tmp_path / "gbk.yaml"
+    bad.write_text(
+        "agents:\n"
+        "  - name: 中文代理\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./nope\n",
+        encoding="gbk",
+    )
+    proc = run_cli(bad)
+
+    assert proc.returncode != 0
+    payload = json.loads(proc.stdout)  # stdout must remain valid JSON
+    assert "error" in payload
+    assert payload["error"]
+
+
+def test_bom_prefixed_skill_md_parses_frontmatter(tmp_path):
+    """[MEDIUM] A utf-8 BOM before the '---' fence must not break parsing."""
+    skill = tmp_path / "agent" / "bom-skill"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_bytes(
+        "\ufeff---\nname: bom-skill\ndescription: bom-tolerant skill.\n---\nbody\n".encode("utf-8")
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "bom-skill")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is True
+    assert entry["description"] == "bom-tolerant skill."
+    assert issues_for(result, "bom-skill") == []
+
+
+def test_bom_prefixed_agents_yaml_parses(tmp_path):
+    """[MEDIUM] A utf-8 BOM before 'agents:' must not break registry parsing."""
+    make_tmp_skill_tree(
+        tmp_path, "plain-skill", "---\nname: plain-skill\ndescription: plain.\n---\n"
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_bytes(
+        "\ufeffagents:\n"
+        "  - name: bom-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./agent\n".encode("utf-8")
+    )
+
+    result = build(registry)
+    assert [a["name"] for a in result["agents"]] == ["bom-agent"]
+    assert result["agents"][0]["installed"] is True
+
+
+def test_empty_description_value_is_frontmatter_broken(tmp_path):
+    """[MEDIUM] `description:` with an empty value cannot be routed on and
+    must count as broken frontmatter, not a healthy skill."""
+    make_tmp_skill_tree(tmp_path, "empty-desc", "---\nname: empty-desc\ndescription:\n---\n")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "empty-desc")
+    assert entry["frontmatter_ok"] is False
+    assert entry["description"] is None
+    assert [i["issue"] for i in issues_for(result, "empty-desc")] == ["frontmatter_broken"]
+
+
+def test_empty_name_value_is_frontmatter_broken_without_mismatch(tmp_path):
+    """[MEDIUM] `name:` with an empty value -> frontmatter_broken only; the
+    name_mismatch check must not run on top of an unparseable name."""
+    make_tmp_skill_tree(tmp_path, "empty-name", "---\nname:\ndescription: d.\n---\n")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "empty-name")
+    assert entry["frontmatter_ok"] is False
+    assert [i["issue"] for i in issues_for(result, "empty-name")] == ["frontmatter_broken"]
+
+
+def test_junction_loop_does_not_inflate_size_kb_or_hang(tmp_path):
+    """[MEDIUM] A junction cycle inside a skill dir must not double-count
+    size_kb nor hang the walk (junctions are not is_symlink() on Windows)."""
+    skill = make_tmp_skill_tree(
+        tmp_path, "looped-skill", "---\nname: looped-skill\ndescription: loop.\n---\n"
+    )
+    (skill / "payload.bin").write_bytes(b"x" * 8192)  # give size_kb a nonzero baseline
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    baseline = json.loads(run_cli(registry).stdout)
+    baseline_kb = baseline["agents"][0]["skills"][0]["size_kb"]
+    assert baseline_kb >= 8.0
+
+    junction = skill / "loop"
+    mklink = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(junction), str(skill)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    assert mklink.returncode == 0, mklink.stderr  # junction creation needs no admin
+
+    proc = run_cli(registry, timeout=30)  # raises TimeoutExpired if the walk hangs
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert payload["agents"][0]["skills"][0]["size_kb"] == baseline_kb
+
+
+def test_desc_max_chars_constant_and_boundaries(tmp_path):
+    """[LOW] DESC_MAX_CHARS is a named constant (skill-anatomy §3.3);
+    1024 chars passes, 1025 chars gets desc_too_long."""
+    assert inventory.DESC_MAX_CHARS == 1024
+
+    make_tmp_skill_tree(
+        tmp_path, "desc-1024", f"---\nname: desc-1024\ndescription: {'x' * 1024}\n---\n"
+    )
+    make_tmp_skill_tree(
+        tmp_path, "desc-1025", f"---\nname: desc-1025\ndescription: {'x' * 1025}\n---\n"
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    ok_entry = skill_entry(result, "tmp-agent", "desc-1024")
+    assert ok_entry["frontmatter_ok"] is True
+    assert ok_entry["desc_len"] == 1024
+    assert issues_for(result, "desc-1024") == []
+
+    long_entry = skill_entry(result, "tmp-agent", "desc-1025")
+    assert long_entry["desc_len"] == 1025
+    assert [i["issue"] for i in issues_for(result, "desc-1025")] == ["desc_too_long"]
+
+
+def test_quoted_yaml_scalars_are_unquoted(tmp_path):
+    """[LOW] `name: "opencode"` must be stored unquoted so --agent matching
+    works; quoted path scalars must also resolve."""
+    make_tmp_skill_tree(
+        tmp_path, "q-skill", "---\nname: q-skill\ndescription: quoted registry.\n---\n"
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        '  - name: "quoted-agent"\n'
+        "    enabled: true\n"
+        "    paths:\n"
+        '      - "./agent"\n',
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+    assert [a["name"] for a in result["agents"]] == ["quoted-agent"]
+    assert result["agents"][0]["installed"] is True
+
+    proc = run_cli(registry, "--agent", "quoted-agent")
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert [a["name"] for a in payload["agents"]] == ["quoted-agent"]
+
+
+def test_two_agents_sharing_one_path_no_false_duplicate(tmp_path):
+    """[LOW] Duplicate locations must be deduped before the >=2 threshold;
+    two agents pointing at the same dir is one install location, not two."""
+    make_tmp_skill_tree(
+        tmp_path, "shared-skill", "---\nname: shared-skill\ndescription: shared.\n---\n"
+    )
+    registry = make_registry(
+        tmp_path,
+        [("agent-one", True, ["./agent"]), ("agent-two", True, ["./agent"])],
+    )
+
+    result = build(registry)
+    assert result["duplicates"] == []
