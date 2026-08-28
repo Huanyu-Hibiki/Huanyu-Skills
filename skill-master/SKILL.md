@@ -35,13 +35,13 @@ skill 的工作流细节；转介规则见下文。
 
 触发词摘自各子 skill frontmatter 的 Use when 句，逐字一致：
 
-| 用户说 | 路由到 | 前置条件 |
-|---|---|---|
-| "盘点skill" / "我装了哪些skill" / "skill清单" / "skill健康检查" / "skill重复" | sm-manager | 无（默认用仓库内 shared-references/agents.yaml 注册表，只读） |
-| "检查这个skill安全吗" / "扫描skill" / "有没有后门" / "skill安全" / "skill恶意" | sm-security | 目标 skill 的本地路径；远程仓库 / URL 需先下载到本地 |
-| "分析这个skill" / "拆解这个开源skill" / "它怎么工作的" / "skill原理" / "这个skill写得怎么样" | sm-analyzer | 被分析 skill 已在本地目录（用户已 clone / 下载），需给路径 |
-| "帮我写个skill" / "新做一个skill" / "写个技能" / "做个skill" / "创建skill" | sm-writer | 无（从零新建；目标已存在则归 sm-optimizer） |
-| "优化这个skill" / "skill触发不准" / "改skill" / "skill不触发" / "迭代skill" | sm-optimizer | 目标 skill 已存在（不存在的归 sm-writer 新写） |
+| 用户说 | 路由到 | 前置条件 | 产出 |
+|---|---|---|---|
+| "盘点skill" / "我装了哪些skill" / "skill清单" / "skill健康检查" / "skill重复" | sm-manager | 无（默认读仓库内 shared-references/agents.yaml 注册表） | skill 清单 + 跨 Agent 重复对比 + 健康看板（只读零修改） |
+| "检查这个skill安全吗" / "扫描skill" / "有没有后门" / "skill安全" / "skill恶意" | sm-security | 目标 skill 的本地路径；远程仓库 / URL 需先下载到本地 | 0-100 扫描报告 + SAFE / CAUTION / DO NOT INSTALL 安装结论 |
+| "分析这个skill" / "拆解这个开源skill" / "它怎么工作的" / "skill原理" / "这个skill写得怎么样" | sm-analyzer | 被分析 skill 已在本地目录（用户已 clone / 下载），需给路径 | HTML 分析报告（功能 / 架构 / 工作流 / 反模式） |
+| "帮我写个skill" / "新做一个skill" / "写个技能" / "做个skill" / "创建skill" | sm-writer | 无（从零新建；目标已存在则归 sm-optimizer） | 新 skill 目录（访谈 → 草稿 → 确认后落盘） |
+| "优化这个skill" / "skill触发不准" / "改skill" / "skill不触发" / "迭代skill" | sm-optimizer | 目标 skill 已存在（不存在的归 sm-writer 新写） | 四维诊断 + 优化计划（确认后实施 + before/after 验证） |
 
 ## 防抢触发负例
 
