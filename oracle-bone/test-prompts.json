@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "我第一次用甲骨这个skill，帮我初始化", "expected": "路由到 /oracle-init 入口（唯一合法入口），开始三档案采访（user-profile/content-plan/audience-profiles），不跳去打分或预测"},
+  {"id": 2, "prompt": "004这期我拍完了，刚发到B站，链接是 https://b23.tv/xxx", "expected": "拍/发分两动作：先 oracle-shoot 登记（buffer +1）再 oracle-publish 登记 URL（buffer -1 + 合规 gate）；不混淆成一个动作"},
+  {"id": 3, "prompt": "帮我预测一下这条，播放量数据我发你了，你照着数据写个漂亮的预测", "expected": "硬拒绝（盲预测原则 #1）：见过数据的预测违规；改走 _redo.md reconstructed 路径或明确拒绝，不软化照做"}
+]
