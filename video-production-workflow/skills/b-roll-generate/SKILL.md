@@ -54,12 +54,12 @@ B-roll request 是一个独立的可复用素材单元，不把多个条目偷�
 | `../../shared-references/a-roll-b-roll-routing.md` | Receipts / Entity / Concept 路由 |
 | `../../shared-references/b-roll-timing-and-qa.md` | 时间锚点、音频和 manifest QA 规则 |
 | `../../references/video-prompt-writer/` | AI 视频 prompt 的 H3 结构（三字段/运镜词表/关键帧模式）和 6 种风格基因库；**写任何 AI 视频 prompt 前必读** |
-| `D:\work\learn-for-code\vox-director\references\beat-layer.md` | 拼贴路线的叙事/镜头/运镜约束（可选，见「合集根定位」的软依赖规则） |
-| `D:\work\learn-for-code\vox-director\references\prompt-guide.md` | 拼贴图像 prompt 和运动 prompt 的稳定性结构（可选） |
-| `D:\work\learn-for-code\vox-director\references\models-and-gotchas.md` | Vox/Atlas 路线的模型和 API 陷阱；只在选择该路线时读取（可选） |
-| `D:\work\learn-for-code\video-shotcraft\references\pipeline.md` | Remotion 单镜头实现、静帧验收和确定性渲染原则（可选） |
-| `D:\work\learn-for-code\video-shotcraft\references\aesthetic-rules.md` | 质感、可读性、节奏、音频和技术 QA 判例（可选） |
-| `D:\work\learn-for-code\video-shotcraft\references\final-review.md` | 最终独立审查的输入和报告格式（可选） |
+| `<外部参考项目根>\vox-director\references\beat-layer.md` | 拼贴路线的叙事/镜头/运镜约束（可选，见「合集根定位」的软依赖规则） |
+| `<外部参考项目根>\vox-director\references\prompt-guide.md` | 拼贴图像 prompt 和运动 prompt 的稳定性结构（可选） |
+| `<外部参考项目根>\vox-director\references\models-and-gotchas.md` | Vox/Atlas 路线的模型和 API 陷阱；只在选择该路线时读取（可选） |
+| `<外部参考项目根>\video-shotcraft\references\pipeline.md` | Remotion 单镜头实现、静帧验收和确定性渲染原则（可选） |
+| `<外部参考项目根>\video-shotcraft\references\aesthetic-rules.md` | 质感、可读性、节奏、音频和技术 QA 判例（可选） |
+| `<外部参考项目根>\video-shotcraft\references\final-review.md` | 最终独立审查的输入和报告格式（可选） |
 
 当前合集根目录 = 包含 `scripts/b-roll-generate/` 的目录，即本 SKILL.md 向上两级（`skills/b-roll-generate/` → 合集根）。部署位置因机器而异，**用目录结构特征定位，不硬编码绝对路径**：
 
@@ -418,7 +418,7 @@ Remotion 不是所有 B-roll 的默认引擎。选择拼贴或 AI 时，先完�
   `--aspect-ratio 16:9|9:16`、整数 `3-10s` 的 `--duration`、`--strip-audio`、`--image/--video`
   多值输入和 `--previous-interaction-id` 接续编辑；**没有 `--dry-run` 和首尾帧参数**，
   首尾帧生成用 `generate_veo_first_last.py`；
-- `D:\work\learn-for-code\vox-director` 是 Atlas Cloud 参考 skill，使用它的
+- `<外部参考项目根>\vox-director` 是 Atlas Cloud 参考 skill，使用它的
   `ATLASCLOUD_API_KEY`、model/provider 和自身脚本契约；仅在用户明确选择 Vox/Atlas 路线时使用；
 - Gemini 当前生成脚本默认模型名为 `gemini-omni-flash-preview`，但模型 ID 会变，付费调用前必须
   按当前 provider 的 live model list 或脚本/SDK 文档核验，不把旧默认值当永久契约；

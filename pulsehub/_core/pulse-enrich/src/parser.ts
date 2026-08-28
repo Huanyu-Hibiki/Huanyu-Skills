@@ -1,7 +1,7 @@
 /**
  * LLM response parser.
  *
- * Takes the raw text output from any LLM (Claude, GPT, DeepSeek, Hermes, etc.)
+ * Takes the raw text output from any LLM (Claude, GPT, DeepSeek, etc.)
  * and normalizes it into PulseHub's structured `LLMEnrichmentResponse`.
  *
  * Tolerant of common LLM quirks:

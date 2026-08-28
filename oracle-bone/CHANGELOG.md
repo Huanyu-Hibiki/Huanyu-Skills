@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - collect.py：detail_steps 传 wid（B站按卡片定位）；详情期监听数据自动回流列表行（只填空字段）；修复 B站导出死代码（原 detail_steps 因缺 DETAIL_URL 从未被执行）
 - B站诚实边界：无 2s/3s 跳出率与 5s完播指标——留空不硬凑
 - README 新增「五维增量指标采集」节（--details N 用法 + 平台叫法映射表 + 校准指引）
-### Fixed — Adapter 铁律：封杀 computer-use 替代采集（2026-08-26，第九批，Hermes 实战反馈 II）
-- **根因**：Hermes 自带 computer-use skill（"Load whenever computer_use tool is available"）随时抢活；oracle-bone 的 `<skill包>` 占位符 + 裸 `python` 命令在非 Claude runtime 解析不了 → 模型滑向视觉操作
+### Fixed — Adapter 铁律：封杀 computer-use 替代采集（2026-08-26，第九批，实战反馈 II）
+- **根因**：AI Agent 自带 computer-use skill（"Load whenever computer_use tool is available"）随时抢活；oracle-bone 的 `<skill包>` 占位符 + 裸 `python` 命令在非 Claude runtime 解析不了 → 模型滑向视觉操作
 - 伞 SKILL.md 新增「🔴 Adapter 铁律」：adapter 一律 Bash 调脚本、解释器必须用 adapter 自带 .venv（含 `<包根>` 解析规则与 Windows/Unix 路径）、禁止 computer-use/GUI/亲手开浏览器替代
 - compass-retro / retro 的采集命令改为可执行形态（`<PY>` + `<包根>` 显式解析）+ 就地 🚫 禁令；伞触发词补「采集数据/拉数据」
-### Fixed — auto-collect 登录门重写（2026-08-26，第八批，Hermes 实战反馈）
+### Fixed — auto-collect 登录门重写（2026-08-26，第八批，实战反馈）
 - **根因**：网页登录态 1-2 周过期后，采集路径检测到未授权只塞一行错误就关窗口——headful 下二维码闪现即关（"不提醒不等待"），headless 下完全不可见；AI agent 拿不到机制信息开始自由发挥（挨个开浏览器/检查 Edge）
 - headful 失效 → 弹登录页 + 大声提示 + **轮询等扫码 3 分钟**（`wait_for_login`，30s 节奏提醒），成功自动继续采集
 - headless 失效 → 立即退出码 2 + 尾行 `NEEDS_AUTH=<平台>`（机器可读）；`--auth-only` 等待加上限 10 分钟 + `AUTH_FAILED` 退出码

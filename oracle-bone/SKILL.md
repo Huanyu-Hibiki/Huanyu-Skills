@@ -301,7 +301,7 @@ oracle-bone/
     └── script_patterns.example.md     # script_patterns 全填示例
 ```
 
-### 🔴 Adapter 铁律（所有 runtime 通用，含 Hermes/Codex 等）
+### 🔴 Adapter 铁律（所有 runtime 通用，含 Codex 等）
 
 1. **所有 adapter 都是确定性 Bash 脚本**——数据采集/转录/解析一律通过 shell 调脚本完成。**禁止**用 computer-use / GUI 自动化 / 视觉识别 / 亲手开浏览器点页面来替代 adapter 干活。脚本坏了 → 报错因 + 按各 adapter README 的失败模式速查修，**换方式采集 = 绕过校准数据的确定性来源 = 拒绝**
 2. **解释器必须用 adapter 自带的 `.venv`**（依赖隔离，系统 python 没装 playwright/faster-whisper）：

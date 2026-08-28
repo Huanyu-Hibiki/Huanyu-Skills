@@ -20,7 +20,7 @@ uv run python "<合集根>/scripts/<阶段>/<脚本>.py" --help
 从其他目录调用时使用 `--project`：
 
 ```powershell
-uv run --project "D:/work/OPC/video-creation-workflows/01-制作管线/video-production-workflow" python "D:/work/OPC/video-creation-workflows/01-制作管线/video-production-workflow/scripts/video-status/status.py" "<项目>"
+uv run --project "<skill 安装目录>/01-制作管线/video-production-workflow" python "<skill 安装目录>/01-制作管线/video-production-workflow/scripts/video-status/status.py" "<项目>"
 ```
 
 ## 全局命令

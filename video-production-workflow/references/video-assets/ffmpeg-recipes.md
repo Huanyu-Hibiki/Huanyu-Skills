@@ -3,7 +3,7 @@
 Run commands from the video project folder:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\
+<视频项目根>\{第X期：视频标题}\
 ```
 
 Append every command to `assets\logs\ffmpeg_commands.md`.

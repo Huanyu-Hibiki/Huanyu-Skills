@@ -3,12 +3,12 @@
 Save to:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\assets\licenses\media_asset_manifest.json
+<视频项目根>\{第X期：视频标题}\assets\licenses\media_asset_manifest.json
 ```
 
 ```json
 {
-  "project_folder": "D:\\work\\OPC\\videos\\{第X期：视频标题}",
+  "project_folder": "<视频项目根>\\{第X期：视频标题}",
   "updated_at": "2026-05-05",
   "assets": [
     {

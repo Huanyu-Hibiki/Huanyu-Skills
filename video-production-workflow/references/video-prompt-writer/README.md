@@ -1,6 +1,6 @@
 # Video Prompt Writer（AI 视频 Prompt 参考库）
 
-> 提炼自 MiniMax H3 官方 skills（`D:\work\skills-creator\MiniMax-H3\skills`），服务于本工作流的 B-roll AI 生成路线。
+> 提炼自 MiniMax H3 官方 skills（`<MiniMax-H3 官方 skills 目录>`），服务于本工作流的 B-roll AI 生成路线。
 > 当 `b-roll-generate` 走 AI 视频/图片生成（H3、Seedance、Gemini 图生视频等）时，写 prompt 前必读本目录。
 
 ## 文件索引

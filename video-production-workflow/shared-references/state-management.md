@@ -16,7 +16,7 @@
 {
   "schema_version": "0.1",
   "skill_version": "0.1.0",
-  "project_path": "D:/work/OPC/videos/EP001_标题",
+  "project_path": "<视频项目根>/EP001_标题",
   "project_id": "EP001_标题",
   "title": "标题",
   "current_phase": "plan",

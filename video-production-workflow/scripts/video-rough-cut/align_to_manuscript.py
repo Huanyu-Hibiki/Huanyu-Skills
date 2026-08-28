@@ -13,7 +13,7 @@ Usage:
 
 Example:
     python align_to_manuscript.py \
-        "D:\work\OPC\videos\把8个AI Agent塞进明代朝廷，我当了回朱元璋" \
+        "<视频项目根>\把8个AI Agent塞进明代朝廷，我当了回朱元璋" \
         "Rough\review\OBS\1_转录\subtitles_words.json" \
         "Rough\review\OBS\2_分析"
 """

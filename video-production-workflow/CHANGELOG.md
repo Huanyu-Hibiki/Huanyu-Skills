@@ -27,7 +27,7 @@
 - 根 SKILL.md 目录清单修正为与仓库实际一致的结构，消除缩进错位和部署态/模板态混淆。
 - video-migrate 推断规则对齐 `migrate.py` 实际行为（纯文件存在性判断），去除文档虚构的 JSON 解析/时长校验。
 - b-roll-generate 清除失真引用：`generate_video.py` 参数表对齐真实 argparse；首尾帧路线改用真实脚本 `generate_veo_first_last.py`（含必需 `--gcs-uri`、9:16/720p 默认值警告）；移除不存在的 `prepare_first_last.py`/`qa_collage_video.py`。
-- 外部参考目录（`D:\work\learn-for-code\*`）降级为软依赖：不可用时跳过并记录，不阻塞流程。
+- 外部参考目录（`<外部参考项目根>\*`）降级为软依赖：不可用时跳过并记录，不阻塞流程。
 - 5 个 skill 补充 dim9「禁止/反例清单」章节。
 
 ## v0.3.0 - 2026-08-25

@@ -7,7 +7,7 @@ Use these structures exactly unless the user provides a different schema.
 Planning files go here:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\video scripts\
+<视频项目根>\{第X期：视频标题}\video scripts\
 ```
 
 Expected planning files:
@@ -41,7 +41,7 @@ Do not save generated planning files in `edit\handoff\`, the skill directory, or
     "platforms": ["Bilibili", "YouTube"],
     "aspect_ratio": "16:9",
     "workflow": "实拍 + OBS + 万兴喵影 + Remotion素材补强",
-    "project_folder": "D:\\work\\OPC\\videos\\{第X期：视频标题}"
+    "project_folder": "<视频项目根>\\{第X期：视频标题}"
   },
   "scenes": [
     {
@@ -94,7 +94,7 @@ Derive from `storyboard.json`.
 ```md
 # Material Suggestion Document
 
-- **Project Folder**: `D:\work\OPC\videos\{第X期：视频标题}`
+- **Project Folder**: `<视频项目根>\{第X期：视频标题}`
 - **Source File**: `video scripts\storyboard.json`
 
 ## Summary Table
@@ -179,7 +179,7 @@ Save to `assets\requests\asset_request_list.md` for `video-assets`.
 ```md
 # Asset Request List
 
-- **Project Folder**: `D:\work\OPC\videos\{第X期：视频标题}`
+- **Project Folder**: `<视频项目根>\{第X期：视频标题}`
 - **Output Root**: `assets\`
 
 ## Asset 01

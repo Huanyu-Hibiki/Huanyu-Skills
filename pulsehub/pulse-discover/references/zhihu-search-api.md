@@ -17,7 +17,7 @@ X-Request-Timestamp: <秒级 Unix 时间戳>
 Content-Type: application/json
 ```
 
-API Key 存在 `~/.hermes/.env` 的 `ZHIHU_API_KEY` 变量里。读取方式：
+API Key 存在 `环境变量` 的 `ZHIHU_API_KEY` 变量里。读取方式：
 
 ```python
 import os

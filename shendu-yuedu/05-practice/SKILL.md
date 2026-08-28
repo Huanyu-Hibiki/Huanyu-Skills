@@ -7,8 +7,10 @@ description: 深度阅读·第五步。把 #4 结构化精读出的知识卡片�
 
 把"知道"变成"会做"——把书中知识固化为可反复调用的个人技能。
 
+> **知识库根目录 `<知识库根>`**：① 本次会话用户显式指定 → ② 当前 Agent 打开的项目路径下有知识库标志（`阅读笔记/log.md` 或 `阅读笔记/_system/用户阅读报告.md`）→ ③ `~/.shendu-yuedu/config.json` 的 kb_root（问用户是否沿用）→ ④ 默认当前 Agent 打开的项目路径。权威定义见 `01-init/SKILL.md`「知识库根目录解析协议」。
+
 ## 前置
-1. 读 `C:/work/Huanyu Hub/Huanyu-Knowledge/personal/阅读笔记/YYYY-MM/<书名>/知识卡片.md`（#4 全部卡片 C-001…）+ 知识网络图谱。
+1. 读 `<知识库根>/阅读笔记/YYYY-MM/<书名>/知识卡片.md`（#4 全部卡片 C-001…）+ 知识网络图谱。
 2. 读 Hub 取核心目标+应用场景。
 
 ## 技能定义标准（不达标不算技能）
@@ -62,13 +64,13 @@ description: 深度阅读·第五步。把 #4 结构化精读出的知识卡片�
 ```
 
 ## 输出
-1. **可执行 skill 资产写入 `C:/work/Huanyu Hub/Huanyu-Knowledge/skills/<书名>/`**：
-   - 单本索引：`C:/work/Huanyu Hub/Huanyu-Knowledge/skills/<书名>/INDEX.md`（技能合集 + Mermaid 依赖图谱）
-   - 单个技能：`C:/work/Huanyu Hub/Huanyu-Knowledge/skills/<书名>/<skill-slug>/SKILL.md`
-2. **同步追加到 `C:/work/Huanyu Hub/Huanyu-Knowledge/skills/INDEX.md`**（跨书技能索引，⭐核心资产）——按 `书名\知识点` 索引，跨书汇总。
-3. **同步回填阅读报告**：`C:/work/Huanyu Hub/Huanyu-Knowledge/personal/阅读笔记/_system/用户阅读报告.md` 的「已萃取技能索引（跨书累积）」章节，写入 skill 名称、路径、触发条件、来源书/章节。
+1. **可执行 skill 资产写入 `<知识库根>/skills/<书名>/`**：
+   - 单本索引：`<知识库根>/skills/<书名>/INDEX.md`（技能合集 + Mermaid 依赖图谱）
+   - 单个技能：`<知识库根>/skills/<书名>/<skill-slug>/SKILL.md`
+2. **同步追加到 `<知识库根>/skills/INDEX.md`**（跨书技能索引，⭐核心资产）——按 `书名\知识点` 索引，跨书汇总。
+3. **同步回填阅读报告**：`<知识库根>/阅读笔记/_system/用户阅读报告.md` 的「已萃取技能索引（跨书累积）」章节，写入 skill 名称、路径、触发条件、来源书/章节。
 4. **同步 Obsidian LLM Wiki 索引**：在 `wiki/index.md` 的手动 Skills/References 区或新建 `wiki/concepts/<书名>-技能索引.md` 中链接到 `skills/<书名>/INDEX.md`，确保后续可被 LLM Wiki 检索/调用。
-5. **阅读侧记录仍写回对应书目目录**：`C:/work/Huanyu Hub/Huanyu-Knowledge/personal/阅读笔记/YYYY-MM/<书名>/实践转化.md`，记录本次从哪些知识卡片萃取了哪些技能；文件头带 OKF frontmatter（`type: 实践转化` / `title: <书名>·实践转化` / `tags: [深度阅读, <书名>]` / `timestamp`），回填阅读报告/wiki 索引的链接写法遵循 Hub 报告「知识库工具链」的链接规范。落盘后追加 `阅读笔记/log.md` 一条：`## [YYYY-MM-DD] practice | <书名>·萃取X个技能`。
+5. **阅读侧记录仍写回对应书目目录**：`<知识库根>/阅读笔记/YYYY-MM/<书名>/实践转化.md`，记录本次从哪些知识卡片萃取了哪些技能；文件头带 OKF frontmatter（`type: 实践转化` / `title: <书名>·实践转化` / `tags: [深度阅读, <书名>]` / `timestamp`），回填阅读报告/wiki 索引的链接写法遵循 Hub 报告「知识库工具链」的链接规范。落盘后追加 `阅读笔记/log.md` 一条：`## [YYYY-MM-DD] practice | <书名>·萃取X个技能`。
 6. 实践路线图（30-60-90天）：Week1-2 只练1个核心技能→Month1 扩2-3个→Month2-3 组合成工作流
 7. 与 #3 实践钩子衔接表（每个钩子是否已转为某技能的首次执行）
 
@@ -94,7 +96,7 @@ description: 深度阅读·第五步。把 #4 结构化精读出的知识卡片�
 
 ## References
 
-- `references/obsidian-skill-output-routing.md` — 焕羽的深度阅读产物归位规则：阅读流程证据放 `personal/阅读笔记/`，sy-practice 萃取出的可执行 skill 放 `Huanyu-Knowledge/skills/`，并同步 `skills/INDEX.md`、阅读报告「已萃取技能索引（跨书累积）」和 `wiki/index.md`。
+- `references/obsidian-skill-output-routing.md` — 深度阅读产物归位规则：阅读流程证据放 `<知识库根>/阅读笔记/`，sy-practice 萃取出的可执行 skill 放 `<知识库根>/skills/`，并同步 `skills/INDEX.md`、阅读报告「已萃取技能索引（跨书累积）」和 `wiki/index.md`。
 
 ## 下一步
 技能要在真实使用中才变准——运行 **`sy-evolve`（自进化）**，按你的实际使用反馈迭代这些技能。说"迭代技能"或"技能不好用"即可。

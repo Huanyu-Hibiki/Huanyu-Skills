@@ -48,7 +48,7 @@ uv sync
 或：
 
 ```text
-/video-init D:\work\OPC\videos\EP00X_视频标题
+/video-init <视频项目根>\EP00X_视频标题
 ```
 
 初始化会检查项目路径，创建标准目录、`.video-workflow-state.json`、`WORKFLOW.md` 和 `STATUS.md`，不会覆盖已有文件。

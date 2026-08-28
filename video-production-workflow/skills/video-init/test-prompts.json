@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "prompt": "我要做新一期视频，终稿在 D:\\work\\OPC\\videos\\EP012_标题\\video scripts\\final.md，帮我初始化制作管线",
+    "prompt": "我要做新一期视频，终稿在 <视频项目根>\\EP012_标题\\video scripts\\final.md，帮我初始化制作管线",
     "expected": "确认路径/标题/画幅/帧率后创建标准目录、state、WORKFLOW/STATUS，复制终稿为 manuscript.md，不覆盖已有文件，输出下一步 /video-plan"
   },
   {

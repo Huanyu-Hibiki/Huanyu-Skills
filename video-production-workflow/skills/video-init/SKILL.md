@@ -28,7 +28,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ```bash
 uv run --project "<合集根>" python "<合集根>/scripts/video-init/init_project.py" \
-  "D:/work/OPC/videos/EP001_视频标题" \
+  "<视频项目根>/EP001_视频标题" \
   --title "视频标题" --width 1920 --height 1080 --fps 30 \
   --manuscript "D:/path/to/manuscript.md"
 ```

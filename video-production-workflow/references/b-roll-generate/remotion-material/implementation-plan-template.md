@@ -6,7 +6,7 @@ Use this before writing code. Wait for user confirmation unless they explicitly 
 # Implementation Plan
 
 - **Motion Request ID**: Motion 01
-- **Video Project Folder**: `D:\work\OPC\videos\{第X期：视频标题}`
+- **Video Project Folder**: `<视频项目根>\{第X期：视频标题}`
 - **Material Workspace**: `edit\remotion\Motion01_MultiAgentResearchFlow\`
 - **Remotion Project Path**: `edit\remotion\Motion01_MultiAgentResearchFlow\remotion-project\`
 - **Render Output Path**: `edit\remotion\Motion01_MultiAgentResearchFlow\out\`

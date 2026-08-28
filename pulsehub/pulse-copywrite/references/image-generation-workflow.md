@@ -41,7 +41,7 @@ outputs/social-cards/<编号>-<slug>/
 ## 渲染命令（crawl4ai venv 有 Playwright）
 
 ```bash
-"C:/Users/kabuto/.hermes/venvs/crawl4ai/Scripts/python.exe" -c "
+"<你的crawl4ai-venv路径>/Scripts/python.exe" -c "
 import asyncio
 from playwright.async_api import async_playwright
 from pathlib import Path

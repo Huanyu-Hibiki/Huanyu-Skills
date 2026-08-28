@@ -39,7 +39,7 @@
 | audience-brief 依赖 who-for 先跑 | **init 即产出用户画像**（audience-profiles.md），oracle-simulate-audience 直接以 init 画像为根基；who-for brief 是逐稿深化层 |
 | B 轨获客第一性原理 13 条 + 6 问 + 4 步心理闭环评分 | 移入 `references/conversion-track-playbook.md`，内容规划含转化轨时作为该轨手册加载 |
 | OP 工作偏好（方案菜单 / 双角度交叉验证 / 真实数据 / 直接改） | 泛化为默认**协作契约**（见 §9），对所有用户生效 |
-| 项目根路径写死（Huanyu Hub / EPxxx 命名） | init 时配置项目根；作品文件夹泛化为 `<NNN>_<标题>/` 编号制 |
+| 项目根路径写死（知识库 / EPxxx 命名） | init 时配置项目根；作品文件夹泛化为 `<NNN>_<标题>/` 编号制 |
 | 徐沪生《做号》/ xuxhusheng 书为私人引用 | 提炼**通用版内容漏斗理论**作为 init 的默认方法论参考（references/content-funnel-theory.md）；references/ 目录开放给用户自由添加参考书籍/文档 |
 | 个人风格偏好 | 后续可以根据用户的喜好自己调整 |
 
@@ -388,7 +388,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 ## 10. 新 skill 目录结构
 
 ```
-Huanyu-Skills/oracle-bone/
+<skill 仓库>/oracle-bone/
 ├── SKILL.md                    # 总协议 + 路由表 + 原则 + 轨道机制 + 协作契约
 ├── README.md                   # 门面
 ├── DESIGN.md                   # 本文档

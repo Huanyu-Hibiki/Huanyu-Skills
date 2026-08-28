@@ -5,7 +5,7 @@ Use this shape when asking `video-plan` to create or refine `motion_request_list
 ```md
 # Motion Request List
 
-- **Project Folder**: `D:\work\OPC\videos\{第X期：视频标题}`
+- **Project Folder**: `<视频项目根>\{第X期：视频标题}`
 - **Output Path**: `edit\handoff\motion_request_list.md`
 
 ## Motion 01

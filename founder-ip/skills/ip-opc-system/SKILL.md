@@ -158,7 +158,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - **拍摄**：用什么？（手机/相机/ webcam / OBS 录屏）
 - **剪辑**：用什么？（剪映 / Premiere / DaVinci / AI 自动剪辑）
 - **包装**：用什么？（Hyperframe / Remotion / 模板 / 手工）
-- **分发**：用什么？（Hermes Agent / 手动多平台）
+- **分发**：用什么？（AI Agent / 手动多平台）
 - **复盘**：用什么？（cheat-retro / 手动看数据）
 
 **记录字段**：`toolchain`
@@ -185,7 +185,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 上午 | 剪辑草稿（AI 自动） | 剪辑 skill | 粗剪 |
 | 上午 | 精剪（手动） | 剪映 | 精剪 |
 | 下午 | 包装（动画/字幕） | Hyperframe/Remotion | 成片 |
-| 下午 | 分发（自动） | Hermes Agent | 多平台发布 |
+| 下午 | 分发（自动） | AI Agent | 多平台发布 |
 | 下午 | 复盘准备（cheat-retro） | cheat-on-content | 预测 + 待复盘 |
 
 **让用户确认或调整这个日程**。
@@ -209,7 +209,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 拍摄 | ❌ | ✅ 全部 | 出镜只能你 |
 | 剪辑草稿 | ✅ 自动 | 精剪取舍 | AI 粗剪，你定节奏 |
 | 包装 | ✅ 模板化 | 风格决策 | AI 套模板，你定调 |
-| 分发 | ✅ 全自动 | 无 | Hermes Agent |
+| 分发 | ✅ 全自动 | 无 | AI Agent |
 | 评论回复 | ⚠️ 辅助 | 重要评论亲自 | 私域信任靠你 |
 | 复盘 | ✅ 数据收集 | 判断 + 决策 | AI 给数据，你判断 |
 
@@ -232,13 +232,13 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 |---|---|---|---|
 | 视频号 | 视频主战场 | 重投入（创作 + 运营 + 复盘） | 手动 |
 | 公众号 | 文字主战场 | 重投入（深度 + 私域 + B 端） | 手动 |
-| 抖音 | 纯分发 | 0 投入 | Hermes Agent 自动 |
-| B 站 | 纯分发 | 0 投入 | Hermes Agent 自动 |
-| 小红书 | 纯分发 | 0 投入 | Hermes Agent 自动 |
-| 即刻 | 纯分发 | 0 投入 | Hermes Agent 自动 |
+| 抖音 | 纯分发 | 0 投入 | AI Agent 自动 |
+| B 站 | 纯分发 | 0 投入 | AI Agent 自动 |
+| 小红书 | 纯分发 | 0 投入 | AI Agent 自动 |
+| 即刻 | 纯分发 | 0 投入 | AI Agent 自动 |
 
 **关键澄清**：
-- **分发可广**（Hermes Agent 自动化，边际成本 0）
+- **分发可广**（AI Agent 自动化，边际成本 0）
 - **运营要聚焦**（评论/互动/数据复盘只做视频号 + 公众号）
 
 **记录字段**：`distribution_strategy`

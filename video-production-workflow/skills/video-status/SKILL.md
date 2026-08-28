@@ -19,8 +19,8 @@ allowed-tools: Bash(*), Read, Glob, Grep
 ## 执行脚本
 
 ```bash
-uv run --project "<合集根>" python "<合集根>/scripts/video-status/status.py" "D:/work/OPC/videos/EP001_视频标题"
-uv run --project "<合集根>" python "<合集根>/scripts/video-status/status.py" "D:/work/OPC/videos/EP001_视频标题" --json
+uv run --project "<合集根>" python "<合集根>/scripts/video-status/status.py" "<视频项目根>/EP001_视频标题"
+uv run --project "<合集根>" python "<合集根>/scripts/video-status/status.py" "<视频项目根>/EP001_视频标题" --json
 ```
 
 脚本只读 state 和实际文件，不自动修改项目。

@@ -210,4 +210,4 @@ it's worth noting, at the end of the day, when it comes to, at its core / 值得
 
 ## 来源
 
-本 skill 于 2026-08-05 合并了 `no-ai-slop` skill（C:\work\no-ai-slop\skills\no-ai-slop）的完整方法论，保留 PulseHub 原有的中文互联网黑话清单 + 个人风格.md 联动 + 5维评分 + 沉淀回填。
+本 skill 于 2026-08-05 合并了 `no-ai-slop` skill（<no-ai-slop skill 目录>）的完整方法论，保留 PulseHub 原有的中文互联网黑话清单 + 个人风格.md 联动 + 5维评分 + 沉淀回填。

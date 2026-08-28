@@ -25,10 +25,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 ## 部署边界
 
-内容校准由 `cheat-on-content` 负责，通常运行在 Hermes 或内容管理环境；本 Skill 负责工作站上的视频制作。两者的衔接物是已经确认的终稿，通常放在：
+内容校准由 `cheat-on-content` 负责，通常运行在 AI Agent 或内容管理环境；本 Skill 负责工作站上的视频制作。两者的衔接物是已经确认的终稿，通常放在：
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\video scripts\
+<视频项目根>\{第X期：视频标题}\video scripts\
 ```
 
 本 Skill 不修改上游内容校准的预测、发布和复盘文件。成片完成后，只把 `Final\` 中的成片和必要的制作状态交还上游。
@@ -186,7 +186,7 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
     └── registry.md
 ```
 
-单期视频项目目录（`D:\work\OPC\videos\{第X期：标题}\`）的结构见 [shared-references/video-folder-schema.md](shared-references/video-folder-schema.md)，与本合集根分开维护。
+单期视频项目目录（`<视频项目根>\{第X期：标题}\`）的结构见 [shared-references/video-folder-schema.md](shared-references/video-folder-schema.md)，与本合集根分开维护。
 
 ## 常见拒绝与降级
 

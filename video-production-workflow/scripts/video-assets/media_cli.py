@@ -45,7 +45,7 @@ YTDLP_COOKIES = os.environ.get('YTDLP_COOKIES', '')  # Cookies 文件路径
 DEFAULT_COOKIES_PATHS = [
     YTDLP_COOKIES,
     os.path.join(SKILL_DIR, 'cookies.txt'),
-    r'D:\work\yt_dlp\cookies.txt',  # 用户常用路径
+    r'<你的cookies.txt路径>',  # 用户常用路径
 ]
 
 
@@ -208,11 +208,11 @@ class VideoDownloader:
         self.cookies_path = get_cookies_path()
         # 额外的可执行文件搜索路径
         self.extra_ytdlp_paths = [
-            r'D:\work\yt_dlp',
+            os.path.expanduser(r'~\yt_dlp'),
             os.path.join(SKILL_DIR, ''),
         ]
         self.extra_ffmpeg_paths = [
-            r'C:\Users\leonvo\.deno\bin',
+            os.path.expanduser(r'~\.deno\bin'),
             os.path.join(SKILL_DIR, ''),
         ]
         self.ytdlp_path = self._find_ytdlp()
@@ -424,8 +424,8 @@ class VideoTrimmer:
             return path
         # 检查额外路径
         extra_paths = [
-            r'C:\Users\leonvo\.deno\bin',
-            r'D:\work\yt_dlp',
+            os.path.expanduser(r'~\.deno\bin'),
+            os.path.expanduser(r'~\yt_dlp'),
             os.path.join(SKILL_DIR, ''),
         ]
         for base in extra_paths:
@@ -774,7 +774,7 @@ def cmd_status(args):
     if not cookies_path:
         print()
         print("💡 Tip: Configure cookies to bypass YouTube anti-bot:")
-        print("   export YTDLP_COOKIES=D:\\work\\yt_dlp\\cookies.txt")
+        print("   export YTDLP_COOKIES=<你的cookies.txt路径>")
         print("   Or place cookies.txt in the skill directory")
 
     return 0

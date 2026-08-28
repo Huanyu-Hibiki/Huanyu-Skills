@@ -89,7 +89,7 @@ Skills work with any agent that reads `SKILL.md` files:
 - **Claude Code** — copy `pulse-*/` dirs to `~/.claude/skills/`
 - **Cursor** — via `@workspace` indexing
 - **OpenClaw** — copy to workspace
-- **Custom Hermes** — see `docs/agents/hermes.md`
+- **Custom Agent** — see 你的 Agent 部署文档
 
 ## Installing Skills
 

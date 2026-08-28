@@ -4,12 +4,12 @@
 
 ## 1. 启动前必查的三件事
 
-### 1.1 模板路径（Windows + Hermes）
+### 1.1 模板路径（Windows 自定义部署）
 
-`pulse-init` SKILL.md 写的"`<PulseHub 仓库>/skills/_archive/`"在 Hermes 部署下**不直接可用**。正确的模板源：
+`pulse-init` SKILL.md 写的"`<PulseHub 仓库>/skills/_archive/`"在 自定义部署下**不直接可用**。正确的模板源：
 
 ```text
-C:\Users\kabuto\.hermes\skills\marketing\pulsehub\_archive\
+<PulseHub 部署目录>\_archive\
 ├── README.md
 ├── 爆款素材库.md
 ├── 个人风格.md
@@ -19,7 +19,7 @@ C:\Users\kabuto\.hermes\skills\marketing\pulsehub\_archive\
 └── 项目档案.md
 ```
 
-如果用户没显式给 PulseHub 仓库路径，**默认走 Hermes skill 副本**——别去 `<PulseHub 仓库>/skills/_archive/` 找文件。
+如果用户没显式给 PulseHub 仓库路径，**默认走 已部署的 skill 副本**——别去 `<PulseHub 仓库>/skills/_archive/` 找文件。
 
 ### 1.2 双轨现状查询
 
@@ -45,7 +45,7 @@ PulseHub 是新建独立项目大脑，还是要迁移/复用旧档案里的关�
 PulseHub SKILL.md 默认写 `~/.pulsehub/archive/<项目名>/`，但 Obsidian wiki 端的业务归位规范是：
 
 ```text
-C:\work\Huanyu Hub\Huanyu-Knowledge\raw\pulsehub\
+<你的知识库根目录>\raw\pulsehub\
 ├── project\
 ├── signals\
 ├── outputs\
@@ -56,7 +56,7 @@ C:\work\Huanyu Hub\Huanyu-Knowledge\raw\pulsehub\
 **实战策略**：pulse-init 创建项目时建议同时维护两边：
 
 - `~/.pulsehub/archive/<项目名>/` ← PulseHub skill 体系内部权威
-- `C:\work\Huanyu Hub\Huanyu-Knowledge\raw\pulsehub\project\` ← Obsidian wiki 复利位置
+- `<你的知识库根目录>\raw\pulsehub\project\` ← Obsidian wiki 复利位置
 
 两边内容主体相同（参见 `obsidian-wiki/references/raw-dual-write-pattern.md`）。
 

@@ -3,13 +3,13 @@
 Save requests to:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\assets\requests\asset_request_list.md
+<视频项目根>\{第X期：视频标题}\assets\requests\asset_request_list.md
 ```
 
 ```md
 # Asset Request List
 
-- **Project Folder**: `D:\work\OPC\videos\{第X期：视频标题}`
+- **Project Folder**: `<视频项目根>\{第X期：视频标题}`
 - **Output Root**: `assets\`
 
 ## Asset 01

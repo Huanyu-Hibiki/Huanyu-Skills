@@ -5,13 +5,13 @@ Use these command templates after replacing `<COMPOSITION_ID>` and `<name>`.
 Run commands from:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\edit\remotion\MotionXX_CompositionName\remotion-project\
+<视频项目根>\{第X期：视频标题}\edit\remotion\MotionXX_CompositionName\remotion-project\
 ```
 
 Render to the sibling `..\out\` folder:
 
 ```text
-D:\work\OPC\videos\{第X期：视频标题}\edit\remotion\MotionXX_CompositionName\out\
+<视频项目根>\{第X期：视频标题}\edit\remotion\MotionXX_CompositionName\out\
 ```
 
 ## Studio Preview

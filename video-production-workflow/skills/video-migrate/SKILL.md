@@ -46,7 +46,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 ## 执行脚本
 
 ```bash
-uv run --project "<合集根>" python "<合集根>/scripts/video-migrate/migrate.py" "D:/work/OPC/videos/EP001_视频标题"
+uv run --project "<合集根>" python "<合集根>/scripts/video-migrate/migrate.py" "<视频项目根>/EP001_视频标题"
 ```
 
 迁移脚本会备份旧 state，写入 schema 兼容字段，并把报告放到项目的 `Rough/migrations/`。

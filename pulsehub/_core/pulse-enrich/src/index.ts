@@ -6,7 +6,7 @@
  *   2. The caller (AI Agent) invokes its own LLM with the prompt
  *   3. `parseLLMResponse()` normalizes the LLM's response
  *
- * This means PulseHub works with any AI Agent (Claude Code, Cursor, Hermes,
+ * This means PulseHub works with any AI Agent (Claude Code, Cursor,
  * opencode, etc.) without requiring OPENAI_API_KEY or any LLM configuration.
  * The Agent's currently-selected model is always used.
  *

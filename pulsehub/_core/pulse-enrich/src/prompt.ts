@@ -2,7 +2,7 @@
  * LLM prompt builder for content enrichment.
  *
  * PulseHub does NOT call any LLM API directly. Instead, it generates a
- * structured prompt that the calling AI Agent (Claude Code, Cursor, Hermes,
+ * structured prompt that the calling AI Agent (Claude Code, Cursor,
  * opencode, etc.) feeds into its OWN configured LLM. The Agent then passes
  * the LLM's response back to `parser.ts` for normalization.
  *
