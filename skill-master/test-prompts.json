@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "盘点一下我装了哪些skill", "expected": "路由到 sm-manager：只读盘点（默认读 shared-references/agents.yaml 注册表），给出清单/健康状态，不写不改任何文件"},
+  {"id": 2, "prompt": "帮我写个skill，功能是每天自动整理下载文件夹", "expected": "路由到 sm-writer：从零新建（访谈需求→起草→落盘），不与 sm-optimizer 混淆；写盘前按原则3向用户确认"},
+  {"id": 3, "prompt": "优化这段代码，让它跑快点", "expected": "防抢触发负例：操作对象是代码不是 skill 目录→不路由到 skill-master，按普通任务处理"}
+]

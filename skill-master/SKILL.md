@@ -76,6 +76,16 @@ skill 的工作流细节；转介规则见下文。
   不代改；用户要动手修已有 skill 时路由到 sm-optimizer（manager
   只读）
 
+## 失败分支（fallback）
+
+| 触发条件 | 一线处理 | 仍失败兜底 |
+|---|---|---|
+| 目标 skill 只给远程 URL / 路径不存在 | 要求先 clone / 下载到本地再给路径（sm-security / sm-analyzer 前置条件） | 拿不到本地副本 → 拒绝对未见内容下安全结论；analyzer 同理不分析不存在的目录 |
+| agents.yaml 注册表与实际目录不符（新装 Agent / 目录挪动） | sm-manager 只读盘点，如实报告差异清单 | 经用户确认后按原则 3 更新注册表（确认前不改）；用户不在 → 只出差异报告 |
+| scripts/ 确定性脚本跑不起来（`.venv` 缺失 / uv 不可用） | 按 pyproject.toml 重建环境（`uv sync`） | 降级为 LLM 手工执行同一套检查，输出标注"未经脚本验证" |
+| 目标目录没有 SKILL.md（判别标准不满足） | 询问用户是否仍按 skill 处理 | 用户确认不是 skill 目录 → 不接（防抢触发负例同款判别），按普通任务转出 |
+| 路由目标子 skill 的 SKILL.md 缺失 / 损坏 | 报告缺失项与位置 | 给重装 / 修复建议；**路由层不代办子 skill 工作** |
+
 ## 跨 Agent 兼容
 
 本路由不依赖 slash-command：没有命令机制的 Agent（如 Codex）按
