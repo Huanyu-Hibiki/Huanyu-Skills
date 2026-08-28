@@ -25,6 +25,10 @@ agents:
       - C:/Users/kabuto/.config/opencode/skills
       # opencode 工作区级目录（本机已确认存在）
       - C:/work/.opencode/skills
+      # 配置源仓库（git 管理的类目式两层结构）
+      - C:/Users/kabuto/.config/opencode/.opencode/skills
+      # HuanyuCode 项目级目录
+      - C:/work/HuanyuCode/.opencode/skills
 
   - name: claude-code
     enabled: true
