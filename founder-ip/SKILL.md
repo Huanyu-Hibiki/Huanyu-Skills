@@ -225,6 +225,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 跑完这 5 步，创始人 IP 的战略层就立起来了，后续每周走 cheat-on-content 的执行循环即可。
 
+🔴 **CHECKPOINT**：引导路径一次只跑一份文档——每份在关键决策处停下等用户拍板，定稿落盘前先展示决策摘要供确认；用户未确认不进入下一份（拒绝表第 5 行的执行化）。
+
 ---
 
 ## 当前版本
