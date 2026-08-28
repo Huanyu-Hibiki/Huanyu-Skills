@@ -84,14 +84,19 @@ def slugify(text: str) -> str:
 
 
 def render_inline(text: str) -> str:
-    """Escape, then apply inline markdown: `` `code` `` (protected) and **bold**."""
+    """Escape, then apply inline markdown: `` `code` `` (protected) and **bold**.
+
+    Literal NUL bytes are stripped up front: the code stash round-trips
+    through ``\\x00<idx>\\x00`` sentinels, and a draft carrying its own
+    NUL+digit sequences would otherwise collide with them on unstash
+    (IndexError). """
     stash: list[str] = []
 
     def _stash_code(m: re.Match[str]) -> str:
         stash.append(f"<code>{html.escape(m.group(1), quote=False)}</code>")
         return f"\x00{len(stash) - 1}\x00"
 
-    out = html.escape(text, quote=False)
+    out = html.escape(text.replace("\x00", ""), quote=False)
     out = re.sub(r"`([^`]+)`", _stash_code, out)
     out = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", out)
     return re.sub(r"\x00(\d+)\x00", lambda m: stash[int(m.group(1))], out)
@@ -325,7 +330,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     timestamp = args.timestamp or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    rendered = render_report(draft_text, findings_data, timestamp)
+    try:
+        rendered = render_report(draft_text, findings_data, timestamp)
+    except Exception as exc:  # render boundary: bugs surface as errors, never tracebacks
+        print(f"error: render failed: {exc}", file=sys.stderr)
+        return 1
 
     try:
         out_path.parent.mkdir(parents=True, exist_ok=True)

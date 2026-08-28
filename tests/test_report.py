@@ -361,3 +361,43 @@ def test_golden_file_byte_identical():
         GOLDEN_PATH.write_bytes(rendered.encode("utf-8"))
         pytest.skip("golden file generated — inspect then re-run")
     assert rendered.encode("utf-8") == GOLDEN_PATH.read_bytes()
+
+
+# --------------------------------------------------- quality-review regressions
+
+
+def test_draft_with_literal_nul_digits_renders_without_crash():
+    """The code stash uses ``\\x00<idx>\\x00`` sentinels; a draft carrying
+    literal NUL+digit sequences used to collide with them (IndexError)."""
+    draft = "## 章节\n\n正文 \x005\x00 携带 `inline` 代码。\n"
+    html_out = render(draft=draft)  # must not raise
+    assert "<code>inline</code>" in html_out
+    assert "5" in html_out  # NULs stripped, the digit itself stays visible
+
+
+def test_render_failure_is_bounded_to_stderr_nonzero(tmp_path, monkeypatch, capsys):
+    """render_report bugs must surface as ``error: ...`` on stderr with a
+    non-zero exit, never a raw traceback."""
+    draft = tmp_path / "d.md"
+    draft.write_text("# t\n", encoding="utf-8")
+    findings = tmp_path / "f.json"
+    findings.write_text('{"score": 0, "findings": []}', encoding="utf-8")
+    out = tmp_path / "o.html"
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("unexpected render failure")
+
+    monkeypatch.setattr(report, "render_report", boom)
+    rc = report.main(["--draft", str(draft), "--findings", str(findings), "--out", str(out)])
+    assert rc != 0
+    assert "render" in capsys.readouterr().err.lower()
+    assert not out.exists()
+
+
+def test_unclosed_code_fence_swallows_to_eof_without_loop():
+    """A draft whose fenced code block never closes must render to EOF and
+    terminate (documenting the pinned behavior)."""
+    draft = "## 章节\n\n```\ncode line 1\ncode line 2\n"
+    html_out = render(draft=draft)
+    # swallows everything up to and including the final newline, then stops
+    assert "<pre><code>code line 1\ncode line 2\n</code></pre>" in html_out
