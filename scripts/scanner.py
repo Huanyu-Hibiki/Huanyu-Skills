@@ -1,8 +1,9 @@
-"""scanner.py — static security rule engine for skill directories (task 10).
+"""scanner.py — static security rule engine for skill directories (tasks 10-11).
 
-CLI: python scripts/scanner.py <target-path>
-stdout is always a single JSON object {"score": ..., "findings": [...]};
-exit code 0 on success, non-zero with an {"error": "..."} JSON body on failure.
+CLI: python scripts/scanner.py <target-path> [--json] [--max-files N]
+stdout is always a single JSON object {"score": ..., "findings": [...],
+"truncated": ...}; exit code 0 on success, non-zero with an {"error": "..."}
+JSON body on failure.
 
 Rule source of truth: shared-references/security-taxonomy.md §2 — 25 rules
 (INJ×5 / EXFIL×6 / DEST×4 / OBF×6 / PERM×4); every id and severity is copied
@@ -41,6 +42,17 @@ CODE_EXTS = {
 RULE_FLAGS = re.IGNORECASE | re.MULTILINE
 
 EVIDENCE_MAX = 200  # pattern-examples §3.2: clip long lines to a 200-char window
+
+# taxonomy §4 评分约定 (frozen): weights per finding, ×1.3 multiplier when the
+# scanned target contains executable scripts, hard cap at 100.
+SEVERITY_WEIGHTS = {"critical": 50, "high": 25, "medium": 10, "low": 5}
+EXECUTABLE_EXTS = {".sh", ".py", ".ps1", ".bat", ".cmd", ".exe", ".js"}
+SCORE_CAP = 100
+
+# per-file content read cap and enumeration cap (truncation) — module-level
+# constants so tests can monkeypatch them.
+SIZE_CAP_BYTES = 50 * 1024 * 1024
+DEFAULT_MAX_FILES = 500
 
 
 class ScannerError(Exception):
@@ -398,7 +410,8 @@ def _scan_text(rel: str, text: str, kind: str, findings: list[dict]) -> None:
 
 def _scan_file(path: Path, rel: str, findings: list[dict]) -> None:
     """Scan one file: filename rules against the name, content rules against
-    the decoded text. Binary files (NUL byte) are skipped entirely."""
+    the decoded text. Binary files (NUL byte) and files over SIZE_CAP_BYTES
+    are skipped for content scanning (filename rules still apply)."""
     for rule in _FILENAME_RULES:
         if _COMPILED[rule.id].search(path.name):
             findings.append(
@@ -412,6 +425,8 @@ def _scan_file(path: Path, rel: str, findings: list[dict]) -> None:
                 }
             )
 
+    if path.stat().st_size > SIZE_CAP_BYTES:
+        return  # oversized: skip content scan
     data = path.read_bytes()
     if b"\x00" in data:
         return  # binary per contract
@@ -421,25 +436,55 @@ def _scan_file(path: Path, rel: str, findings: list[dict]) -> None:
     _scan_text(rel, text, _kind(path), findings)
 
 
-def scan(target: str | Path) -> dict:
+def compute_score(findings: list[dict], has_executable: bool) -> int:
+    """taxonomy §4 frozen scoring: critical +50 / high +25 / medium +10 /
+    low +5 summed over findings; ×1.3 when the target contains executable
+    scripts; capped at 100."""
+    total = sum(SEVERITY_WEIGHTS[f["severity"]] for f in findings)
+    if has_executable:
+        total *= 1.3
+    return min(SCORE_CAP, int(round(total)))
+
+
+def scan(target: str | Path, max_files: int = DEFAULT_MAX_FILES) -> dict:
     """Scan a directory (recursive) or a single file; returns the JSON-ready
-    result object {"score": ..., "findings": [...]}."""
+    result object {"score": ..., "findings": [...], "truncated": ...}.
+
+    Directory scans stop after ``max_files`` files (enumerated in sorted
+    path order) and flag "truncated": true when the limit was hit.
+    """
+    if max_files < 0:
+        raise ScannerError(f"--max-files must be >= 0, got {max_files}")
     target = Path(target)
     if not target.exists():
         raise ScannerError(f"target path does not exist: {target}")
     if not (target.is_file() or target.is_dir()):
         raise ScannerError(f"target path is neither a file nor a directory: {target}")
 
-    findings: list[dict] = []
     if target.is_file():
-        _scan_file(target, target.name, findings)
+        entries = [(target, target.name)]
+        truncated = False
     else:
-        for path in sorted(target.rglob("*"), key=lambda p: p.as_posix()):
-            if path.is_file():
-                _scan_file(path, path.relative_to(target).as_posix(), findings)
+        all_files = sorted(target.rglob("*"), key=lambda p: p.as_posix())
+        all_files = [p for p in all_files if p.is_file()]
+        entries = [
+            (p, p.relative_to(target).as_posix()) for p in all_files[:max_files]
+        ]
+        truncated = len(all_files) > max_files
+
+    findings: list[dict] = []
+    has_executable = False
+    for path, rel in entries:
+        if path.suffix.lower() in EXECUTABLE_EXTS:
+            has_executable = True
+        _scan_file(path, rel, findings)
 
     findings.sort(key=lambda f: (f["file"], f["line"], f["rule_id"]))
-    return {"score": 0, "findings": findings}  # score wired up in task 11
+    return {
+        "score": compute_score(findings, has_executable),
+        "findings": findings,
+        "truncated": truncated,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -448,10 +493,23 @@ def main(argv: list[str] | None = None) -> int:
         description="Scan a skill directory or file against the security taxonomy rules.",
     )
     parser.add_argument("target", help="skill directory or single file to scan")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="output JSON on stdout (always on; accepted for compatibility)",
+    )
+    parser.add_argument(
+        "--max-files",
+        dest="max_files",
+        type=int,
+        default=DEFAULT_MAX_FILES,
+        help=f"stop scanning after N files (default {DEFAULT_MAX_FILES}); "
+        "the result is flagged truncated",
+    )
     args = parser.parse_args(argv)
 
     try:
-        result = scan(args.target)
+        result = scan(args.target, max_files=args.max_files)
     except ScannerError as exc:
         print(json.dumps({"error": str(exc)}))
         return 1
