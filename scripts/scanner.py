@@ -2,8 +2,9 @@
 
 CLI: python scripts/scanner.py <target-path> [--json] [--max-files N]
 stdout is always a single JSON object {"score": ..., "findings": [...],
-"truncated": ...}; exit code 0 on success, non-zero with an {"error": "..."}
-JSON body on failure.
+"truncated": ...} (plus "skipped_files": N only when files were skipped
+after an OSError mid-scan); exit code 0 on success, non-zero with an
+{"error": "..."} JSON body on failure.
 
 Rule source of truth: shared-references/security-taxonomy.md §2 — 25 rules
 (INJ×5 / EXFIL×6 / DEST×4 / OBF×6 / PERM×4); every id and severity is copied
@@ -16,6 +17,12 @@ Where pattern-examples shows a leading \\b directly before a flag token
 (`\\b-d\\b`) the implementation drops it — a boundary between two non-word
 characters never matches; the trailing \\b is kept (scanner.py is the final
 authority per that document's header note).
+
+ReDoS discipline (quality-review hardening): adversarial inputs must scan in
+linear time, so ambiguous adjacent quantifiers over one character class are
+forbidden. OBF-001 anchors its base64 run with a lookbehind and a bounded
+{80,1200} window; DEST-001 matches combined rm flags via lookaheads
+(-(?=...r)(?=...f)) instead of overlapped \\w*[rR]\\w*[fF]\\w* branches.
 
 Co-occurrence ("chain") rules: EXFIL-002 (credential read + network call in
 the same file) and PERM-004 (read-only allowed-tools declaration + write
@@ -44,10 +51,22 @@ RULE_FLAGS = re.IGNORECASE | re.MULTILINE
 EVIDENCE_MAX = 200  # pattern-examples §3.2: clip long lines to a 200-char window
 
 # taxonomy §4 评分约定 (frozen): weights per finding, ×1.3 multiplier when the
-# scanned target contains executable scripts, hard cap at 100.
+# scanned target contains executable scripts, hard cap at 100. The multiplier
+# is integer math (total*13//10) — floor semantics, no float drift and no
+# banker's-rounding ambiguity.
 SEVERITY_WEIGHTS = {"critical": 50, "high": 25, "medium": 10, "low": 5}
-EXECUTABLE_EXTS = {".sh", ".py", ".ps1", ".bat", ".cmd", ".exe", ".js"}
 SCORE_CAP = 100
+
+# Single source of truth for executable/script filename tails. OBF-005's
+# double-extension rule (invoice.pdf.exe) builds its tail alternation from
+# this tuple and the §4 ×1.3 EXECUTABLE_EXTS set derives from it too — the
+# two lists must never drift apart. Anchor: if one extension becomes
+# "executable" here, both the filename rule and the multiplier see it.
+EXECUTABLE_TAILS = (
+    "exe", "sh", "ps1", "bat", "cmd", "js", "jse", "vbs", "vbe", "wsf",
+    "scf", "scr", "com", "pif", "msi", "jar", "py", "pl", "rb", "hta",
+)
+EXECUTABLE_EXTS = {f".{tail}" for tail in EXECUTABLE_TAILS}
 
 # per-file content read cap and enumeration cap (truncation) — module-level
 # constants so tests can monkeypatch them.
@@ -167,9 +186,12 @@ RULES: tuple[Rule, ...] = (
         id="DEST-001",
         severity="critical",
         target="code",
+        # Combined rm flags via lookaheads (flag must contain both r and f,
+        # order irrelevant): overlapped \w*[rR]\w*[fF]\w* branches would
+        # backtrack catastrophically on long flag-letter runs.
         pattern=(
-            r"\brm\s+(?:-\w*[rR]\w*[fF]\w*|-\w*[fF]\w*[rR]\w*)\s+[\"']?(?!\.)\s*(?:/|~)\s*[/\s\"']?$"
-            r"|\brm\s+(?:-\w*[rR]\w*[fF]\w*|-\w*[fF]\w*[rR]\w*)\s+[\"']?(?!\.)(?:/|~/)(?:etc|usr|home|var|root|bin|sbin|boot|lib|opt)\b"
+            r"\brm\s+-(?=[A-Za-z]*r)(?=[A-Za-z]*f)[A-Za-z]{1,12}\b\s+[\"']?(?!\.)\s*(?:/|~)\s*[/\s\"']?$"
+            r"|\brm\s+-(?=[A-Za-z]*r)(?=[A-Za-z]*f)[A-Za-z]{1,12}\b\s+[\"']?(?!\.)(?:/|~/)(?:etc|usr|home|var|root|bin|sbin|boot|lib|opt)\b"
             r"|\brd\s+/s\b[^.\n]{0,40}/q\b"
             r"|\bRemove-Item\b[^.\n]{0,60}-Recurse\b"
         ),
@@ -205,7 +227,14 @@ RULES: tuple[Rule, ...] = (
         id="OBF-001",
         severity="high",
         target="code",
-        pattern=r"[A-Za-z0-9+/]{80,}={0,2}[^.\n]{0,40}(?:base64\s+(?:-d|--decode)|\bb64decode\b|FromBase64String|\bIEX\b)",
+        # ReDoS hardening: the base64 run is anchored with a lookbehind (a
+        # match can only start at the head of a run, so interior start
+        # positions fail in O(1)) and bounded at {80,1200} so backtracking
+        # depth is capped on keyword-less adversarial lines.
+        pattern=(
+            r"(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{80,1200}={0,2}[^.\n]{0,40}"
+            r"(?:base64\s+(?:-d|--decode)|\bb64decode\b|FromBase64String|\bIEX\b)"
+        ),
         explanation="超长 base64 串（≥80 字符）解码后直接执行。",
         false_positive_note="解码内嵌证书公钥后落盘校验（不执行）会命中，复核看解码结果的去向。",
     ),
@@ -237,7 +266,13 @@ RULES: tuple[Rule, ...] = (
         id="OBF-005",
         severity="high",
         target="filename",
-        pattern=r"\.(?:pdf|docx?|xlsx?|pptx?|txt|csv|md|jpe?g|png|gif|html?|zip|rar|7z|svg)\.(?:exe|sh|ps1|bat|cmd|js|jse|vbs|vbe|wsf|scf|scr|com|pif|msi|jar|py|pl|rb|hta)$",
+        # Tail alternation derives from EXECUTABLE_TAILS — the shared
+        # executable-extension source of truth (see its anchor comment).
+        pattern=(
+            r"\.(?:pdf|docx?|xlsx?|pptx?|txt|csv|md|jpe?g|png|gif|html?|zip|rar|7z|svg)\.(?:"
+            + "|".join(EXECUTABLE_TAILS)
+            + r")$"
+        ),
         explanation="双扩展名可执行伪装（invoice.pdf.exe / notes.md.ps1 类文件名）。",
         false_positive_note="暂无已知误报场景，可直接报告；确有同名合法文件时复核确认内容。",
     ),
@@ -370,10 +405,13 @@ def _scan_text(rel: str, text: str, kind: str, findings: list[dict]) -> None:
     """Apply every applicable content rule to one decoded file; one finding
     per (rule, line), evidence = matched line clipped per §3."""
     fm_span = _frontmatter_span(text)
+    # Line-start offsets via str.find loop: O(n) with C-level scanning instead
+    # of a per-character Python enumerate (behavior identical for bisect).
     line_starts = [0]
-    for i, ch in enumerate(text):
-        if ch == "\n":
-            line_starts.append(i + 1)
+    pos = text.find("\n")
+    while pos != -1:
+        line_starts.append(pos + 1)
+        pos = text.find("\n", pos + 1)
 
     for rule in _CONTENT_RULES:
         if not _target_applies(rule, kind, fm_span):
@@ -408,10 +446,15 @@ def _scan_text(rel: str, text: str, kind: str, findings: list[dict]) -> None:
             )
 
 
-def _scan_file(path: Path, rel: str, findings: list[dict]) -> None:
+def _scan_file(path: Path, rel: str, findings: list[dict]) -> bool:
     """Scan one file: filename rules against the name, content rules against
     the decoded text. Binary files (NUL byte) and files over SIZE_CAP_BYTES
-    are skipped for content scanning (filename rules still apply)."""
+    are skipped for content scanning (filename rules still apply).
+
+    Returns True when the file was skipped after an OSError (vanished or
+    locked between enumeration and read) so the caller can count it — a
+    mid-scan I/O failure must never break the single-JSON stdout contract.
+    """
     for rule in _FILENAME_RULES:
         if _COMPILED[rule.id].search(path.name):
             findings.append(
@@ -425,30 +468,35 @@ def _scan_file(path: Path, rel: str, findings: list[dict]) -> None:
                 }
             )
 
-    if path.stat().st_size > SIZE_CAP_BYTES:
-        return  # oversized: skip content scan
-    data = path.read_bytes()
+    try:
+        if path.stat().st_size > SIZE_CAP_BYTES:
+            return False  # oversized: skip content scan
+        data = path.read_bytes()
+    except OSError:
+        return True  # vanished/locked mid-scan: count as skipped
     if b"\x00" in data:
-        return  # binary per contract
+        return False  # binary per contract
     text = data.decode("utf-8", errors="replace")
     if text.startswith("\ufeff"):
         text = text[1:]  # leading BOM is an encoding marker, not content
     _scan_text(rel, text, _kind(path), findings)
+    return False
 
 
 def compute_score(findings: list[dict], has_executable: bool) -> int:
     """taxonomy §4 frozen scoring: critical +50 / high +25 / medium +10 /
-    low +5 summed over findings; ×1.3 when the target contains executable
-    scripts; capped at 100."""
+    low +5 summed over findings; ×1.3 (integer: total*13//10) when the
+    target contains executable scripts; capped at 100."""
     total = sum(SEVERITY_WEIGHTS[f["severity"]] for f in findings)
     if has_executable:
-        total *= 1.3
-    return min(SCORE_CAP, int(round(total)))
+        total = total * 13 // 10  # ×1.3 in integer math: floor semantics
+    return min(SCORE_CAP, total)
 
 
 def scan(target: str | Path, max_files: int = DEFAULT_MAX_FILES) -> dict:
     """Scan a directory (recursive) or a single file; returns the JSON-ready
-    result object {"score": ..., "findings": [...], "truncated": ...}.
+    result object {"score": ..., "findings": [...], "truncated": ...} —
+    plus "skipped_files": N when files were skipped after a mid-scan OSError.
 
     Directory scans stop after ``max_files`` files (enumerated in sorted
     path order) and flag "truncated": true when the limit was hit.
@@ -474,17 +522,22 @@ def scan(target: str | Path, max_files: int = DEFAULT_MAX_FILES) -> dict:
 
     findings: list[dict] = []
     has_executable = False
+    skipped = 0
     for path, rel in entries:
         if path.suffix.lower() in EXECUTABLE_EXTS:
             has_executable = True
-        _scan_file(path, rel, findings)
+        if _scan_file(path, rel, findings):
+            skipped += 1
 
     findings.sort(key=lambda f: (f["file"], f["line"], f["rule_id"]))
-    return {
+    result = {
         "score": compute_score(findings, has_executable),
         "findings": findings,
         "truncated": truncated,
     }
+    if skipped:
+        result["skipped_files"] = skipped
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -511,6 +564,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         result = scan(args.target, max_files=args.max_files)
     except ScannerError as exc:
+        print(json.dumps({"error": str(exc)}))
+        return 1
+    except OSError as exc:
+        # belt-and-braces: enumeration/stat I/O failures outside the
+        # per-file skip path still get the {"error": ...} JSON contract
         print(json.dumps({"error": str(exc)}))
         return 1
 
