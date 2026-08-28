@@ -39,6 +39,8 @@ agents:
     enabled: true
     paths:
       # opencode 工作区级目录（C:\work 工作区）
+      # 2026-08-28 用户主动删除，内容已备份至
+      # C:/work/huanyu-skills-project/skills-backup-20260828（git 仓库）
       - C:/work/.opencode/skills
 
   - name: opencode-project
