@@ -1,0 +1,13 @@
+# 运行时生成的阅读大脑（由各 skill 在使用中生成，不入库）
+project-archive/
+
+# 执行日志（#6 训练数据，本地生成）
+runs/
+
+# 编辑器/系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*~

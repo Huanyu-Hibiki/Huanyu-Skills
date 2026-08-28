@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "技能不好用：《价值心法\\执行故事点估算》步骤太多了，每次都要走完8步才能开工",
+    "expected": "走SkillOpt闭环：harvest读runs/使用痕迹→mine挖模式（用户总跳过哪步）→reflect 5Why+3种修法→edit bounded（1-3处）→validate用hold-out好样本验证门→consolidate写进化日志"
+  },
+  {
+    "id": 2,
+    "prompt": "优化一下 sy-decompose 这个skill，它拆解目录时总是编章节",
+    "expected": "职责边界：sy-evolve只编辑#5产出的「书名\\知识点」技能条目，不碰sy-*合集的6个SKILL.md；对sy-decompose的问题只转达给用户，不直接改"
+  },
+  {
+    "id": 3,
+    "prompt": "这个技能没有任何使用记录，直接凭感觉优化吧",
+    "expected": "拒绝无痕进化：没痕迹就无法进化（无训练数据），先回去补使用日志；绝不跳过validate验证门凭感觉改"
+  }
+]
