@@ -11,6 +11,7 @@
 #   - 顶层只有一个键 agents:，值为列表
 #   - 每个条目恰好三个键：name（字符串）、enabled（true/false）、paths（字符串列表）
 #   - 路径一律正斜杠写法；相对路径以本 yaml 所在目录为基准
+#   - 路径支持 ~ 与 %USERPROFILE% 前缀写法，由 scripts/inventory.py 解析时展开为绝对路径
 #
 # 本机探测校准时间：2026-08-28（Windows，用户 kabuto）。
 # 标注 [not-installed] 的路径为该 Agent 的已知默认位置，本机探测未发现，

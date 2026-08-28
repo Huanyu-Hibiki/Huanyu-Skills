@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -125,10 +126,19 @@ def build_inventory(yaml_path: Path, agent_filter: str | None = None) -> dict:
     return {"agents": agents_out, "duplicates": [], "health_issues": []}
 
 
+def _expand_path(raw: str) -> str:
+    """Expand `~/...` and `%USERPROFILE%/...` (any `%VAR%`) prefixes; other
+    absolute/relative paths pass through unchanged."""
+    return os.path.expanduser(os.path.expandvars(raw))
+
+
 def _enumerate_agent(spec: dict, base_dir: Path) -> dict:
-    candidates = [
-        Path(p) if Path(p).is_absolute() else (base_dir / p) for p in spec["paths"]
-    ]
+    candidates = []
+    for p in spec["paths"]:
+        expanded = _expand_path(p)
+        candidates.append(
+            Path(expanded) if Path(expanded).is_absolute() else (base_dir / expanded)
+        )
     existing = [p for p in candidates if p.is_dir()]
     root = (existing[0] if existing else candidates[0]).resolve()
     return {

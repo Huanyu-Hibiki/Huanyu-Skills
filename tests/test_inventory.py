@@ -162,6 +162,54 @@ def test_cli_smoke_stdout_is_single_json_object():
     assert payload["health_issues"] == []
 
 
+def test_home_prefix_paths_expanded_to_absolute(tmp_path, monkeypatch):
+    """`~/...` and `%USERPROFILE%/...` path prefixes must expand to absolute paths
+    (via USERPROFILE), with existence detection still correct."""
+    home = tmp_path / "home"
+    agent_dir = home / "agent-a"
+    skill_dir = agent_dir / "skill-one"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: skill-one\ndescription: tmp skill under a fake home.\n---\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("USERPROFILE", str(home))
+
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        "  - name: tilde-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ~/agent-a\n"
+        "  - name: envvar-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - %USERPROFILE%/agent-a\n"
+        "  - name: envvar-backslash-missing\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - %USERPROFILE%\\no-such-dir\n",
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+
+    for agent_name in ("tilde-agent", "envvar-agent"):
+        entry = agent_entry(result, agent_name)
+        assert entry["installed"] is True
+        assert Path(entry["path"]).is_absolute()
+        assert Path(entry["path"]).exists()
+        assert [s["name"] for s in entry["skills"]] == ["skill-one"]
+
+    missing = agent_entry(result, "envvar-backslash-missing")
+    assert missing["installed"] is False
+    # Expanded even though the directory does not exist.
+    assert Path(missing["path"]).is_absolute()
+    assert missing["path"] == (home / "no-such-dir").resolve().as_posix()
+    assert not Path(missing["path"]).exists()
+
+
 def test_disabled_agent_skipped(tmp_path):
     registry = tmp_path / "registry.yaml"
     registry.write_text(
