@@ -42,7 +42,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 OBS 不是固定的 A-roll 或 B-roll：人物边操作边讲解时是 A-roll；只截取界面、流程和产品证据覆盖口播时是 B-roll。分镜表中的“拍摄形式”是路由字段，不是对素材属性的唯一判断。
 
-## 不可妥协原则
+## 🔴 不可妥协原则（违反任一条 = 拒绝执行并说明原因）
 
 1. **单项目单目录**：每期视频的派生文件只写入该视频目录，不写入 Skill 目录、仓库根目录或 `Raw\`。
 2. **Raw 只读**：用户原始实拍和 OBS 文件不可覆盖、重命名、就地转码或写入派生文件。
@@ -110,7 +110,7 @@ not_started -> in_progress -> awaiting_approval -> completed
                                \-> blocked
 ```
 
-需要用户选择、审美确认或成本确认时必须进入 `awaiting_approval`，不能假装阶段已经完成。详细读写规则见 [shared-references/state-management.md](shared-references/state-management.md)。
+需要用户选择、审美确认或成本确认时，🛑 必须进入 `awaiting_approval` 并停下等用户确认，不能假装阶段已经完成。详细读写规则见 [shared-references/state-management.md](shared-references/state-management.md)。
 
 ## B-roll 路由
 
