@@ -17,17 +17,34 @@
 # 标注 [not-installed] 的路径为该 Agent 的已知默认位置，本机探测未发现，
 # 安装对应 Agent 后无需改本文件即可被自动识别。
 
+# 注意：同一条目的多条 paths 是 fallback 关系——只有第一个实际存在的路径
+# 会被枚举，其余被遮蔽。一个 Agent 有多个"同时活跃"的 skill 根目录时
+# （如 opencode 的全局/工作区/项目级），请拆成多个条目（见 opencode-* 示例）。
+
 agents:
-  - name: opencode
+  # opencode 拆三条目：三条路径本机同时活跃，fallback 语义会互相遮蔽
+  - name: opencode-global
     enabled: true
     paths:
       # opencode 全局目录（XDG 风格）[not-installed 2026-08-28]
       - C:/Users/kabuto/.config/opencode/skills
-      # opencode 工作区级目录（本机已确认存在）
-      - C:/work/.opencode/skills
-      # 配置源仓库（git 管理的类目式两层结构）
+
+  - name: opencode-config-repo
+    enabled: true
+    paths:
+      # 配置源仓库（git 管理的类目式两层结构：skills/<类目>/<skill>）
       - C:/Users/kabuto/.config/opencode/.opencode/skills
-      # HuanyuCode 项目级目录
+
+  - name: opencode-workspace
+    enabled: true
+    paths:
+      # opencode 工作区级目录（C:\work 工作区）
+      - C:/work/.opencode/skills
+
+  - name: opencode-project
+    enabled: true
+    paths:
+      # opencode 项目级目录（HuanyuCode 项目）
       - C:/work/HuanyuCode/.opencode/skills
 
   - name: claude-code
