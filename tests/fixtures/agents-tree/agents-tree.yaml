@@ -1,0 +1,13 @@
+agents:
+  - name: fake-opencode
+    enabled: true
+    paths:
+      - ./fake-opencode
+  - name: fake-claude
+    enabled: true
+    paths:
+      - ./fake-claude
+  - name: not-installed-agent
+    enabled: true
+    paths:
+      - ./does-not-exist
