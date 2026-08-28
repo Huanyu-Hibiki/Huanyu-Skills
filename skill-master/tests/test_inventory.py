@@ -554,3 +554,130 @@ def test_two_agents_sharing_one_path_no_false_duplicate(tmp_path):
 
     result = build(registry)
     assert result["duplicates"] == []
+
+
+# ---------------------------------------------------------------------------
+# Two-level enumeration with collection-dir exemption (real-world registries
+# host category-style trees like skills/engineering/brainstorming/SKILL.md and
+# step-style trees like shendu-yuedu/01-init/SKILL.md — neither level-1 dir
+# carries its own SKILL.md).
+# ---------------------------------------------------------------------------
+
+
+def make_nested_skill_tree(tmp_path, first_level, skill_name, description=None):
+    """Create <tmp_path>/agent/<first_level>/<skill_name>/SKILL.md and return
+    the second-level skill dir."""
+    skill = tmp_path / "agent" / first_level / skill_name
+    skill.mkdir(parents=True)
+    desc = description if description is not None else f"{skill_name} nested skill."
+    (skill / "SKILL.md").write_text(
+        f"---\nname: {skill_name}\ndescription: {desc}\n---\n", encoding="utf-8"
+    )
+    return skill
+
+
+def test_category_tree_second_level_skills_enumerated(tmp_path):
+    """类目式合集：cat-a/skill-x + cat-a/skill-y → 两个二层 skill 被枚举，
+    cat-a 本身不出现、零 issue。"""
+    make_nested_skill_tree(tmp_path, "cat-a", "skill-x")
+    make_nested_skill_tree(tmp_path, "cat-a", "skill-y")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    skills = agent_entry(result, "tmp-agent")["skills"]
+    assert [s["name"] for s in skills] == ["skill-x", "skill-y"]
+    # path points at the real (second-level) skill dir
+    assert all(Path(s["path"]).parent.name == "cat-a" for s in skills)
+    # the collection dir itself is neither enumerated nor flagged
+    assert all(s["name"] != "cat-a" for s in skills)
+    assert result["health_issues"] == []
+
+
+def test_step_collection_second_level_enumerated(tmp_path):
+    """分步式合集：step-collection/01-init/SKILL.md → 01-init 是 skill，
+    step-collection 豁免；二层不含 SKILL.md 的目录不下探、不枚举。"""
+    make_nested_skill_tree(tmp_path, "step-collection", "01-init", "step one.")
+    helper = tmp_path / "agent" / "step-collection" / "references"
+    helper.mkdir()
+    (helper / "notes.md").write_text("helper notes", encoding="utf-8")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    skills = agent_entry(result, "tmp-agent")["skills"]
+    assert [s["name"] for s in skills] == ["01-init"]
+    assert result["health_issues"] == []
+
+
+def test_bare_first_level_dir_without_any_skill_md_still_missing(tmp_path):
+    """回归保护：一层目录无 SKILL.md 且二层也无任何 SKILL.md → 仍按原行为
+    枚举为 skill 并报 missing_skill_md（no-manifest fixture 行为不变）。"""
+    leaf = tmp_path / "agent" / "no-manifest-2"
+    leaf.mkdir(parents=True)
+    (leaf / "notes.md").write_text("leftover", encoding="utf-8")
+    (leaf / "empty-sub").mkdir()  # empty second-level dir does not rescue D
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    entry = skill_entry(result, "tmp-agent", "no-manifest-2")
+    assert entry["has_skill_md"] is False
+    assert [i["issue"] for i in issues_for(result, "no-manifest-2")] == ["missing_skill_md"]
+
+
+def test_first_level_skill_with_nested_skill_md_not_double_enumerated(tmp_path):
+    """D 含 SKILL.md 且其子目录也含 → D 是 skill、子目录不下探（不重复枚举）。"""
+    outer = make_tmp_skill_tree(
+        tmp_path, "outer", "---\nname: outer\ndescription: outer is the skill.\n---\n"
+    )
+    inner = outer / "inner"
+    inner.mkdir()
+    (inner / "SKILL.md").write_text(
+        "---\nname: inner\ndescription: nested dir inside a real skill.\n---\n",
+        encoding="utf-8",
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    assert [s["name"] for s in agent_entry(result, "tmp-agent")["skills"]] == ["outer"]
+    assert result["health_issues"] == []
+    assert result["duplicates"] == []
+
+
+def test_cross_level_duplicate_name_reported(tmp_path):
+    """跨层重名：一层 skill alpha 与合集下二层 skill alpha → duplicates 含两处。"""
+    make_tmp_skill_tree(
+        tmp_path, "alpha", "---\nname: alpha\ndescription: alpha at level one.\n---\n"
+    )
+    make_nested_skill_tree(tmp_path, "collection", "alpha", "alpha at level two.")
+    make_nested_skill_tree(tmp_path, "collection", "beta", "beta at level two.")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    duplicates = {d["name"]: d for d in result["duplicates"]}
+    assert set(duplicates) == {"alpha"}
+    locations = duplicates["alpha"]["locations"]
+    assert len(locations) == 2
+    assert [Path(loc).name for loc in locations] == ["alpha", "alpha"]
+    assert any(Path(loc).parent.name == "collection" for loc in locations)
+
+
+def test_second_level_skill_health_checks_use_own_name(tmp_path):
+    """二层 skill 的健康检查以二层目录名报告（path/name 指向真实 skill 目录）。"""
+    broken = tmp_path / "agent" / "cat-b" / "bad-nested"
+    broken.mkdir(parents=True)
+    (broken / "SKILL.md").write_text(
+        "---\nname: bad-nested\ndescription: x\n",  # unterminated fence
+        encoding="utf-8",
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+
+    entry = skill_entry(result, "tmp-agent", "bad-nested")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is False
+    assert [i["issue"] for i in issues_for(result, "bad-nested")] == ["frontmatter_broken"]

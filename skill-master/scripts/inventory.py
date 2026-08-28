@@ -7,6 +7,12 @@ an {"error": "..."} JSON body on failure.
 Task 7 scope: per-skill health checks (has_skill_md / frontmatter_ok /
 health_issues, codes frozen in shared-references/skill-anatomy.md §3) and
 cross-agent duplicate detection (duplicates).
+
+Enumeration is two-level (v1 cap): a first-level dir with SKILL.md is the
+skill; one without is a collection dir whose second-level SKILL.md-bearing
+subdirs are the skills (collection itself exempt — skill-anatomy.md §3.1);
+only when no SKILL.md exists within two levels is the dir itself reported
+as missing_skill_md.
 """
 
 from __future__ import annotations
@@ -185,20 +191,45 @@ def _enumerate_skills(agent_dir: Path) -> tuple[list[dict], list[dict]]:
     for child in sorted(agent_dir.iterdir()):
         if not child.is_dir():
             continue
-        fm = _parse_frontmatter(child)
-        description = fm["description"]
-        entry = {
-            "name": child.name,
-            "path": child.resolve().as_posix(),
-            "description": description,
-            "size_kb": _dir_size_kb(child),
-            "desc_len": len(description) if description is not None else None,
-            "has_skill_md": fm["has_skill_md"],
-            "frontmatter_ok": fm["frontmatter_ok"],
-        }
-        skills.append(entry)
-        issues.extend(_health_issues(child.name, entry, fm))
+        for skill_dir in _resolve_skill_dirs(child):
+            fm = _parse_frontmatter(skill_dir)
+            description = fm["description"]
+            entry = {
+                "name": skill_dir.name,
+                "path": skill_dir.resolve().as_posix(),
+                "description": description,
+                "size_kb": _dir_size_kb(skill_dir),
+                "desc_len": len(description) if description is not None else None,
+                "has_skill_md": fm["has_skill_md"],
+                "frontmatter_ok": fm["frontmatter_ok"],
+            }
+            skills.append(entry)
+            issues.extend(_health_issues(skill_dir.name, entry, fm))
     return skills, issues
+
+
+def _resolve_skill_dirs(first_level_dir: Path) -> list[Path]:
+    """Two-level enumeration rule (collection exemption frozen in
+    shared-references/skill-anatomy.md §3.1):
+
+    - first_level_dir has SKILL.md -> it is the skill (no descent);
+    - no SKILL.md but second-level dirs have them -> first_level_dir is a
+      collection dir (category-style or step-style): those second-level dirs
+      are the skills, the collection itself is exempt (not enumerated, no
+      issue);
+    - no SKILL.md anywhere within two levels -> first_level_dir stays a
+      skill entry reported as missing_skill_md;
+    - second-level dirs without SKILL.md are never descended (v1 cap: two
+      levels).
+    """
+    if (first_level_dir / "SKILL.md").is_file():
+        return [first_level_dir]
+    nested = [
+        sub
+        for sub in sorted(first_level_dir.iterdir())
+        if sub.is_dir() and (sub / "SKILL.md").is_file()
+    ]
+    return nested if nested else [first_level_dir]
 
 
 def _parse_frontmatter(skill_dir: Path) -> dict:
