@@ -22,13 +22,14 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 import inventory  # noqa: E402
 
 
-def run_cli(yaml_path, *extra_args):
+def run_cli(yaml_path, *extra_args, timeout=60):
     """Run inventory.py as a subprocess and return the completed process."""
     return subprocess.run(
         [sys.executable, str(SCRIPTS_DIR / "inventory.py"), "--agents", str(yaml_path), *extra_args],
         capture_output=True,
         text=True,
         cwd=PROJECT_ROOT,
+        timeout=timeout,
     )
 
 
@@ -349,3 +350,207 @@ def test_healthy_skills_produce_no_issues():
         assert entry["has_skill_md"] is True
         assert entry["frontmatter_ok"] is True
         assert entry["desc_len"] < 1024
+
+
+# ---------------------------------------------------------------------------
+# Code-quality fixes: error boundary, BOM tolerance, empty frontmatter values,
+# junction loop guard, DESC_MAX_CHARS boundary, yaml quote stripping,
+# duplicate-location dedup.
+# ---------------------------------------------------------------------------
+
+
+def make_tmp_skill_tree(tmp_path, skill_name, skill_md_text):
+    """Create <tmp_path>/agent/<skill_name>/SKILL.md and return the skill dir."""
+    skill = tmp_path / "agent" / skill_name
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(skill_md_text, encoding="utf-8")
+    return skill
+
+
+def make_registry(tmp_path, entries):
+    """Write a registry yaml with the given (name, enabled, [paths]) entries."""
+    lines = ["agents:"]
+    for name, enabled, paths in entries:
+        lines.append(f"  - name: {name}")
+        lines.append(f"    enabled: {'true' if enabled else 'false'}")
+        lines.append("    paths:")
+        for p in paths:
+            lines.append(f"      - {p}")
+    registry = tmp_path / "registry.yaml"
+    registry.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return registry
+
+
+def test_gbk_yaml_outputs_error_json_not_traceback(tmp_path):
+    """[HIGH] Any unexpected failure (e.g. GBK-encoded yaml breaking utf-8
+    decoding) must still produce a single error JSON on stdout + exit 1."""
+    bad = tmp_path / "gbk.yaml"
+    bad.write_text(
+        "agents:\n"
+        "  - name: 中文代理\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./nope\n",
+        encoding="gbk",
+    )
+    proc = run_cli(bad)
+
+    assert proc.returncode != 0
+    payload = json.loads(proc.stdout)  # stdout must remain valid JSON
+    assert "error" in payload
+    assert payload["error"]
+
+
+def test_bom_prefixed_skill_md_parses_frontmatter(tmp_path):
+    """[MEDIUM] A utf-8 BOM before the '---' fence must not break parsing."""
+    skill = tmp_path / "agent" / "bom-skill"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_bytes(
+        "\ufeff---\nname: bom-skill\ndescription: bom-tolerant skill.\n---\nbody\n".encode("utf-8")
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "bom-skill")
+    assert entry["has_skill_md"] is True
+    assert entry["frontmatter_ok"] is True
+    assert entry["description"] == "bom-tolerant skill."
+    assert issues_for(result, "bom-skill") == []
+
+
+def test_bom_prefixed_agents_yaml_parses(tmp_path):
+    """[MEDIUM] A utf-8 BOM before 'agents:' must not break registry parsing."""
+    make_tmp_skill_tree(
+        tmp_path, "plain-skill", "---\nname: plain-skill\ndescription: plain.\n---\n"
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_bytes(
+        "\ufeffagents:\n"
+        "  - name: bom-agent\n"
+        "    enabled: true\n"
+        "    paths:\n"
+        "      - ./agent\n".encode("utf-8")
+    )
+
+    result = build(registry)
+    assert [a["name"] for a in result["agents"]] == ["bom-agent"]
+    assert result["agents"][0]["installed"] is True
+
+
+def test_empty_description_value_is_frontmatter_broken(tmp_path):
+    """[MEDIUM] `description:` with an empty value cannot be routed on and
+    must count as broken frontmatter, not a healthy skill."""
+    make_tmp_skill_tree(tmp_path, "empty-desc", "---\nname: empty-desc\ndescription:\n---\n")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "empty-desc")
+    assert entry["frontmatter_ok"] is False
+    assert entry["description"] is None
+    assert [i["issue"] for i in issues_for(result, "empty-desc")] == ["frontmatter_broken"]
+
+
+def test_empty_name_value_is_frontmatter_broken_without_mismatch(tmp_path):
+    """[MEDIUM] `name:` with an empty value -> frontmatter_broken only; the
+    name_mismatch check must not run on top of an unparseable name."""
+    make_tmp_skill_tree(tmp_path, "empty-name", "---\nname:\ndescription: d.\n---\n")
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    entry = skill_entry(result, "tmp-agent", "empty-name")
+    assert entry["frontmatter_ok"] is False
+    assert [i["issue"] for i in issues_for(result, "empty-name")] == ["frontmatter_broken"]
+
+
+def test_junction_loop_does_not_inflate_size_kb_or_hang(tmp_path):
+    """[MEDIUM] A junction cycle inside a skill dir must not double-count
+    size_kb nor hang the walk (junctions are not is_symlink() on Windows)."""
+    skill = make_tmp_skill_tree(
+        tmp_path, "looped-skill", "---\nname: looped-skill\ndescription: loop.\n---\n"
+    )
+    (skill / "payload.bin").write_bytes(b"x" * 8192)  # give size_kb a nonzero baseline
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    baseline = json.loads(run_cli(registry).stdout)
+    baseline_kb = baseline["agents"][0]["skills"][0]["size_kb"]
+    assert baseline_kb >= 8.0
+
+    junction = skill / "loop"
+    mklink = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(junction), str(skill)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    assert mklink.returncode == 0, mklink.stderr  # junction creation needs no admin
+
+    proc = run_cli(registry, timeout=30)  # raises TimeoutExpired if the walk hangs
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert payload["agents"][0]["skills"][0]["size_kb"] == baseline_kb
+
+
+def test_desc_max_chars_constant_and_boundaries(tmp_path):
+    """[LOW] DESC_MAX_CHARS is a named constant (skill-anatomy §3.3);
+    1024 chars passes, 1025 chars gets desc_too_long."""
+    assert inventory.DESC_MAX_CHARS == 1024
+
+    make_tmp_skill_tree(
+        tmp_path, "desc-1024", f"---\nname: desc-1024\ndescription: {'x' * 1024}\n---\n"
+    )
+    make_tmp_skill_tree(
+        tmp_path, "desc-1025", f"---\nname: desc-1025\ndescription: {'x' * 1025}\n---\n"
+    )
+    registry = make_registry(tmp_path, [("tmp-agent", True, ["./agent"])])
+
+    result = build(registry)
+    ok_entry = skill_entry(result, "tmp-agent", "desc-1024")
+    assert ok_entry["frontmatter_ok"] is True
+    assert ok_entry["desc_len"] == 1024
+    assert issues_for(result, "desc-1024") == []
+
+    long_entry = skill_entry(result, "tmp-agent", "desc-1025")
+    assert long_entry["desc_len"] == 1025
+    assert [i["issue"] for i in issues_for(result, "desc-1025")] == ["desc_too_long"]
+
+
+def test_quoted_yaml_scalars_are_unquoted(tmp_path):
+    """[LOW] `name: "opencode"` must be stored unquoted so --agent matching
+    works; quoted path scalars must also resolve."""
+    make_tmp_skill_tree(
+        tmp_path, "q-skill", "---\nname: q-skill\ndescription: quoted registry.\n---\n"
+    )
+    registry = tmp_path / "registry.yaml"
+    registry.write_text(
+        "agents:\n"
+        '  - name: "quoted-agent"\n'
+        "    enabled: true\n"
+        "    paths:\n"
+        '      - "./agent"\n',
+        encoding="utf-8",
+    )
+
+    result = build(registry)
+    assert [a["name"] for a in result["agents"]] == ["quoted-agent"]
+    assert result["agents"][0]["installed"] is True
+
+    proc = run_cli(registry, "--agent", "quoted-agent")
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert [a["name"] for a in payload["agents"]] == ["quoted-agent"]
+
+
+def test_two_agents_sharing_one_path_no_false_duplicate(tmp_path):
+    """[LOW] Duplicate locations must be deduped before the >=2 threshold;
+    two agents pointing at the same dir is one install location, not two."""
+    make_tmp_skill_tree(
+        tmp_path, "shared-skill", "---\nname: shared-skill\ndescription: shared.\n---\n"
+    )
+    registry = make_registry(
+        tmp_path,
+        [("agent-one", True, ["./agent"]), ("agent-two", True, ["./agent"])],
+    )
+
+    result = build(registry)
+    assert result["duplicates"] == []

@@ -26,6 +26,19 @@ class YamlParseError(InventoryError):
     """agents.yaml violates the supported fixed-schema subset."""
 
 
+# description length cap, frozen in shared-references/skill-anatomy.md §3.3
+# (desc_too_long is raised when len(description) > DESC_MAX_CHARS).
+DESC_MAX_CHARS = 1024
+
+
+def _unquote(value: str) -> str:
+    """Strip one pair of matching surrounding quotes from a yaml scalar value
+    (e.g. `name: "opencode"` must be stored as opencode, not "opencode")."""
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+        return value[1:-1]
+    return value
+
+
 def parse_agents_yaml(text: str) -> list[dict]:
     """Parse the agents.yaml schema subset.
 
@@ -67,7 +80,11 @@ def parse_agents_yaml(text: str) -> list[dict]:
             if entry is not None:
                 _finalize_entry(entry, f"line {lineno}")
                 agents.append(entry)
-            entry = {"name": stripped[2:][len("name:"):].strip(), "enabled": None, "paths": []}
+            entry = {
+                "name": _unquote(stripped[2:][len("name:"):].strip()),
+                "enabled": None,
+                "paths": [],
+            }
             in_paths = False
         elif indent == 4:
             if entry is None:
@@ -92,7 +109,7 @@ def parse_agents_yaml(text: str) -> list[dict]:
                 raise YamlParseError(f"line {lineno}: list item outside a 'paths:' block: {stripped!r}")
             if not stripped.startswith("- "):
                 raise YamlParseError(f"line {lineno}: expected '- <path>', got {stripped!r}")
-            entry["paths"].append(stripped[2:].strip())
+            entry["paths"].append(_unquote(stripped[2:].strip()))
         else:
             raise YamlParseError(f"line {lineno}: unsupported indentation ({indent} spaces): {stripped!r}")
 
@@ -114,7 +131,8 @@ def _finalize_entry(entry: dict, where: str) -> None:
 def build_inventory(yaml_path: Path, agent_filter: str | None = None) -> dict:
     """Build the full inventory payload from an agents.yaml registry file."""
     try:
-        text = yaml_path.read_text(encoding="utf-8")
+        # utf-8-sig: tolerate (and strip) a leading BOM; plain utf-8 unaffected.
+        text = yaml_path.read_text(encoding="utf-8-sig")
     except OSError as exc:
         raise InventoryError(f"cannot read agents yaml {yaml_path}: {exc}") from exc
     specs = parse_agents_yaml(text)
@@ -188,9 +206,10 @@ def _parse_frontmatter(skill_dir: Path) -> dict:
 
     Returns a dict with:
         has_skill_md:   SKILL.md exists
-        frontmatter_ok: SKILL.md exists, fences closed, name+description keys present
-        fm_name:        frontmatter `name` value (None if absent/unparseable)
-        description:    frontmatter `description` value (None if absent/unparseable)
+        frontmatter_ok: SKILL.md exists, fences closed, name+description keys
+                        present with non-empty values
+        fm_name:        frontmatter `name` value (None if absent/empty/unparseable)
+        description:    frontmatter `description` value (None if absent/empty/unparseable)
     """
     manifest = skill_dir / "SKILL.md"
     info = {
@@ -202,7 +221,8 @@ def _parse_frontmatter(skill_dir: Path) -> dict:
     if not info["has_skill_md"]:
         return info
     try:
-        lines = manifest.read_text(encoding="utf-8", errors="replace").splitlines()
+        # utf-8-sig: tolerate (and strip) a leading BOM before the '---' fence.
+        lines = manifest.read_text(encoding="utf-8-sig", errors="replace").splitlines()
     except OSError:
         return info
     if not lines or lines[0].strip() != "---":
@@ -226,8 +246,10 @@ def _parse_frontmatter(skill_dir: Path) -> dict:
             keys[key.strip()] = value.strip()
     info["fm_name"] = keys.get("name") or None
     info["description"] = keys.get("description") or None
-    if "name" not in keys or "description" not in keys:
-        return info  # required key(s) missing
+    # Required key missing OR present with an empty value: either way the
+    # skill cannot be routed on (name) or described (description) -> broken.
+    if not keys.get("name") or not keys.get("description"):
+        return info
     info["frontmatter_ok"] = True
     return info
 
@@ -241,11 +263,19 @@ def _health_issues(skill_name: str, entry: dict, fm: dict) -> list[dict]:
     if not entry["has_skill_md"]:
         return [issue("missing_skill_md", "目录缺 SKILL.md")]
     if not fm["frontmatter_ok"]:
-        return [issue("frontmatter_broken", "frontmatter 围栏未闭合或缺少 name/description 键")]
+        return [
+            issue(
+                "frontmatter_broken",
+                "frontmatter 围栏未闭合或 name/description 键缺失/值为空",
+            )
+        ]
     issues: list[dict] = []
-    if entry["desc_len"] is not None and entry["desc_len"] > 1024:
+    if entry["desc_len"] is not None and entry["desc_len"] > DESC_MAX_CHARS:
         issues.append(
-            issue("desc_too_long", f"description 长度 {entry['desc_len']} 字符，超过 1024 上限")
+            issue(
+                "desc_too_long",
+                f"description 长度 {entry['desc_len']} 字符，超过 {DESC_MAX_CHARS} 上限",
+            )
         )
     if fm["fm_name"] is not None and fm["fm_name"] != skill_name:
         issues.append(
@@ -258,26 +288,47 @@ def _health_issues(skill_name: str, entry: dict, fm: dict) -> list[dict]:
 
 
 def _find_duplicates(agents: list[dict]) -> list[dict]:
-    """Group every enumerated skill by name; names installed in >=2 places."""
+    """Group every enumerated skill by name; names installed in >=2 places.
+
+    Locations are deduped first: two agents whose paths resolve to the same
+    directory describe one install location, not a duplicate."""
     by_name: dict[str, list[str]] = {}
     for agent in agents:
         for skill in agent["skills"]:
             by_name.setdefault(skill["name"], []).append(skill["path"])
-    return [
-        {"name": name, "locations": locations}
-        for name, locations in sorted(by_name.items())
-        if len(locations) >= 2
-    ]
+    duplicates: list[dict] = []
+    for name, paths in sorted(by_name.items()):
+        locations = list(dict.fromkeys(paths))  # dedup, preserve first-seen order
+        if len(locations) >= 2:
+            duplicates.append({"name": name, "locations": locations})
+    return duplicates
 
 
 def _dir_size_kb(path: Path) -> float:
+    """Sum file sizes under `path` without following junctions.
+
+    On Windows (Python 3.12) `Path.is_symlink()` is False for junctions, so
+    glob/walk helpers silently descend into them; a junction cycle would then
+    double-count sizes or hang. Junction targets are skipped entirely.
+    """
     total = 0
-    for item in path.rglob("*"):
-        if item.is_file():
-            try:
-                total += item.stat().st_size
-            except OSError:
-                pass
+    stack: list[str] = [str(path)]
+    while stack:
+        current = stack.pop()
+        try:
+            with os.scandir(current) as it:
+                for entry in it:
+                    if os.path.isjunction(entry.path):
+                        continue  # never descend into a junction target
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                    elif entry.is_file():
+                        try:
+                            total += entry.stat().st_size
+                        except OSError:
+                            pass
+        except OSError:
+            continue  # unreadable subtree: skip, keep the total conservative
     return round(total / 1024, 1)
 
 
@@ -297,8 +348,8 @@ def main(argv: list[str] | None = None) -> int:
         if not yaml_path.is_file():
             raise InventoryError(f"agents yaml not found: {args.agents}")
         payload = build_inventory(yaml_path, agent_filter=args.agent)
-    except InventoryError as exc:
-        print(json.dumps({"error": str(exc)}))
+    except Exception as exc:  # script boundary: any failure -> single error JSON
+        print(json.dumps({"error": str(exc) or exc.__class__.__name__}))
         return 1
     print(json.dumps(payload))
     return 0
