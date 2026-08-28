@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "转录并粗剪这期口播，我每句话大概读了两三遍", "expected": "词级转录后运行 select_takes 找出所有 take 并打分选最佳，展示 takes_decision.md 给用户过目，tighten_pauses 收紧句中停顿，EDL 只引用被选中的 take"},
+  {"id": 2, "prompt": "只做转录，先不要剪", "expected": "只跑转录并写入缓存，不生成 EDL、不渲染；重复调用时命中缓存不重转录"},
+  {"id": 3, "prompt": "停顿别剪太狠，我想保留呼吸感", "expected": "调高 --threshold 或加大 --keep（如 0.5s/0.4s），或跳过 tighten_pauses，并在 manifest 记录用户偏好"}
+]

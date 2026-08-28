@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "找一段城市夜景的空镜视频，10秒左右，要能商用的",
+    "expected": "读 asset_request_list（没有则询问用途/画幅/许可证），先 metadata search 再下载确认项，记录具体来源 URL 和许可证到 manifest，不确定则标 blocked"
+  },
+  {
+    "id": 2,
+    "prompt": "下载这个 YouTube 视频的 1:00 到 1:30 做参考素材",
+    "expected": "youtube 命令裁切下载，normalize 转码归档并写许可证记录；不绕过访问控制，提醒版权风险"
+  },
+  {
+    "id": 3,
+    "prompt": "这个图挺合适的但许可证页面打不开",
+    "expected": "该素材标 blocked 不进消费者目录；要求换素材，不拿「平台一般免费」当许可证"
+  }
+]

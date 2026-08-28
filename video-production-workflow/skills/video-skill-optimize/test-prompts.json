@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "这次制作用户纠正了我两次，把这个教训记下来",
+    "expected": "record 模式：脱敏后记录具体信号（expected/observed/severity），不写入聊天原文和秘密"
+  },
+  {
+    "id": 2,
+    "prompt": "看看最近有哪些重复出现的问题可以固化成规则",
+    "expected": "mine 聚合同类信号；≥2 次重复才 propose 候选，候选只改最小责任文件，等 gate + 用户 adopt"
+  },
+  {
+    "id": 3,
+    "prompt": "gate 通过了，直接帮我改上去吧",
+    "expected": "拒绝自动采纳：展示证据/差异/得分后等用户明确说「采纳」，adopt 需 --confirm 硬编码校验"
+  }
+]

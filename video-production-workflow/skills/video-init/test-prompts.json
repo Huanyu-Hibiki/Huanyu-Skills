@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "我要做新一期视频，终稿在 D:\\work\\OPC\\videos\\EP012_标题\\video scripts\\final.md，帮我初始化制作管线",
+    "expected": "确认路径/标题/画幅/帧率后创建标准目录、state、WORKFLOW/STATUS，复制终稿为 manuscript.md，不覆盖已有文件，输出下一步 /video-plan"
+  },
+  {
+    "id": 2,
+    "prompt": "这个目录之前初始化过一半，继续补齐",
+    "expected": "检测半初始化状态，列出已有项，只补缺失不覆盖；已完整初始化时展示状态并询问是否重置"
+  },
+  {
+    "id": 3,
+    "prompt": "项目路径里有空格，脚本报错了",
+    "expected": "失败分支：CLI 参数全部加引号重试；仍失败建议用户改无空格路径，不静默换目录"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我把这份终稿转成分镜表",
+    "expected": "按语义场景（不是按//）拆分镜，storyboard.md/json 含 broll_candidates 数组，产出素材请求和动效候选，写入 approval_pending 等确认"
+  },
+  {
+    "id": 2,
+    "prompt": "粗剪完了，根据实际时间码列一下还要做的动效",
+    "expected": "进入 rough-cut-finalization 模式，读 rough_cut_manifest + missing_materials，丢弃已被实拍/OBS/Stock 解决的候选，只留实际缺失项产出 motion_request_list"
+  },
+  {
+    "id": 3,
+    "prompt": "终稿文件我还没写完，先用大纲生成分镜吧",
+    "expected": "拒绝：无完整终稿不产出分镜（失败表第1行），停在等终稿状态"
+  }
+]

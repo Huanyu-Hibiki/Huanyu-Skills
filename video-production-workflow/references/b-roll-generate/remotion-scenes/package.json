@@ -1,0 +1,54 @@
+{
+  "name": "remotion-scenes",
+  "version": "1.0.0",
+  "description": "201+ professional motion graphics scenes for Remotion",
+  "keywords": [
+    "remotion",
+    "motion-graphics",
+    "animation",
+    "react",
+    "video",
+    "after-effects",
+    "text-animation",
+    "particle",
+    "transition"
+  ],
+  "homepage": "https://github.com/lifeprompt-team/remotion-scenes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lifeprompt-team/remotion-scenes.git"
+  },
+  "license": "MIT",
+  "author": "lifeprompt-team",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.0.0",
+    "@react-three/fiber": "^8.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/three": "^4.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "remotion": "^4.0.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "^4.0.0",
+    "@types/react": "^18.0.0",
+    "@types/three": "^0.160.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.54.0"
+  },
+  "peerDependencies": {
+    "@remotion/google-fonts": ">=4.0.0",
+    "react": ">=18.0.0",
+    "remotion": ">=4.0.0"
+  }
+}

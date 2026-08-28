@@ -1,0 +1,5 @@
+[
+  {"id": 1, "prompt": "生成剪映草稿，字幕要剪映原生的短句样式", "expected": "create_draft → add_video → add_subtitle（默认拆条≤18显示单位、居中、另存.split.srt）→ save_draft 到真实草稿根，写 jianying_draft_manifest"},
+  {"id": 2, "prompt": "字幕拆成每条最多15个字", "expected": "add_subtitle --max-chars 15，其余流程不变"},
+  {"id": 3, "prompt": "剪映已经开着了，直接改草稿 JSON 行不行", "expected": "拒绝修改已打开草稿（JSON 可能已加密），给出替代路线：导出 SRT 在 GUI 导入（导入前先 subtitle_split 拆条）"}
+]

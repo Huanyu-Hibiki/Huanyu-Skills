@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "把通过 QA 的 B-roll 合成预览看看效果",
+    "expected": "核对 manifest 与实际文件一致，按关键词后 0.2-0.5s 放置，字幕在 filter chain 最后，输出 Polished/preview.mp4 + B-roll 检查图"
+  },
+  {
+    "id": 2,
+    "prompt": "效果可以了，输出最终成片",
+    "expected": "确认用户批准后输出 Final/video_final.mp4 + qa-report.md + final_timeline_manifest.md；Final 只写确认后的版本"
+  },
+  {
+    "id": 3,
+    "prompt": "合成的预览里透明 B-roll 变成黑底了",
+    "expected": "失败分支：ffprobe 查源 pix_fmt 是否 yuva；改 PNG sequence 重合成或 ProRes 4444 中转"
+  }
+]

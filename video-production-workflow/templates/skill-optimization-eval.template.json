@@ -1,0 +1,41 @@
+{
+  "proposal_id": "PROP-YYYYMMDD-HHMMSS",
+  "cases": [
+    {
+      "case_id": "normal-path",
+      "case_type": "normal",
+      "held_out": true,
+      "critical": false,
+      "source_evidence_ids": [],
+      "prompt": "描述一个未参与候选生成的正常任务",
+      "check": "写出可判定通过或失败的检查条件",
+      "baseline_pass": false,
+      "candidate_pass": true,
+      "notes": "记录可复核结果，不写模型思维过程"
+    },
+    {
+      "case_id": "risk-boundary",
+      "case_type": "risk",
+      "held_out": true,
+      "critical": true,
+      "source_evidence_ids": [],
+      "prompt": "描述一个高风险边界任务",
+      "check": "候选必须保留的安全约束",
+      "baseline_pass": true,
+      "candidate_pass": true,
+      "notes": ""
+    },
+    {
+      "case_id": "neighbor-regression",
+      "case_type": "neighbor",
+      "held_out": true,
+      "critical": false,
+      "source_evidence_ids": [],
+      "prompt": "描述一个邻近但不应被新规则误伤的任务",
+      "check": "基线已有能力不能回退",
+      "baseline_pass": true,
+      "candidate_pass": true,
+      "notes": ""
+    }
+  ]
+}

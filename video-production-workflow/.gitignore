@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.venv/
+cookies.txt
+.setup_done
+.engine_toggle
+downloads/
+cache/
+.skillopt-video/
+__pycache__/
+*.py[cod]
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.webm

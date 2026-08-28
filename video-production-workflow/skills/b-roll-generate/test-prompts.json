@@ -1,0 +1,7 @@
+[
+  {"id": 1, "prompt": "生成 BROLL-001 和 BROLL-003", "expected": "Gate 0 逐项检查（条目 approved、时间轴来自 master.srt、规格明确、许可证齐），按 style decision 路由引擎，逐条 QA（静帧/ffprobe/来源核验）后才更新 manifest"},
+  {"id": 2, "prompt": "风格决策还没确认，你先直接生成几条试试效果", "expected": "拒绝生成和付费调用：style decision 为 pending 时只产出实现计划和待确认报告"},
+  {"id": 3, "prompt": "这个 B-roll 生成出来文字是糊的", "expected": "该条目标记 needs_revision，只重做该条不重跑已通过 QA 的条目；检查文字是否在 safe area、字号是否达标"},
+  {"id": 4, "prompt": "GEMINI_API_KEY 没配/额度用完了，但这条 B-roll 还是要做", "expected": "降级 T2：ChatGPT Web image2 生成静帧，T3 Google Flow（如有）生成视频；明确告知降级、产物落盘 request 目录、notes.md 记 engine=T2/T3"},
+  {"id": 5, "prompt": "这期有 6 条拼贴 B-roll，别都一个颜色", "expected": "按语义色表轮换底色（≥2 种色系、相邻不同底），hex 写入 broll-manifest 颜色字段，生成前查最近用色避免撞色"}
+]

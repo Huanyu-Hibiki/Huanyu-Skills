@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1",
+  "skill_version": "0.1.0",
+  "project_path": "",
+  "project_id": "",
+  "title": "",
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "aspect_ratio": "16:9"
+  },
+  "current_phase": "init",
+  "phase_status": {
+    "init": "in_progress",
+    "plan": "not_started",
+    "record": "not_started",
+    "rough_cut": "not_started",
+    "caption_correct": "not_started",
+    "jianying_draft": "not_started",
+    "assets": "not_started",
+    "fine_cut": "not_started",
+    "broll_plan": "not_started",
+    "broll_generate": "not_started",
+    "polish": "not_started",
+    "delivery": "not_started"
+  },
+  "approval_pending": null,
+  "artifacts": {},
+  "broll": {
+    "profile_confirmed": false,
+    "opportunity_count": 0,
+    "approved_count": 0,
+    "generated_count": 0,
+    "qa_passed_count": 0,
+    "deferred_count": 0,
+    "manifest_path": "Polished/broll-manifest.md"
+  },
+  "last_action_at": null,
+  "initialized_at": null
+}

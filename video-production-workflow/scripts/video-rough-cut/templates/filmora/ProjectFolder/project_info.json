@@ -1,0 +1,57 @@
+{
+    "vbl_modify_version": "8.2.15.9",
+    "vbl_create_version": "8.2.15.9",
+    "project_os_name": "Windows",
+    "project_os_version": "",
+    "project_file_name": "123",
+    "project_file_suffix": ".wfpx",
+    "project_editor_name": "MiaoYing",
+    "project_editor_create_version": "15.2.16.17980",
+    "project_editor_modify_version": "15.2.16.17980",
+    "project_date_create": 1777947735,
+    "project_date_modify": 1777948507,
+    "project_timeline_duration": 50000000,
+    "project_current_position": 0,
+    "project_timeline_framerate": [
+        25,
+        1
+    ],
+    "project_timeline_resolution": [
+        1920,
+        1080
+    ],
+    "project_timeline_ratio": [
+        16,
+        9
+    ],
+    "project_color_space": 0,
+    "project_sample_rate": 44100,
+    "project_audio_bitdepth": 1,
+    "project_player_quality": 0,
+    "project_player_zoom_level": 0,
+    "project_player_safe_zone": false,
+    "project_archive": false,
+    "project_storage": true,
+    "project_backup": false,
+    "project_cover": false,
+    "project_custom_cover": false,
+    "project_type": 0,
+    "project_template_name": "",
+    "timeline_mediaId": "{C63F3F27-3D68-4059-86DD-626A99FC0A6A}",
+    "project_guid": "{85AC9701-6A08-4e19-AAE2-EFC92935A31D}",
+    "proj_zip_save_path": "<project>/ProjectFolder/video_project.wfpx",
+    "proj_cover_proj_path": "D:/工程文件/Wondershare/Wondershare miaoying/Backup/{85AC9701-6A08-4e19-AAE2-EFC92935A31D}/ProjectFolder/Anon/Cover\\cover_mj8Au.wfpbundlex",
+    "nSizeRatioType": 0,
+    "project_source": "ff405808ebb997f8f3065d48f3cc22d4",
+    "project_used_pack_list": [],
+    "user_data": [
+        {
+            "key": 1,
+            "data": "1"
+        },
+        {
+            "key": 2,
+            "data": ""
+        }
+    ]
+}

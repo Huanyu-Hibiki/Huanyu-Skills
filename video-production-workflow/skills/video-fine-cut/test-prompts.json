@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "我在剪映里精剪完了，导出了 fine_cut.mp4 和 master.srt，下一步干嘛",
+    "expected": "跑完成检查（视频与 master.srt 时长一致、无原始时间线偏移、无爆音），写 fine_cut_manifest.md，路由到 /b-roll-finder"
+  },
+  {
+    "id": 2,
+    "prompt": "剪映草稿打不开了/时间线好像乱了",
+    "expected": "失败分支：不要手改可能已加密的 JSON；从 Rough/edl.json 和 cache 重建 Draft，说明已精剪的改动会丢失、需用户决策重剪还是修复"
+  },
+  {
+    "id": 3,
+    "prompt": "master.srt 和导出的视频时长差了快两秒",
+    "expected": "失败分支：字幕沿用原始时间线——重新导出当前时间轴 SRT，或用 align_to_manuscript --final-keeps 重映射"
+  }
+]

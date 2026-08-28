@@ -1,0 +1,10 @@
+[
+  {
+    "prompt": "Paper-collage stop-motion assembly, using Image 1 as the exact empty first frame and Image 2 as the exact completed last frame. In one continuous locked-off vertical shot, assemble the approved paper groups one by one: [describe the order]. End by holding the supplied completed composition. No scene cuts, camera movement, zoom, morphing, new objects, text, letters, numbers, logos, watermark, UI or sound.",
+    "first_frame": "<project>/Polished/B-roll/BROLL-001/frames/first-frame.png",
+    "last_frame": "<project>/Polished/B-roll/BROLL-001/frames/last-frame.png",
+    "output": "<project>/Polished/B-roll/BROLL-001/out/final-5s.mp4",
+    "aspect_ratio": "9:16",
+    "duration": 5
+  }
+]

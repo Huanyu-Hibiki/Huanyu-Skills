@@ -1,0 +1,57 @@
+{
+  "name": "@curvable/motion",
+  "version": "0.1.0",
+  "description": "Premium open source motion components for Remotion. Fourteen scenes driving Curvable's launch video templates, MIT licensed.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Curvable/motion.git"
+  },
+  "homepage": "https://curvable.ai/library",
+  "bugs": {
+    "url": "https://github.com/Curvable/motion/issues"
+  },
+  "keywords": [
+    "remotion",
+    "motion",
+    "animation",
+    "components",
+    "react",
+    "typescript",
+    "video",
+    "branded"
+  ],
+  "peerDependencies": {
+    "@remotion/google-fonts": ">=4.0.0",
+    "ogl": ">=1.0.0",
+    "react": ">=18.0.0",
+    "remotion": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@remotion/google-fonts": {
+      "optional": true
+    },
+    "ogl": {
+      "optional": true
+    }
+  },
+  "author": "Curvable (https://curvable.ai)",
+  "devDependencies": {
+    "@remotion/google-fonts": "^4.0.462",
+    "@types/node": "^25.9.0",
+    "@types/react": "^18.3.28",
+    "ogl": "^1.0.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.462",
+    "typescript": "^5.9.3"
+  }
+}

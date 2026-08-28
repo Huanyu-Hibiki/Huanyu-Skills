@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "看看我的视频项目现在做到哪一步了",
+    "expected": "读 state + 实际文件交叉核对，展示当前阶段/阻塞项/交接文件/下一步建议，只读不改"
+  },
+  {
+    "id": 2,
+    "prompt": "EP009 为什么卡住了",
+    "expected": "定位 awaiting_approval/blocked 的具体条目和原因，把修复动作路由给对应子 skill 而不是自行修复"
+  },
+  {
+    "id": 3,
+    "prompt": "state 里写着粗剪完成，但我找不到预览文件",
+    "expected": "以实际文件为准展示矛盾，标 blocked 并路由回 video-rough-cut，不改 state 不代跑"
+  }
+]

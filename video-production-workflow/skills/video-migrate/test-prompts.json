@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "这是去年做的旧项目，帮我迁进新管线",
+    "expected": "先备份 state，只按实际文件内容（不是目录存在）推断阶段，不确定的标 blocked/not_started，生成迁移报告等用户确认交接问题"
+  },
+  {
+    "id": 2,
+    "prompt": "迁移之后我的字幕文件好像被动过了怎么办",
+    "expected": "失败分支：从 .bak-<timestamp> 备份恢复 state，重新跑 video-status 一致性检查，报告差异"
+  },
+  {
+    "id": 3,
+    "prompt": "旧项目的 state 文件是坏的，JSON 解析失败",
+    "expected": "失败分支：按无 state 处理从实际文件推断重建；损坏文件改名 .corrupt-<timestamp> 留档不删除"
+  }
+]
