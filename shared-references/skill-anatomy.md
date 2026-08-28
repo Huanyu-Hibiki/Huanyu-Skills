@@ -67,6 +67,7 @@ inventory.py 对每个枚举到的 skill 目录做以下四项机器检查。判
 ### 3.1 missing_skill_md — 目录缺 SKILL.md
 
 - **判据**：skill 目录下不存在 `SKILL.md` 文件
+- **合集豁免（两层枚举）**：目录自身无 SKILL.md、但其二层子目录里有含 SKILL.md 的，该目录是**合集目录**（类目式 `engineering/brainstorming/` 或分步式 `shendu-yuedu/01-init/`），不枚举、不报本 issue——inventory.py 按两层枚举语义处理：一层含 SKILL.md 即 skill 不再下探，二层无 SKILL.md 的目录不再下探（v1 上限两层），仅当两层内均无任何 SKILL.md 才落到本判据
 - **为什么是问题**：没有入口文件，Agent 无法加载该 skill，等于没装
 - **修复**：补写 SKILL.md（frontmatter + 最小工作流）；若目录本是残留物，建议用户清理
 
