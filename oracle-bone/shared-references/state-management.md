@@ -101,6 +101,7 @@
 | `in_progress_session` | oracle-predict（创建）/ oracle-publish（清除） | predict 写完文件时；publish 登记时 |
 | `baseline_plays` | oracle-init（有历史则中位数）/ oracle-retro（首个实绩回填） | — |
 | `last_bump_at` | oracle-bump（按轨记录） | bump 落地时 |
+| `stage_constraint`（optional，`{value, basis, updated_at}`） | oracle-init（Phase 4.5 初判）/ compass-retro（Phase 3 回写，连续两次同向或用户拍板才切换） | init 时；每 2 期罗盘复盘时。旧 state 缺此字段按 `none` 兜底，不触发 migrate。判定表见主 SKILL.md「stage_constraint」段 |
 
 **绝不允许**多个 skill 写同一字段——会导致状态语义破碎。如果未来需要新字段，先想好"谁是唯一写者"。
 

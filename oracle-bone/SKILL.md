@@ -53,6 +53,22 @@ oracle-bone **不硬编码任何内容分层**。`/oracle-init` 通过采访为�
 
 init 采访依据：`references/xu-zuohao-positioning-distill.md`（《做号》定位画像提炼）+ `references/content-funnel-theory.md`（内容漏斗三层模型）。
 
+### stage_constraint：当前最大约束（不是等级）
+
+> 烧龟壳之前先问"这次卜的是哪件事"。约束字段决定系统当前**最该修什么**——定位未明的人追热点、产能受限的人三轨全铺，都是开错药。阶段/约束描述当前最大短板，不描述账号等级。
+
+init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `state.stage_constraint`：
+
+| 约束值 | 判定信号 | 对链路的影响 |
+|---|---|---|
+| `positioning_unclear` 定位未明 | init 时形象三词/专业优势答不上；评论复述不出"你是谁讲什么" | seed 优先 Mode A 经历锚点深挖，热点路径降级提示；who-for 逐稿建议跑 |
+| `expression_unstable` 表达不稳 | 定位清晰但 script_patterns 空 + 未导对标；或连续 B 类（表达）问题 | 提示 apprentice 拜师拆稿补 pattern；draft 必过 no-ai-slop |
+| `capacity_limited` 产能受限 | cadence 目标 vs 实际可投入差距大；buffer 长期橙红 | recommend 附注"优先 derivative 一稿多吃"；cadence 下调候选 |
+| `conversion_blocked` 转化受阻 | 转化轨有播放但零咨询/付费信号 | 转化轨 seed 必过 playbook"极刚痛点 6 问"；review 强制 open-source |
+| `none` 无显著约束 | 四类信号都不显著 | 不硬贴标签——没有最大约束本身就是好状态 |
+
+**纪律**：判定必须带依据 + 升级条件；证据不足保守取更早的约束（宁可低估）。切换约束需连续两次 compass-retro 同向证据或用户明确拍板（防单期噪声）。约束与轨道分流**正交**：先轨道后约束，叠加生效。
+
 ---
 
 ## 作品目录结构（全局约定）
@@ -158,6 +174,11 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 | "抓热点" / "fetch trends" / "今天有什么可做的" | `/oracle-trends` | trend-sources adapter 已配置（日常补充候选池） |
 | "状态" / "status" / "看板" | `/oracle-status` | 任意时刻可调 |
 | "迁移" / "升级 state" / "migrate" | `/oracle-migrate` | 已 init；git pull 拉了新版后；SessionStart hook 提示 schema mismatch 后 |
+| "这次推荐不准" / "你判错了" / "记个教训" / "记产品反馈" | 反馈分流协议（见路由表下说明） | 任意时刻 |
+
+---
+
+**反馈分流协议**：用户指出 skill 判断/推荐不准 → 展示拟写入项（哪里不准 / 是否采纳 / 原因）→ 确认后一行追加 `meta-retros/product-feedback.md`（目录约定同 compass-retro Phase 7）。它只喂协作自进化（compass-retro Phase 5 的候选规则提取），**不进** rubric_notes / 三档案 / 校准池——对系统的评价与创作者数据分离，防反馈污染校准。若反馈同时暴露新的创作者事实（如"我变现方式变了"）→ 拆成独立拟议更新走档案写入确认协议（协作契约 #9），两件事不混写。
 
 ---
 
@@ -173,6 +194,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 6. **假性确认防线**：用户说「按你的意思执行」→ 先复述将动的具体项再动手；没明说的决策点列出来等拍板。
 7. **验证后报告**：任何「完成」声明前必须 stat/read 验证文件实际状态；跑脚本看输出 marker，不只看 exit code。
 8. **不代答不甩锅**：出选项 + 标推荐 + 等选是默认；既不甩锅式提问，也不未经同意代选。
+9. **档案写入确认**：修改三份档案（user-profile / content-plan / audience-profiles）任何字段前，展示拟改字段 / 旧值→新值 / 依据 → 确认后落盘，并在档案末尾 `## 变更记录` 追加一行（日期/字段/旧值→新值/依据；首次修订时创建该段）。compass-retro Phase 4.5 的规划修订拍板门是本条的结构化实例。
 
 ---
 

@@ -74,6 +74,18 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 **review 链路由**（写完 draft 后）：转化轨 → oracle-open-source；破圈/认知轨 → oracle-who-for。**不要错配**——拿不准回 state 查 `tracks.definitions[].review_skill`，不要凭印象。
 
+### Phase 1.6: 约束检查（state.stage_constraint）
+
+读 `state.stage_constraint`（字段缺失按 `none`；判定表见主 SKILL.md「stage_constraint」段）：
+
+- `positioning_unclear` → 本期优先 Mode A 经历锚点（init Q4 锚点库优先于热点）；走 Mode C 热点路径前提示"定位未明期追热点易产出同质化内容——建议先挖 1 条你自己的经历"
+- `expression_unstable` → 提示"/oracle-apprentice 拆 1-2 条对标稿补 pattern 后再批量起稿"
+- `capacity_limited` → 单条深做优先于 batch；提示规划 derivative（一期多发）
+- `conversion_blocked` → 转化轨选题必过 conversion-track-playbook"极刚痛点 6 问"（Phase 1.5 已加载时不重复）
+- `none` → 无额外动作
+
+约束与轨道分流正交：先 Phase 1.5 轨道、再本节约束，叠加生效。
+
 ### Phase 2A: Mode A 深挖
 
 围绕用户给的内容深挖，**不切到别的 topics**。
