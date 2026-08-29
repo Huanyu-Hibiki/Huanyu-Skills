@@ -142,10 +142,14 @@ def _jianying_running():
     return bool(out.strip())
 
 def _default_draft_root():
-    """剪映 Windows 草稿根候选探测。只接受「存在且含至少一个真草稿子目录」
+    """剪映草稿根候选探测。只接受「存在且含至少一个真草稿子目录」
     的候选（子目录里有 draft_content.json 或 draft_info.json）——目录存在
-    且被剪映用过才可信；两个候选都不满足时返回 None，不猜。"""
-    cands = [
+    且被剪映用过才可信；候选都不满足时返回 None，不猜。"""
+    cands = []
+    if sys.platform == 'darwin':
+        cands.append(os.path.expanduser(
+            r"~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft"))
+    cands += [
         os.path.expandvars(r'%LOCALAPPDATA%\JianyingPro\User Data\Projects\com.lveditor.draft'),
         os.path.expanduser(r'~\JianyingPro Drafts'),
     ]
@@ -178,6 +182,198 @@ def _validate_draft_name(draft_id, root):
               file=sys.stderr)
         sys.exit(1)
     return os.path.join(root, draft_id)
+
+# ─── Mac 支持（移植自 video-shotcraft mac_draft.py，Mac 剪映 11.2 实测） ──
+
+def _write_json_atomic(path, obj):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False)
+    os.replace(tmp, path)
+
+def _load_platform(draft_dir):
+    """从一个明文草稿读 platform 机器指纹；读不到返回 None。"""
+    try:
+        with open(os.path.join(draft_dir, "draft_info.json"),
+                  encoding="utf-8") as f:
+            platform = json.load(f).get("platform", {})
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    if isinstance(platform, dict) and platform.get("device_id") \
+            and platform.get("os") == "mac":
+        return {k: platform[k] for k in
+                ("os", "app_version", "device_id", "hard_disk_id",
+                 "mac_address") if k in platform}
+    return None
+
+def _mac_platform(root, donor_draft=None, allow_missing_fingerprint=False,
+                  skip_names=()):
+    """取 Mac 平台指纹：显式 donor > 自动扫描草稿库里仍为明文的老草稿。
+    剪映 6+ 保存后加密，更早创建未再打开过的草稿仍是明文，可抄本机指纹。
+    skip_names 排除本次正在创建的草稿——它含 vendor 模板自带的他人指纹，
+    不排除会在全新机器上静默冒用模板作者的指纹而不是明确失败。"""
+    if donor_draft:
+        platform = _load_platform(donor_draft)
+        if platform is None:
+            print(f"ERROR: 指定的 donor 草稿不可用（非明文或缺 device_id）：{donor_draft}",
+                  file=sys.stderr)
+            sys.exit(1)
+        return platform
+    try:
+        entries = sorted(os.listdir(root))
+    except OSError:
+        entries = []
+    for name in entries:
+        if name in skip_names or name.startswith('.'):
+            continue
+        platform = _load_platform(os.path.join(root, name))
+        if platform:
+            return platform
+    if not allow_missing_fingerprint:
+        print("ERROR: 草稿库中未找到可抄设备指纹的明文老草稿（无指纹草稿未经实测，已中止）。"
+              "可选项：① 剪映里新建任意草稿后立即退出，若其仍为明文即可被自动扫描；"
+              "② 用 --donor-draft 指定一个明文草稿路径；"
+              "③ --allow-missing-fingerprint 实验性安装（结果自负）",
+              file=sys.stderr)
+        sys.exit(1)
+    print("[warn] 实验模式：platform 缺少机器指纹（device_id 等），剪映可能拒载")
+    return {"os": "mac", "app_version": "5.4.0"}
+
+def _material_records(content, now_us):
+    """从 draft_content 的 materials 反推 Mac 版媒体池登记记录。
+    缺登记时打开草稿会弹「媒体丢失，请重新链接」。"""
+    records = []
+    for kind, metetype in (("videos", None), ("audios", "music")):
+        for m in content["materials"].get(kind, []):
+            records.append({
+                "create_time": now_us // 1_000_000,
+                "duration": m["duration"],
+                "extra_info": (m.get("material_name") or m.get("name")
+                               or os.path.basename(m["path"])),
+                "file_Path": m["path"],
+                "height": m.get("height", 0),
+                "id": str(uuid.uuid4()),
+                "import_time": now_us // 1_000_000,
+                "import_time_ms": now_us,
+                "item_source": 1,
+                "md5": "",
+                # 图片素材在 videos 组里 type=photo，登记也要跟着标 photo
+                "metetype": metetype or ("photo" if m.get("type") == "photo"
+                                         else "video"),
+                "roughcut_time_range": {"duration": -1, "start": -1},
+                "sub_time_range": {"duration": -1, "start": -1},
+                "type": 0,
+                "width": m.get("width", 0),
+            })
+    return records
+
+def _macify(out, draft_name, root, donor_draft=None, allow_missing=False):
+    """把 Windows 5.9 格式草稿补成 Mac 版认识的样子，返回注册所需信息。
+    Mac 三坑（均为逆向实测）：入口文件名 draft_info.json；platform 要带
+    机器指纹；draft_materials(type 0) 必须登记全部媒体。"""
+    platform = _mac_platform(root, donor_draft, allow_missing,
+                             skip_names={draft_name})
+    content_path = os.path.join(out, "draft_content.json")
+    meta_path = os.path.join(out, "draft_meta_info.json")
+    with open(content_path, encoding="utf-8") as f:
+        content = json.load(f)
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+
+    for key in ("platform", "last_modified_platform"):
+        content[key] = {**content.get(key, {}), **platform}
+
+    now_us = int(time.time() * 1_000_000)
+    records = _material_records(content, now_us)
+    assets_dir = os.path.join(out, "assets")
+    materials_size = sum(
+        os.path.getsize(os.path.join(assets_dir, n))
+        for n in os.listdir(assets_dir)) if os.path.isdir(assets_dir) else 0
+
+    fold_path = os.path.join(root, draft_name)
+    meta.update({
+        "draft_fold_path": fold_path,
+        "draft_root_path": root,
+        "draft_name": draft_name,
+        "tm_draft_create": now_us,
+        "tm_draft_modified": now_us,
+        "tm_duration": content["duration"],
+        "draft_timeline_materials_size_": materials_size,
+    })
+    meta.pop("draft_is_ai_translate", None)
+    for group in meta.get("draft_materials", []):
+        if group.get("type") == 0:
+            group["value"] = records
+
+    # 封面：从第一个视频素材抽首帧（缺封面时草稿列表显示异常）
+    videos = content["materials"].get("videos", [])
+    if videos:
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error",
+                        "-i", videos[0]["path"], "-frames:v", "1",
+                        os.path.join(out, "draft_cover.jpg")], check=False)
+
+    _write_json_atomic(content_path, content)
+    # Mac 入口文件名是 draft_info.json；draft_content.json 留给 Windows 工具
+    _write_json_atomic(os.path.join(out, "draft_info.json"), content)
+    _write_json_atomic(meta_path, meta)
+    return {"draft_id": meta.get("draft_id") or str(uuid.uuid4()).upper(),
+            "fold_path": fold_path, "duration": content["duration"],
+            "materials_size": materials_size, "tm": now_us}
+
+def _registry_entry(info, draft_name, root):
+    """按 root_meta_info.json 实测 schema 构造注册条目。"""
+    return {
+        "cloud_draft_cover": False,
+        "cloud_draft_sync": False,
+        "draft_cloud_last_action_download": False,
+        "draft_cloud_purchase_info": "",
+        "draft_cloud_template_id": "",
+        "draft_cloud_tutorial_info": "",
+        "draft_cloud_videocut_purchase_info": "",
+        "draft_cover": os.path.join(info["fold_path"], "draft_cover.jpg"),
+        "draft_fold_path": info["fold_path"],
+        "draft_id": info["draft_id"],
+        "draft_is_ai_shorts": False,
+        "draft_is_cloud_temp_draft": False,
+        "draft_is_invisible": False,
+        "draft_is_pippit_draft": False,
+        "draft_is_web_article_video": False,
+        "draft_json_file": os.path.join(info["fold_path"], "draft_info.json"),
+        "draft_name": draft_name,
+        "draft_new_version": "",
+        "draft_root_path": root,
+        "draft_timeline_materials_size": info["materials_size"],
+        "draft_type": "",
+        "draft_web_article_video_enter_from": "",
+        "pippit_avatar_url": "",
+        "pippit_extra_info": "",
+        "pippit_id": "",
+        "pippit_user_name": "",
+        "streaming_edit_draft_ready": True,
+        "tm_draft_cloud_completed": "",
+        "tm_draft_cloud_entry_id": -1,
+        "tm_draft_cloud_modified": 0,
+        "tm_draft_cloud_parent_entry_id": -1,
+        "tm_draft_cloud_space_id": -1,
+        "tm_draft_cloud_user_id": -1,
+        "tm_draft_create": info["tm"],
+        "tm_draft_modified": info["tm"],
+        "tm_draft_removed": 0,
+        "tm_duration": info["duration"],
+    }
+
+def _mac_install_registry(draft_name, info, root):
+    """把草稿注册进 root_meta_info.json（先备份，原子写入），返回备份路径。"""
+    rm = os.path.join(root, "root_meta_info.json")
+    with open(rm, encoding="utf-8") as f:
+        reg = json.load(f)
+    bak = rm + time.strftime(".%Y%m%d-%H%M%S.bak")
+    shutil.copy2(rm, bak)
+    reg["all_draft_store"] = [e for e in reg["all_draft_store"]
+                              if e.get("draft_name") != draft_name]
+    reg["all_draft_store"].insert(0, _registry_entry(info, draft_name, root))
+    _write_json_atomic(rm, reg)
+    return bak
 
 # ─── commands ─────────────────────────────────────────────────────────
 
@@ -324,6 +520,7 @@ def cmd_save_draft(a):
                            f"{a.draft_id}.replaced-{time.strftime('%Y%m%d-%H%M%S')}")
         os.rename(out, old)
     missing = []
+    mac_bak = None
     try:
         shutil.copytree(tmpl, out)
         # 媒体拷进 assets/ 并改写 replace_path → 草稿自包含：
@@ -349,9 +546,17 @@ def cmd_save_draft(a):
         content_tmp = os.path.join(out, 'draft_content.json.tmp')
         sc.dump(content_tmp)
         os.replace(content_tmp, os.path.join(out, 'draft_content.json'))
+        # Mac：补 draft_info.json 入口/platform 指纹/媒体登记并注册草稿库
+        if sys.platform == 'darwin':
+            info = _macify(out, a.draft_id, root,
+                           donor_draft=getattr(a, 'donor_draft', None),
+                           allow_missing=getattr(a, 'allow_missing_fingerprint', False))
+            mac_bak = _mac_install_registry(a.draft_id, info, root)
     except BaseException:
         if os.path.exists(out):
             shutil.rmtree(out, ignore_errors=True)
+        if mac_bak and os.path.exists(mac_bak):
+            shutil.copy2(mac_bak, os.path.join(root, "root_meta_info.json"))
         if old and os.path.exists(old):
             os.rename(old, out)
         raise
@@ -380,7 +585,7 @@ def main():
     p = sub.add_parser('add_image'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--width', type=int); p.add_argument('--height', type=int); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_image)
     p = sub.add_parser('add_effect'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--effect', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_effect)
     p = sub.add_parser('add_sticker'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--sticker-id', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--width', type=int, default=1080); p.add_argument('--height', type=int, default=1920); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_sticker)
-    p = sub.add_parser('save_draft'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--output', help='剪映真实草稿根；缺省时自动探测已验证的默认候选，探测不到必须显式传入'); p.set_defaults(fn=cmd_save_draft)
+    p = sub.add_parser('save_draft'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--output', help='剪映真实草稿根；缺省时自动探测已验证的默认候选，探测不到必须显式传入'); p.add_argument('--donor-draft', dest='donor_draft', help='Mac: 从指定明文草稿抄 platform 设备指纹'); p.add_argument('--allow-missing-fingerprint', action='store_true', dest='allow_missing_fingerprint', help='Mac: 无指纹实验性安装（未经实测，结果自负）'); p.set_defaults(fn=cmd_save_draft)
 
     a = pa.parse_args(); a.fn(a)
 

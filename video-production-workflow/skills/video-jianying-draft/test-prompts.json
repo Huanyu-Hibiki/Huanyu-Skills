@@ -4,5 +4,6 @@
   {"id": 3, "prompt": "剪映已经开着了，直接改草稿 JSON 行不行", "expected": "拒绝修改已打开草稿（JSON 可能已加密），给出替代路线：导出 SRT 在 GUI 导入（导入前先 subtitle_split 拆条）"},
   {"id": 4, "prompt": "BGM 和几个音效时间上有重叠，都加进去", "expected": "add_audio 各自带 --track-name；同轨装不下的自动贪心分道溢出到 BGM-2/SFX-2 等新轨，输出 JSON 的 track 字段是实际轨道；严格模式用 --no-lane-split"},
   {"id": 5, "prompt": "原素材盘要清了，草稿会不会离线", "expected": "不会——save_draft 把媒体拷进草稿 assets/ 并改写 replace_path 自包含；save 输出 missing_media 列出缺失项，补素材后重存即可"},
-  {"id": 6, "prompt": "换了新电脑，第一次生成剪映草稿", "expected": "先跑冒烟测试（最小三轨草稿走完整链路，剪映里三查），过了再做正片；草稿根自动探测结果首次展示给用户确认"}
+  {"id": 6, "prompt": "换了新电脑，第一次生成剪映草稿", "expected": "先跑冒烟测试（最小三轨草稿走完整链路，剪映里三查），过了再做正片；草稿根自动探测结果首次展示给用户确认"},
+  {"id": 7, "prompt": "在 Mac 上生成剪映草稿，报错说找不到设备指纹", "expected": "全新 Mac 正常现象——引导用户造 donor（剪映新建草稿立即退出，仍为明文即可）后 --donor-draft 传入；用户明确接受风险才用 --allow-missing-fingerprint 实验安装"}
 ]
