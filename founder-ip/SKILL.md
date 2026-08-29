@@ -96,7 +96,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 > 心法（[循环诊断 阶段]）：**阶段 = 当前最大约束，不是等级**。阶段描述你现在最该解决什么，不描述你厉不厉害。升级靠信号不靠时间，且会倒退。
 
-轻量诊断 3 问（对照 [loop-diagnostics.md](shared-references/loop-diagnostics.md) 第一部分）：近 3 批涨粉趋势？波赞比/赞粉比走势？近期有没有刚出爆款？判定后按表裁剪：
+轻量诊断 3 问（对照 [loop-diagnostics.md](shared-references/loop-diagnostics.md) 第一部分）：近 3 批涨粉趋势？波赞比/赞粉比走势？近期有没有刚出爆款？判定后按表裁剪（冷启动前置态 + 循环诊断四阶段，共 5 态）：
 
 | 当前阶段 | 优先动作 | 🔴 暂不做（此阶段做了 = 开错药） |
 |---|---|---|
