@@ -1,154 +1,120 @@
-# PulseHub Skills
+<div align="center">
 
-PulseHub is a **complete customer acquisition skill system** — from project setup to lead conversion. 16 skills across 4 layers, with a shared "project brain" (`project-archive/`) that accumulates context over time.
+# pulsehub · 获客 skill 系统
 
-## Architecture (4 Layers)
+**从项目初始化到线索转化的完整获客闭环：16 个 skill 分 4 层 + 一个随使用越养越肥的"项目大脑"**
+
+画像 / 关键词 / 选题 / 文案 / 脚本 / 私域承接 / 评论线索 · 去 AI 味 · 自进化
+
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](SKILL.md)
+[![Skills](https://img.shields.io/badge/skills-16%20·%204%20layers-059669)](#-架构四层)
+[![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-安装)
+
+
+
+---
+
+PulseHub 是一套**完整的获客 skill 系统**。输入你的产品/服务与获客目标，输出用户画像、获客关键词矩阵、爆款选题、文案、视频脚本、私域承接 SOP 与评论区线索机会。所有产出沉淀进共享的"项目大脑"（`~/.pulsehub/archive/<项目名>/`），越用越懂你的业务。
+
+## 🧭 架构（四层）
 
 ```
-Layer 1: ENTRY          → pulse-router (decision routing)
-Layer 2: DATA           → pulse-discover / resolve / enrich / deliver (existing tools)
-Layer 3: BUSINESS       → pulse-init / insight / keywords / topics / copywrite / script / private / leads
-Layer 4: QUALITY        → pulse-humanize / evolve / review
+Layer 1: 入口      → pulse-router（诊断方向清晰度，路由分发）
+Layer 2: 数据      → pulse-discover / resolve / enrich / deliver（发现帖子、标准化、信号评分、报告）
+Layer 3: 业务      → pulse-init / insight / keywords / topics / copywrite / script / private / leads
+Layer 4: 质检进化  → pulse-humanize / evolve / review
 ```
 
-## Full Skill Catalog (16/16 ✅)
+## 📋 16 个 skill 一览
 
-### Layer 1: Entry (路由)
+| 层 | Skill | 干什么 |
+|---|---|---|
+| 入口 | `pulse-router` | 诊断产品方向清晰度，路由到对应 skill |
+| 数据 | `pulse-discover` | 通过 RSSHub / Chrome MCP 发现帖子 |
+| 数据 | `pulse-resolve` | 标准化 URL（5 平台） |
+| 数据 | `pulse-enrich` | 信号检测 + 评分（关键词 + LLM） |
+| 数据 | `pulse-deliver` | 生成 Markdown 报告 + 可点击 URL |
+| 业务 | `pulse-init` | 初始化项目 + 建立项目大脑 |
+| 业务 | `pulse-insight` | 付费用户洞察 + 痛点提炼 |
+| 业务 | `pulse-keywords` | 获客关键词矩阵 |
+| 业务 | `pulse-topics` | 爆款选题（调 pulse-discover 发现热门） |
+| 业务 | `pulse-copywrite` | 文案生成（读「个人风格.md」对齐你的文风） |
+| 业务 | `pulse-script` | 视频脚本（口播稿 + 分镜） |
+| 业务 | `pulse-private` | 私域承接 SOP + 话术资产 |
+| 业务 | `pulse-leads` ⭐ | 评论线索抓取（核心集成点） |
+| 质检 | `pulse-humanize` | 去 AI 味（24 模式 + 个人风格对齐） |
+| 质检 | `pulse-evolve` | 自进化（按真实数据迭代 skill） |
+| 质检 | `pulse-review` | 极简复核（体系体检） |
 
-| Skill | Purpose | Status |
-|-------|---------|--------|
-| [`pulse-router`](pulse-router/) | 诊断产品方向清晰度，路由到对应 skill | ✅ |
+## 🧠 项目大脑（6 份档案）
 
-### Layer 2: Data (数据采集)
+`pulse-init` 会把 6 份模板复制到 `~/.pulsehub/archive/<项目名>/`，之后所有 skill 都读写这里：
 
-| Skill | Purpose | Status |
-|-------|---------|--------|
-| [`pulse-discover`](pulse-discover/) | 通过 RSSHub / Chrome MCP 发现帖子 | ✅ |
-| [`pulse-resolve`](pulse-resolve/) | 标准化 URL（5 平台） | ✅ |
-| [`pulse-enrich`](pulse-enrich/) | 信号检测 + 评分（关键词 + LLM prompt） | ✅ |
-| [`pulse-deliver`](pulse-deliver/) | 生成 Markdown 报告 + 可点击 URL | ✅ |
-
-### Layer 3: Business (获客闭环)
-
-| Skill | Purpose | Status |
-|-------|---------|--------|
-| [`pulse-init`](pulse-init/) | 初始化项目 + 建立 project-archive | ✅ |
-| [`pulse-insight`](pulse-insight/) | 付费用户洞察 + 痛点提炼 | ✅ |
-| [`pulse-keywords`](pulse-keywords/) | 获客关键词矩阵 | ✅ |
-| [`pulse-topics`](pulse-topics/) | 爆款选题（调 pulse-discover 发现热门） | ✅ |
-| [`pulse-copywrite`](pulse-copywrite/) | 文案生成（读 个人风格.md） | ✅ |
-| [`pulse-script`](pulse-script/) | 视频脚本（含口播稿+分镜） | ✅ |
-| [`pulse-private`](pulse-private/) | 私域承接 SOP + 话术资产 | ✅ |
-| [`pulse-leads`](pulse-leads/) ⭐ | 评论线索抓取（**核心集成点**） | ✅ |
-
-### Layer 4: Quality (质检 + 进化)
-
-| Skill | Purpose | Status |
-|-------|---------|--------|
-| [`pulse-humanize`](pulse-humanize/) | 去 AI 味（24 模式 + 个人风格对齐） | ✅ |
-| [`pulse-evolve`](pulse-evolve/) | 自进化（SkillOpt 式闭环） | ✅ |
-| [`pulse-review`](pulse-review/) | 极简复核（体系体检） | ✅ |
-
-## Project Brain (`_archive/`)
-
-The [`_archive/`](_archive/) directory contains **6 template files** that form the "project brain":
-
-| File | Role |
-|------|------|
-| `项目档案.md` | Hub: 基本信息 + 累积产出索引 |
+| 档案 | 作用 |
+|---|---|
+| `项目档案.md` | Hub：基本信息 + 累积产出索引（含「主平台」「定位协议」两个跨 skill 字段） |
 | `人群语料库.md` ⭐ | 真实用户原话 / 痛点 / 拒绝理由 |
 | `爆款素材库.md` | 拆解的爆款结构 / 钩子公式 |
 | `话术资产.md` | 私域话术（带效果标签） |
 | `数据反馈.md` ⭐ | 真实运营数据（自进化的燃料） |
-| `个人风格.md` | 用户文风指纹 |
+| `个人风格.md` | 你的文风指纹 |
 
-`pulse-init` copies these to `~/.pulsehub/archive/<项目名>/` on first run. All subsequent skills read/write to that location.
+登记了「定位协议」（品牌手册 / IP 对齐 / 内容红线）→ 所有 skill 先读并优先服从；没登记 → 按档案自身定位执行。
 
-### Two archive fields that drive cross-skill behavior
-
-| 字段 | 确定时机 | 作用 |
-|------|---------|------|
-| **主平台** | `pulse-init` Round 3（ABCD 选项确定） | 内容主战场。copywrite / topics / script / humanize 一律读此字段，不各自问用户 |
-| **定位协议** | `pulse-init` Round 4（可选登记路径） | 品牌手册 / IP 对齐 / 内容红线文件。登记了 → 所有 skill 先读并优先服从；未登记 → 按档案自身定位执行 |
-
-See [`_archive/README.md`](_archive/README.md) for the full design. Entry routing for agents: [`AGENTS.md`](AGENTS.md).
-
-## How AI Agents Use These Skills
-
-1. **opencode / Claude Code** reads `AGENTS.md` + `SKILL.md` frontmatter at startup
-2. User says something (e.g., "我想找客户")
-3. Agent matches intent to a skill's `description`
-4. Skill's `Workflow` tells the agent what to do step-by-step
-5. Skill reads from / writes to `~/.pulsehub/archive/<项目名>/`
-
-## Compatibility
-
-Skills work with any agent that reads `SKILL.md` files:
-
-- **opencode** — reads `AGENTS.md` at startup ⭐ Best fit
-- **Claude Code** — copy `pulse-*/` dirs to `~/.claude/skills/`
-- **Cursor** — via `@workspace` indexing
-- **OpenClaw** — copy to workspace
-- **Custom Agent** — see 你的 Agent 部署文档
-
-## Installing Skills
-
-目录结构：16 个 `pulse-*/` skill 目录直接位于仓库根（无 `skills/` 中间层），共享资源在 `_shared/`、`_core/`、`_archive/`。
+## 📦 安装
 
 ```bash
-# For opencode: just start opencode in the PulseHub directory
-cd /path/to/PulseHub && opencode
+# 方式一：从 GitHub 获取
+git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
+cp -r Huanyu-Skills/pulsehub ~/.claude/skills/pulsehub   # 或你的 skills 目录
 
-# For Claude Code:
-cp -r pulse-*/ ~/.claude/skills/
-
-# For OpenClaw:
-cp -r pulse-*/ ~/.openclaw/workspace/skills/
+# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
+cp -r pulsehub <你的 skills 目录>/pulsehub
 ```
 
-> 单个 skill 目录被复制到别的 runtime 时，`_shared/`、`_core/` 引用（脚本/recipes）不可达属预期——各 SKILL.md 已内置对应 Fallback（人工/浏览器替代路径）。
+**兼容性**：任何能读 `SKILL.md` 的 Agent 都能用——OpenCode（读 `AGENTS.md`，最佳适配）、Claude Code、Cursor（`@workspace` 索引）、OpenClaw 及自定义 Agent。单个 skill 被单独复制出去时，共享脚本不可达属预期，各 `SKILL.md` 已内置人工/浏览器替代路径。
 
-## Skill Dependencies
+## 🚀 快速开始
 
-Most business skills (Layer 3) depend on data from Layer 2 and the project brain:
+首次运行推荐顺序：
 
 ```
-pulse-router → pulse-init → pulse-insight → pulse-keywords
-                                    ↓
-                              pulse-topics → pulse-copywrite → pulse-humanize
-                                    ↓               ↓
-                              pulse-script    pulse-private
-                                    ↓               ↓
-                              pulse-leads ← ← ← ← ←
-                                    ↓
-                              pulse-evolve (reads all, edits skills)
+1. pulse-router     → 我准备好了吗？
+2. pulse-init       → 建立项目大脑（采集主平台 / 定位协议）
+3. pulse-insight    → 搞懂你的用户
+4. pulse-topics     → 找到该发什么
+5. pulse-copywrite  → 写出内容
+6. pulse-leads      → 找到评论区线索机会
+7. pulse-humanize   → 去 AI 味质检
+8. （后期）pulse-evolve → 用真实数据反哺系统
 ```
 
-**Recommended order for first run**:
-1. `pulse-router` — am I ready?
-2. `pulse-init` — set up project brain
-3. `pulse-insight` — understand users
-4. `pulse-topics` — find what to post
-5. `pulse-copywrite` — write the content
-6. `pulse-leads` — find comment opportunities
-7. `pulse-humanize` — check for AI tone
-8. (later) `pulse-evolve` — improve the system
+对 Agent 直接说需求即可（"我想找客户" / "帮我写条文案" / "抓一下评论线索"），路由层自动分发。
 
-## Authoring a New Skill
+## ✅ 适合 / ❌ 不适合
 
-1. Create `pulse-<name>/SKILL.md` (at repo root, alongside the other pulse-* dirs)
-2. Frontmatter:
-```yaml
+**✅ 适合**：有产品/服务、靠内容获客的独立开发者 / OPC / 小团队；想把获客从"凭感觉"变成有档案、有数据、可进化的循环的人。
+
+**❌ 不适合**：没有产品只想涨粉的娱乐账号；需要全自动群控、批量私发等灰产玩法——本系统只做合规的内容获客与评论区线索。
+
 ---
-name: pulse-<name>
-description: English summary. 中文关键词。Use when <trigger>.
----
-```
-3. Required sections:
-   - `## 何时触发`
-   - `## 前置`（读哪些 archive 文件）
-   - `## 工作流`（step-by-step）
-   - `## 输出`（产出什么 + 写回哪个 archive 文件）
-   - `## 人 × 数字员工分工`
-4. Update this README's catalog
-5. Create `AGENTS.md` if it doesn't exist (opencode reads it at startup), then update it
+
+## 👤 关于作者 · 呼风唤雨的焕羽
+
+我是**呼风唤雨的焕羽**，AI 实战博主，专注分享用 AI Agent 搭建一人公司工作流的真实过程。本 skill 的完整手把手教程与实战演示，都在我的视频里：
+
+| 平台 | 账号 |
+|---|---|
+| 小红书 | 呼风唤雨的焕羽 |
+| B站 | 呼风唤雨的焕羽 |
+| 视频号 | 呼风唤雨的焕羽 |
+| 抖音 | 呼风唤雨的焕羽 |
+
+<div align="center">
+
+🔍 **四个平台全同名，搜索「呼风唤雨的焕羽」看视频教程**
+
+<img src="assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
+
+<sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
+

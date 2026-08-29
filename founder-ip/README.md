@@ -1,190 +1,114 @@
-# founder-ip — 创始人 IP 战略层 Skill 系统
+<div align="center">
 
-> 🎯 **为"非娱乐类创始人 IP"设计的战略层系统**
->
-> 基于**徐沪生《个人IP全流程拆解》方法论** + **dontbesilent 实战派知识库** + **PLG 三大增长资产印证** + **你的访谈档案结论**（interview-profile.md，安装后自建）。
->
-> 专门为产品已上线、通过内容获客的创始人 / OPC / 主理人设计，尤其是垂直专业领域（工程/法律/医疗/教育等）的非娱乐型 IP。
+# founder-ip · 创始人 IP 战略系统
+
+**为"非娱乐类创始人 IP"设计的战略层系统：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层，一次想清楚**
+
+5 个子 skill · 徐沪生方法论 + dontbesilent 实战库 + PLG 三源印证 · 产出战略文档喂给执行循环
+
+[![Version](https://img.shields.io/badge/version-1.2.0-blue)](SKILL.md)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
+[![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-安装)
+
+
 
 ---
 
-## 这是什么
+创始人 IP ≠ 网红 IP。娱乐网红那套（抄爆款、蹭热点、搞笑耍宝、每天 10 条盲盒）对创始人不仅无效，而且有毒。这套系统专门为**产品已上线、通过内容获客**的创始人 / OPC / 主理人设计，尤其是垂直专业领域（工程 / 法律 / 医疗 / 教育等）的非娱乐型 IP。
+
+## 🧭 这是什么
 
 一套**战略层 skill 系统**，帮创始人想清楚 5 件事：
 
-1. **为什么做个人 IP**（`ip-strategy`）——立项决心、防网红思维坑、时间承诺、成功标准
-2. **人设怎么定**（`ip-persona`）——内容型/专家型/真实型、起源故事、表达风格
-3. **内容漏斗怎么设计**（`ip-content-funnel`）——三轨内容比例（A 破圈 / C 认知 / B 转化）、系列定位、利他选题库、GEO 长尾覆盖
-4. **商业模式怎么搭**（`ip-business-model`）——咨询枢纽、流量/转化视频分离、变现路径
-5. **OPC 流水线怎么整合**（`ip-opc-system`）——生产日程（示例基线：2 天 1 期）、AI 协作边界、瓶颈优化
+| # | 子 skill | 解决什么 | 使用频率 |
+|---|---|---|---|
+| 1 | `ip-strategy` | 为什么做个人 IP：立项决心、防网红思维坑、时间承诺、成功标准 | 一次性 + 季度回顾 |
+| 2 | `ip-persona` | 人设怎么定：内容型/专家型/真实型、起源故事、表达风格 | 一次性 + 半年回顾 |
+| 3 | `ip-content-funnel` | 内容漏斗怎么设计：三轨比例（A 破圈 / C 认知 / B 转化）、系列定位、利他选题库、GEO 长尾覆盖 | 半年/年度更新 |
+| 4 | `ip-business-model` | 商业模式怎么搭：咨询枢纽、流量/转化视频分离、变现路径 | 季度更新 |
+| 5 | `ip-opc-system` | OPC 流水线怎么整合：生产日程（示例基线 2 天 1 期）、AI 协作边界、瓶颈优化 | 持续优化 |
 
-**与 `cheat-on-content` 的分工**：
-- `founder-ip` = **战略层**（一次性/低频决策）
-- `cheat-on-content` = **执行层**（每周循环：选题/打分/预测/拍摄/复盘）
-- founder-ip 产出的战略文档，作为 cheat-on-content 执行循环的**上下文和约束**
+**与执行层的分工**：founder-ip 产出的战略文档，作为每周执行循环（选题 / 打分 / 预测 / 拍摄 / 复盘，如 `oracle-bone`）的**上下文和约束**——战略层不重造执行层轮子。
 
----
+## ✨ 核心特性
 
-## 安装
+- **方法论三源 + 一印证**：徐沪生《个人IP全流程拆解》（主方法论）+ dontbesilent 实战知识库（商业变现）+ PLG 三大增长资产（实战印证）+ 你的访谈档案（最高优先级）。三方一致 = 强信号，所有建议可追溯到源，不凭空发明。
+- **访谈式建档**：`interview-profile.md` 记录你的产品、用户、资源与偏好，所有子 skill 按你的具体情况给建议，不输出通用鸡汤。
+- **战略文档分级保护**：战略备忘录 / 人设宪章严格不可改；商业画布 / 内容漏斗季度可调但须附数据依据，变更留痕（`strategy-immutability.md`）。
+- **内置国内 GEO 指南**：面向 AI 搜索（Kimi / 豆包 / DeepSeek / 元宝 / 秘塔等）的优化动作与月度自检，让内容在 AI 时代也能被检索到。
 
-### 前置条件
-- 任一 skills-compatible 运行时（opencode / Claude Code / Codex / Cursor 等）
-- （可选但推荐）`cheat-on-content` skill 作为执行层——未安装时本系统自动降级运行，不阻断
+## 📦 安装
 
-### 安装步骤
+任一 skills-compatible 运行时（Claude Code / OpenCode / Codex / Cursor 等）均可：
 
 ```bash
-# 1. clone 到你的运行时 skills 目录（按 runtime 选路径）
-git clone https://github.com/geats0422/founder-ip.git <你的 skills 目录>/founder-ip
+# 方式一：从 GitHub 获取
+git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
+cp -r Huanyu-Skills/founder-ip <你的 skills 目录>/founder-ip
+
+# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
+cp -r founder-ip <你的 skills 目录>/founder-ip
 ```
 
 | Runtime | skills 目录 |
 |---|---|
-| opencode | `~/.opencode/skills/` |
 | Claude Code | `~/.claude/skills/` |
+| OpenCode | `~/.opencode/skills/` |
 | Codex | `~/.codex/skills/` |
 | 通用（多 agent 共享） | `~/.agents/skills/` |
 
+装好后初始化你的访谈档案（每个使用者一份，含个人数据）：
+
 ```bash
-# 2. 复制访谈档案模板（每个使用者一份，含个人数据，已被 .gitignore 排除）
 cd <你的 skills 目录>/founder-ip/shared-references/
 cp interview-profile.example.md interview-profile.md
-
-# 3. 编辑 interview-profile.md，填入你的具体情况
-# （或直接跑 /ip-strategy，系统会引导你完成访谈）
+# 编辑 interview-profile.md 填入你的情况；或直接跑 /ip-strategy，系统会引导你完成访谈
 ```
 
-### 配置引用源
+> `shared-references/` 已自包含核心方法论精华，开箱即用；如拥有徐沪生原书 / dontbesilent 原库等第三方版权内容，可另行配置用于原文回查，不配置不影响运行。
 
-本仓库 **自包含可用的核心方法论**（`shared-references/` 下，无需额外配置）：
+## 🚀 快速开始
 
-```text
-shared-references/
-├── xu-husheng-essence.md          # 徐沪生方法论精华（9 章索引）
-├── xu-content-funnel-deep.md      # 徐沪生内容漏斗三层模型 + 经典案例库
-├── xu-zuohao-index.md             # 《做号》完整书版索引
-├── dontbesilent-index.md          # dontbesilent 知识库索引（指向外部原库）
-├── geo-china-guide.md             # 国内 GEO 指南
-├── plg-three-assets.md            # PLG 三大增长资产（scaleX 实战印证）
-├── linkloud-growth-playbook.md    # LinkLoud 增长方法论（scaleX 实战印证）
-├── loop-diagnostics.md            # 循环诊断（四阶段/数据诊断/守正出奇/价格带场域）
-├── strategy-immutability.md       # 战略文档修改纪律（L1 严格不可改 / L2 季度留痕 / L3 月度滚动）
-└── interview-profile.example.md   # 访谈档案模板（复制为 interview-profile.md 后填写）
-```
-
-**外部可选配置**（版权内容，不在仓库内）—— 配置后可回查原文，不配置也不影响 skill 运行：
-
-```text
-<your-reference-dir>/
-├── dbskill/                        # dontbesilent 知识库（4176 个原子）
-│   └── 知识库/
-│       ├── 原子库/atoms.jsonl
-│       └── Skill知识包/
-└── xu-husheng-book/                # 徐沪生原书（MinerU 解析版）
-    ├── 徐沪生个人IP全流程拆解.md
-    └── images/
-```
-
-> ⚠️ 这些是**第三方版权内容**。`shared-references/` 下的索引文件（`dontbesilent-index.md` / `xu-husheng-essence.md`）已包含精华提炼，skill 可以直接用。配置外部原库只是为了**原文回查**（`[徐沪生 X.Y]` / `[DB xxx]` 的完整上下文）。
-
----
-
-## 使用
-
-### 首次使用（5 步引导）
-
-跑完这 5 步，创始人 IP 的战略层就立起来了：
+跑完 5 步，创始人 IP 的战略层就立起来了：
 
 ```
 1. /ip-strategy       → 锁定战略 + 立项决心（最重要，所有后续的根基）
 2. /ip-persona        → 基于战略定人设
 3. /ip-business-model → 基于战略 + 人设定变现路径
-4. /ip-content-funnel → 基于 persona + business-model 定内容漏斗
-5. /ip-opc-system     → 整合所有 + 现有 cheat-on-content 流水线
+4. /ip-content-funnel → 基于人设 + 商业模式定内容漏斗
+5. /ip-opc-system     → 整合所有，接上你的每周执行循环
 ```
 
-### 日常使用
+**定期复盘**：每月 `/ip-opc-system --optimize`；每季度战略 / 商业模式 / 内容漏斗 `--review`；每半年人设 `--review`。
 
-战略层跑完后，每周走 `cheat-on-content` 的执行循环即可：
+## ✅ 适合 / ❌ 不适合
 
-```
-cheat-seed → score → predict → shoot → publish → retro
-```
+**✅ 适合**：产品已上线、想通过内容获客的创始人 / OPC / 主理人；垂直专业领域的非娱乐型 IP；想清楚"为什么做、怎么做、怎么变现"再动手的人。
 
-### 定期复盘
+**❌ 不适合**：娱乐网红路线；纯执行层需求（单条视频的选题 / 脚本 / 复盘请用 `oracle-bone` 等执行循环工具）；只想蹭热点涨粉、不考虑变现的玩法。
 
-| 频率 | 动作 |
+## 📄 License
+
+AGPL-3.0
+
+---
+
+## 👤 关于作者 · 呼风唤雨的焕羽
+
+我是**呼风唤雨的焕羽**，AI 实战博主，专注分享用 AI Agent 搭建一人公司工作流的真实过程。本 skill 的完整手把手教程与实战演示，都在我的视频里：
+
+| 平台 | 账号 |
 |---|---|
-| 每月 | `/ip-opc-system --optimize`（流水线 + GEO 自检）|
-| 每季度 | `/ip-strategy --review` + `/ip-business-model --review` + `/ip-content-funnel --review` |
-| 每半年 | `/ip-persona --review` |
+| 小红书 | 呼风唤雨的焕羽 |
+| B站 | 呼风唤雨的焕羽 |
+| 视频号 | 呼风唤雨的焕羽 |
+| 抖音 | 呼风唤雨的焕羽 |
 
----
+<div align="center">
 
-## 方法论溯源（三源 + 一印证）
+🔍 **四个平台全同名，搜索「呼风唤雨的焕羽」看视频教程**
 
-所有建议必须可追溯到以下来源之一：
+<img src="assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
 
-| 源 | 角色 | 引用格式 |
-|---|---|---|
-| 1. 你的访谈档案结论 | 最高优先级（具体场景）| `[访谈 Q8]` |
-| 2. 徐沪生《个人IP全流程拆解》| 主方法论（创始人 IP 的"道"）| `[徐沪生 5.3]` |
-| 3. dontbesilent 知识库 | 实战派补充（商业变现的"术"）| `[DB 2024Q4_096]` |
-| 4. PLG 三大增长资产 | 实战印证（四方支撑）| `[PLG 创始人IP]` |
-
-**三方一致 = 强信号**。当 founder-ip 给出某个建议时，如果同时有徐沪生 + dontbesilent + PLG 的印证，说明这不是单一视角的偏见。
-
----
-
-## GEO 横切维度
-
-本系统内置**国内 GEO（Generative Engine Optimization）指南**——面向 AI 搜索的优化。详见 `shared-references/geo-china-guide.md`。
-
-- 国内 AI 搜索生态地图（Kimi/豆包/DeepSeek/元宝/秘塔 等）
-- GEO 4 个核心动作（Coverage / Structure / Authority / Citation）
-- 月度 GEO 自检模板
-- 与 founder-ip 其他 skill 的衔接
-
----
-
-## 5 个子 skill 一览
-
-| Skill | 对应徐沪生章节 | 核心产出 | 使用频率 |
-|---|---|---|---|
-| `ip-strategy` | 1+2+9 | 战略备忘录（为什么做 + 防坑 + 立项决心）| 一次性 + 季度回顾 |
-| `ip-persona` | 5 | 人设定位文档（三要素 + 起源故事 + 表达风格）| 一次性 + 半年回顾 |
-| `ip-content-funnel` | 3+6.1+6.2 | 年度内容漏斗（三轨比例 + 选题库 + GEO 覆盖）| 半年/年度更新 |
-| `ip-business-model` | 4 | 商业画布（咨询枢纽 + 流量/转化分离）| 季度更新 |
-| `ip-opc-system` | 8（改造版）| OPC 生产 SOP：生产日程（示例基线 2 天 1 期）+ AI 协作 + GEO 自检 | 持续优化 |
-
----
-
-## 三条不可妥协原则
-
-1. **方法论基于可追溯源，不凭空发明**
-2. **战略文档分级保护，变更需留痕**（strategy-memo / persona-charter 严格不可改；canvas / funnel 季度可调须附数据依据，详见 `shared-references/strategy-immutability.md`）
-3. **执行层不重造**（单条视频的选题/脚本/预测/复盘，走 cheat-on-content）
-
----
-
-## 与其他 skill 的关系
-
-| Skill | 关系 |
-|---|---|
-| `cheat-on-content` | 执行层互补。founder-ip 产战略，cheat 跑执行循环 |
-
----
-
-## License
-
-AGPL-3.0（与 `cheat-on-content` 保持一致）
-
----
-
-## 致谢
-
-- **徐沪生**（《个人IP全流程拆解》作者，一条创始人）—— 主方法论来源
-- **dontbesilent**（X/Twitter @dontbesilent12）—— 实战派知识库来源
-- **scaleX 活动**（2026-07-19）—— PLG 三大增长资产印证
-- **cheat-on-content** skill —— 执行层架构参考
+<sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
