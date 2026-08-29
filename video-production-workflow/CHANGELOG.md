@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.0 - 2026-08-29
+
+- video-jianying-draft 对标 video-shotcraft 实战库重写健壮性（darwin 四轮，paired judge 累计 4×3-0 keep，功能测试 40 项全过）：
+- 修 5 个真 bug：同名素材两层静默错链（save 层复制 + add_material 按名去重层）、重叠音频同轨必崩（SegmentOverlap）、save 前直接 rmtree 旧草稿、死 `local_path` 属性导致 assets 副本从未生效、`.env` 失效 `CAPCUT_MCP_DIR` 全 skill 断链。
+- 健壮性：草稿名防路径逃逸校验、剪映进程检测（写盘前拦截，防半写损坏）、草稿根已验证自动探测（`--output` 可省）、媒体打包进草稿 `assets/` 并改写路径（草稿自包含，原素材移动不影响）、原子落盘、缺失媒体上报 `missing_media`。
+- 新增 macOS 支持（移植 video-shotcraft `mac_draft.py` 实测逻辑）：`draft_info.json` 入口、platform 设备指纹（明文老草稿自动扫描 / `--donor-draft` / 实验模式三档）、媒体池登记、`root_meta_info.json` 注册与失败回滚；指纹扫描排除自身，防冒用 vendor 模板携带的他人指纹。
+- `add_audio` 重叠音频默认贪心分道（自动溢出 `BGM-2`/`SFX-2` 新轨），`--no-lane-split` 严格模式；同名媒体自动加后缀永不静默错链。
+- SKILL.md 沉淀实测标定常数（字号换算 ÷10.8、transform_y 半高归一、微秒边界铁律、双语字幕双轨）+ 新机器冒烟测试 + 交付验收清单；失败模式表扩至 11 行。
+
 ## v0.5.0 - 2026-08-25
 
 - 终评残留弱点修复轮（11 文件，paired 3-judge：10 keep / 1 revert）：
