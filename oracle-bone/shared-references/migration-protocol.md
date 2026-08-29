@@ -59,7 +59,7 @@
 并在"版本链"表追加新行：
 
 ```
-| 1.0 | 1.1 | NO/YES | [1.0-to-1.1.md](1.0-to-1.1.md) | 一句话描述 |
+| 1.0 | 1.1 | NO/YES | migrations/1.0-to-1.1.md（按 `<from>-to-<to>.md` 实际创建后可加链接） | 一句话描述 |
 ```
 
 ### 3. 写 migrations/<old>-to-<new>.md
@@ -79,7 +79,7 @@
 
 ### BREAKING / MINOR
 
-- schema_version 1.0 → 1.1: <一句话描述>。迁移指南：[migrations/1.0-to-1.1.md](migrations/1.0-to-1.1.md)
+- schema_version 1.0 → 1.1: <一句话描述>。迁移指南：migrations/1.0-to-1.1.md
 ```
 
 MINOR 用 `### MINOR`，MAJOR 用 `### BREAKING`，要醒目。

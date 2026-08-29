@@ -6,7 +6,7 @@ oracle-bone 的数据源适配层。四类 adapter，每份文档必须写清五
 
 | 类型 | 目录 | 被谁调用 | 输出 |
 |---|---|---|---|
-| trend-sources | `trend-sources/` | /oracle-trends | 符合 [candidate-schema](../../shared-references/candidate-schema.md) 的 items |
+| trend-sources | `trend-sources/` | /oracle-trends | 符合 [candidate-schema](../shared-references/candidate-schema.md) 的 items |
 | perf-data | `perf-data/` | /oracle-retro (Path B) | report.md（数字 + top 评论） |
 | candidate-pool | `candidate-pool/` | /oracle-recommend | 候选 items |
 | script-extraction | `script-extraction/` | /oracle-learn-from (Way b) / /oracle-apprentice | transcript.md |
