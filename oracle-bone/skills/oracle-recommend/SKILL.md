@@ -74,6 +74,10 @@ candidates.md 不存在或空 → **不报错**，输出引导：
 | 🔵 蓝 | **拒绝推荐**："buffer 已 N 条，先发存货+复盘。坚持要拍说'我就要拍'" |
 | 灵活模式 | 不覆盖，标准策略 |
 
+### Phase 2.6: 约束提示（state.stage_constraint）
+
+读 `state.stage_constraint`（缺失按 `none`）：`capacity_limited` → 推荐输出附注"产能受限期：优先 derivative 一稿多吃、减少全新起稿"；`positioning_unclear` → 实验性名额降级（只推稳分），与经历锚点相关的候选排前。其余约束不改排序，仅在相关时一句话提示。判定表见主 SKILL.md「stage_constraint」段。
+
 ### Phase 3: 按轨道占比过滤 + 排序
 
 1. 读 `state.tracks.definitions` 的 mix_ratio

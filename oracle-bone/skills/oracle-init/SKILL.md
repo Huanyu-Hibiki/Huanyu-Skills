@@ -175,12 +175,24 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 落盘 `audience-profiles.md`。**这份画像直接被 oracle-simulate-audience 消费**（两类人群模拟的根基）。
 
+### Phase 4.5: 约束初判（暂定 stage_constraint）
+
+从采访信号初判当前最大约束（四类判定表见主 SKILL.md「stage_constraint」段）：
+
+- Phase 2 形象三词/专业优势答不上来 → `positioning_unclear`
+- 定位清晰但表达 pattern 无从谈起（script_patterns 空 + 未导对标）→ `expression_unstable`
+- Q3 发布频率目标 vs 用户自述可投入时间差距大 → `capacity_limited`
+- 转化轨已有内容但零咨询信号（仅 import 历史的老手可判）→ `conversion_blocked`
+- 信号都不显著 → `none`
+
+初判值 + 一句依据复述给用户确认（归入 Phase 4 收口确认，不单独加一轮提问）；后续 compass-retro 每 2 期回写。
+
 ### Phase 5: 脚手架落盘（逐项解释）
 
 按顺序创建并**解释每一项的作用**（不静默 mkdir）：
 
 1. **`.oracle-state.json`**（schema 见 [state-management.md](../../shared-references/state-management.md)）：
-   - 写入 Phase 1-4 收集的全部配置 + `tracks.definitions`（Phase 3 注册）
+   - 写入 Phase 1-4 收集的全部配置 + `tracks.definitions`（Phase 3 注册）+ `stage_constraint`（Phase 4.5 初判：`{value, basis, updated_at}`）
    - `schema_version: "1.0"`、`mode`（cold-start / calibration）、`calibration_samples_by_track`（每轨 0 起）
    - `initialized_at` 用本地 ISO 8601 含时区（**不要 UTC Z 后缀**）
 

@@ -120,6 +120,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 **规则**：阶段不是奖章是策略——判断阶段只为决定下一期优化什么指标。
 
+**约束回写**：综合 Phase 2 A/B 分类 + 本阶段诊断 + Phase 3.5 问题表，判定当前最大约束（四类表见主 SKILL.md「stage_constraint」段）。🔴 CHECKPOINT：展示拟写入的 `state.stage_constraint`（值 + 依据 + 升级条件）→ 用户确认后更新（含 updated_at）。与上次判定**不同向 → 只记候选不切换**，连续两次同向才切换（防单期噪声）；用户明确拍板可立即切换。
+
 ### Phase 3.5: 内容问题诊断
 
 结合 content-plan / user-profile / script_patterns / 数据评论：
