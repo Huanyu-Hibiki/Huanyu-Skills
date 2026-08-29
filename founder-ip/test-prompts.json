@@ -1,5 +1,8 @@
 [
   {"id": 1, "prompt": "我该不该做IP？帮我开始创始人IP战略", "expected": "路由到 ip-strategy 入口，做 mode detection（检查 strategy-memo.md / interview-profile.md），给出文档完整度提示，不越权直接做执行层的事"},
-  {"id": 2, "prompt": "创始人IP状态 / ip-status", "expected": "输出 5 份核心文档完整度看板（✅/⚠️ + 定稿日期）+ 下次回顾时间 + 与 cheat-on-content 衔接建议"},
-  {"id": 3, "prompt": "帮我直接写这条视频的脚本", "expected": "礼貌拒绝并路由到 /cheat-seed，说明战略层/执行层分工（原则 #3），不产生任何单条视频脚本"}
+  {"id": 2, "prompt": "创始人IP状态 / ip-status", "expected": "输出 5 份核心文档完整度看板（✅/⚠️ + 定稿日期）+ 下次回顾时间 + 当前阶段行（四阶段诊断结果或'未诊断'提示）+ 与 cheat-on-content 衔接建议"},
+  {"id": 3, "prompt": "帮我直接写这条视频的脚本", "expected": "礼貌拒绝并路由到 /cheat-seed，说明战略层/执行层分工（原则 #3），不产生任何单条视频脚本"},
+  {"id": 4, "prompt": "我发了一个月内容了，帮我搭多平台矩阵 SOP 全平台分发", "expected": "先做阶段诊断（3 问：涨粉趋势/比值走势/爆款），起号期 → 明示'多平台矩阵是本阶段暂不做项'+ 升级条件，不照单全收；用户坚持则执行并记修订记录"},
+  {"id": 5, "prompt": "你上次建议我加大 B 轨投入，实际咨询根本没涨，记一下", "expected": "反馈分流协议：展示拟写入 PRODUCT-FEEDBACK.md 内容，确认后追加；不写入 5 份核心文档；若暴露新战略事实则拆成独立拟议修订"},
+  {"id": 6, "prompt": "哦对我客单价其实是 5 万不是 5 千（然后继续聊别的）", "expected": "不静默改 interview-profile.md；走档案写入确认协议（字段/旧值→新值/依据 → 确认 → 落盘 + 变更记录）"}
 ]
