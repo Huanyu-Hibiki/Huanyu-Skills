@@ -82,11 +82,31 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 | "商业画布" / "ip-business-model" / "怎么变现" / "咨询漏斗" | `/ip-business-model` | strategy 已跑 | `business-model-canvas.md` |
 | "OPC系统" / "ip-opc-system" / "生产流水线" / "2天1期怎么排" | `/ip-opc-system` | 建议其他都跑完 | `opc-sop.md` |
 | "创始人IP状态" / "ip-status" / "战略看板" | 内置轻量 status（见下） | 任意时刻可调 | 控制台输出 |
+| "这次建议不准" / "你判错了" / "记产品反馈" | 反馈分流协议（见下） | 任意时刻可调 | `PRODUCT-FEEDBACK.md` |
+
+**反馈分流协议**：用户指出 skill 建议不准/不像他 → 先核对当前 `founder-ip/` 文档状态，再展示拟写入内容（哪里不准 / 是否采纳 / 原因），**用户确认后**追加到 `founder-ip/PRODUCT-FEEDBACK.md`（一行一条：日期 + 反馈 + 处置）。它**只用于改进 skill 流程**，不参与战略判断、不进 5 份核心文档。若反馈同时暴露新的战略事实（如"其实我的产品阶段变了"）→ 拆成独立的拟议修订，走对应文档的修订记录 + 确认协议，两件事不混写。
 
 **Mode detection**（首次接到触发词时执行）：
 1. 检查当前目录是否有 `strategy-memo.md` → 没有 → 强烈建议先跑 `/ip-strategy`
 2. 检查 5 份核心文档的存在性，给出"战略层完整度"看板
 3. 不强制阻断——用户可以从任意子 skill 开始，但会提示依赖关系
+4. 核心文档基本齐备（≥ strategy + persona）且用户已发布内容 → **先做阶段诊断再动手**（见下节）
+
+### 阶段诊断与路径裁剪（文档齐了之后，先诊断再动手）
+
+> 心法（[循环诊断 阶段]）：**阶段 = 当前最大约束，不是等级**。阶段描述你现在最该解决什么，不描述你厉不厉害。升级靠信号不靠时间，且会倒退。
+
+轻量诊断 3 问（对照 [loop-diagnostics.md](shared-references/loop-diagnostics.md) 第一部分）：近 3 批涨粉趋势？波赞比/赞粉比走势？近期有没有刚出爆款？判定后按表裁剪：
+
+| 当前阶段 | 优先动作 | 🔴 暂不做（此阶段做了 = 开错药） |
+|---|---|---|
+| 冷启动（文档未齐/未发布） | 标准引导路径 1→5 | opc-system 精细排产（还没有产可排） |
+| 起号期 | 执行层铺量 + `/ip-content-funnel --review` 调支柱 | business-model 精算转化漏斗（无转化数据可精算）；多平台矩阵 |
+| 稳定上升期 | `/ip-opc-system --optimize` 提产能 + 守正出奇 | 加新价值点破圈（稀释已跑通的模型——那是瓶颈期的事） |
+| 瓶颈期 | `/ip-content-funnel --review` 按破圈引导（一块一块加价值点） | 换赛道（第一赛道跑通前换 = 逃跑）；加码投流代替破圈 |
+| 爆款后续航 | 立即回执行层接流量（置顶/趁热加柴） | 战略层大改（窗口期以天计，不做季度级转向） |
+
+诊断输出必须带：**暂定阶段 + 依据（≤3 条）+ 升级条件**；证据不足选更早阶段并降置信度（阶段宁可低估不可高估）。用户要求做"暂不做"清单里的事 → 不硬拒，但先明示"当前最大约束是 X，这事该在 <升级条件> 之后做"，用户坚持则执行并记入对应文档修订记录。诊断结果一行写入 strategy-memo `## 修订记录`（格式：日期/阶段判定/依据），不算战略变更。
 
 ---
 
@@ -108,6 +128,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
   - strategy:    2026-Q4 回顾
   - persona:     2026-10-27 半年回顾
   - funnel:      季度滚动更新
+
+当前阶段（当前最大约束）：
+  - 稳定上升期（2026-08-20 诊断，依据见 strategy-memo 修订记录）
+  - 未诊断 → 下次进入时按"阶段诊断与路径裁剪"补
 
 与 cheat-on-content 的衔接：
   - 上次 /cheat-retro: 2026-07-20
@@ -155,7 +179,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 └── videos/                        # 视频工程
 ```
 
-5 份文档之间通过**相对路径引用**（不是 state file），保持简单透明。
+5 份文档之间通过**相对路径引用**（不是 state file），保持简单透明。**每个字段只有唯一主档，下游引用不复制**——字段归属表见 [strategy-immutability.md](shared-references/strategy-immutability.md)「字段归属表」段（同一事实多处维护 = 矛盾的根源，事前预防）。
 
 ---
 
