@@ -10,9 +10,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-安装)
 
-
+</div>
 
 ---
+
+> 📦 本系统是 [Huanyu-Skills 合集](../)的一员——6 套 Agent skill 系统，可独立使用，也可互相配合。
 
 > 商王做事之前先烧龟壳：读兆纹，刻卜辞，然后行动。几天后，把真实结果刻回同一块骨头。
 > 3000 年前的贞人就在跑校准循环——现在把它还给内容创作者。
@@ -117,7 +119,7 @@ MIT。商用、改造、闭源接入都行。
 
 ## 👤 关于作者 · 呼风唤雨的焕羽
 
-我是**呼风唤雨的焕羽**，AI 实战博主，专注分享用 AI Agent 搭建一人公司工作流的真实过程。本 skill 的完整手把手教程与实战演示，都在我的视频里：
+我是**呼风唤雨的焕羽**，**工程合规 AI 创业者**——工程管理专业出身，从央企经营部走出来，现在经营一人公司（OPC），用 AI Agent 重做工程本行（合同审查 / 招投标合规 / 资质管理），全过程 [Build in Public](https://github.com/Huanyu-Hibiki)。本 skill 的完整手把手教程与实战演示，都在我的视频里：
 
 | 平台 | 账号 |
 |---|---|
@@ -133,4 +135,6 @@ MIT。商用、改造、闭源接入都行。
 <img src="assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
 
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
+
+</div>
 

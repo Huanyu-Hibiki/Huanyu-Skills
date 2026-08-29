@@ -7,12 +7,15 @@
 盘点已装 skill · 第三方 skill 安全扫描 · 开源 skill 分析 · 从零编写新 skill · 迭代优化已有 skill
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](SKILL.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-5%20子%20skill-059669)](#-五个子-skill)
+[![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-安装)
 
-
+</div>
 
 ---
+
+> 📦 本系统是 [Huanyu-Skills 合集](../)的一员——6 套 Agent skill 系统，可独立使用，也可互相配合。
 
 skill-master 是一个 **skill 合集路由器**（总协议 + 路由表）：收到请求只做一件事——按路由表分发到对应 `skills/sm-*/SKILL.md` 子 skill 执行。你在用 AI Agent 管理 skill 时需要的全套工具，都在这一个合集里。
 
@@ -81,7 +84,7 @@ MIT
 
 ## 👤 关于作者 · 呼风唤雨的焕羽
 
-我是**呼风唤雨的焕羽**，AI 实战博主，专注分享用 AI Agent 搭建一人公司工作流的真实过程。本 skill 的完整手把手教程与实战演示，都在我的视频里：
+我是**呼风唤雨的焕羽**，**工程合规 AI 创业者**——工程管理专业出身，从央企经营部走出来，现在经营一人公司（OPC），用 AI Agent 重做工程本行（合同审查 / 招投标合规 / 资质管理），全过程 [Build in Public](https://github.com/Huanyu-Hibiki)。本 skill 的完整手把手教程与实战演示，都在我的视频里：
 
 | 平台 | 账号 |
 |---|---|
@@ -97,4 +100,6 @@ MIT
 <img src="assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
 
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
+
+</div>
 

@@ -4,26 +4,51 @@
 
 **6 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作**
 
+*Production-grade AI agent skills for Claude Code / OpenCode / Codex / Cursor — open-sourced Build-in-Public from a one-person company (OPC).*
+
 [![Skills](https://img.shields.io/badge/skills-6%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-快速开始)
+[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/Huanyu-Hibiki/Huanyu-Skills?style=flat&color=ffd700)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/stargazers)
 [![License](https://img.shields.io/badge/license-%E6%8C%89%20skill%20%E5%90%84%E5%BC%82-lightgrey)](#-license)
 
-
+</div>
 
 ---
 
-给 AI Agent（Claude Code / OpenCode / Codex CLI / Cursor 等）用的实战 skill 合集。每个目录是一套独立系统，放进你的 skills 目录即可使用。它们不是玩具 demo——每一套都来自我经营一人公司（OPC）的真实工作流，配合我的视频教程食用效果最佳。
+给 AI Agent（Claude Code / OpenCode / Codex CLI / Cursor 等）用的实战 skill 合集。每个目录是一套独立系统，放进你的 skills 目录即可使用。它们不是玩具 demo——每一套都来自我经营一人公司（OPC）的真实工作流，Build in Public 全过程公开，配合我的视频教程食用效果最佳。
 
 ## 📦 合集一览
 
 | Skill | 一句话 | 子 skill | 版本 | License |
 |---|---|---|---|---|
-| [founder-ip](founder-ip/) | 创始人 IP 战略层系统：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层一次想清楚 | 5 | 1.2.0 | AGPL-3.0 |
-| [oracle-bone](oracle-bone/) | 内容预测校准循环：打分 → 盲预测 → 发布 → 复盘 → 进化你自己的爆款公式 | 26 | 1.0.0 | MIT |
-| [pulsehub](pulsehub/) | 获客系统：16 个 skill 四层闭环 + 随使用积累的"项目大脑" | 16 | 1.0.0 | — |
-| [shendu-yuedu](shendu-yuedu/) | 深度阅读系统：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
-| [skill-master](skill-master/) | skill 全生命周期管家：盘点 / 安全扫描 / 分析 / 编写 / 优化 | 5 | 1.0.0 | MIT |
-| [video-production-workflow](video-production-workflow/) | 视频制作管线：终稿 → 分镜 → 粗剪 → 剪映 → B-roll → 成片 QA | 13 | 0.5.0 | — |
+| [founder-ip](founder-ip/) | 创始人 IP 战略层系统（Founder IP Strategy）：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层一次想清楚 | 5 | 1.2.0 | AGPL-3.0 |
+| [oracle-bone](oracle-bone/) | 内容预测校准循环（Content Calibration Loop）：打分 → 盲预测 → 发布 → 复盘 → 进化你自己的爆款公式 | 26 | 1.0.0 | MIT |
+| [pulsehub](pulsehub/) | 获客系统（Lead Generation System）：16 个 skill 四层闭环 + 随使用积累的"项目大脑" | 16 | 1.0.0 | MIT |
+| [shendu-yuedu](shendu-yuedu/) | 深度阅读系统（Deep Reading System）：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
+| [skill-master](skill-master/) | skill 全生命周期管家（Skill Lifecycle Manager）：盘点 / 安全扫描 / 分析 / 编写 / 优化 | 5 | 1.0.0 | MIT |
+| [video-production-workflow](video-production-workflow/) | 视频制作管线（Video Production Pipeline）：终稿 → 分镜 → 粗剪 → 剪映 → B-roll → 成片 QA | 13 | 0.6.0 | MIT |
+
+<details>
+<summary><b>📖 English</b></summary>
+
+**Huanyu-Skills** is a collection of 6 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
+
+| Skill | What it does |
+|---|---|
+| [founder-ip](founder-ip/) | Founder IP strategy layer: strategy / persona / content funnel / business model / OPC pipeline |
+| [oracle-bone](oracle-bone/) | Content calibration loop: score → blind-predict → publish → review → evolve your own hit formula |
+| [pulsehub](pulsehub/) | Lead generation system: 16 skills in 4 layers + a "project brain" that grows with use |
+| [shendu-yuedu](shendu-yuedu/) | Deep reading system: turn "read and forget" into a personal knowledge wiki of callable skills |
+| [skill-master](skill-master/) | Skill lifecycle manager: inventory / security scan / analyze / write / optimize skills |
+| [video-production-workflow](video-production-workflow/) | Video production pipeline: script → storyboard → rough cut → JianYing (CapCut) draft → B-roll → final QA |
+
+```bash
+git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
+cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone   # or your agent's skills dir
+```
+
+</details>
 
 ## 🤝 它们怎么配合
 
@@ -58,7 +83,9 @@ cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone    # Claude Code
 
 ## 👤 关于作者 · 呼风唤雨的焕羽
 
-我是**呼风唤雨的焕羽**，AI 实战博主，专注分享用 AI Agent 搭建一人公司工作流的真实过程。这里每一套 skill 的完整手把手教程与实战演示，都在我的视频里：
+我是**呼风唤雨的焕羽**，**工程合规 AI 创业者**——工程管理专业出身，从央企经营部走出来，现在经营一人公司（OPC），用 AI Agent 重做工程本行（合同审查 / 招投标合规 / 资质管理），全过程 [Build in Public](https://github.com/Huanyu-Hibiki)。这个仓库不是 side project——每套系统都在我的一人公司里每天真实运转。
+
+内容母题：**「AI 时代，我的工程青春谁做主」**——工程人如何在 AI 时代重新拿回职业主动权。这里每一套 skill 的完整手把手教程与实战演示，都在我的视频里：
 
 | 平台 | 账号 |
 |---|---|
@@ -75,8 +102,8 @@ cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone    # Claude Code
 
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
-
+</div>
 
 ## 📄 License
 
-各 skill 协议不同（见各自目录的 LICENSE / README）：founder-ip 为 AGPL-3.0，oracle-bone / shendu-yuedu / skill-master 为 MIT，其余见对应目录说明。
+各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow 为 MIT。
