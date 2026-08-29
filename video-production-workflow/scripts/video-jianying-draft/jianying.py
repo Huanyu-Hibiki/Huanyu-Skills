@@ -5,7 +5,7 @@ jianying.py — CLI for creating 剪映 draft files. No server, no ports.
 Commands: create_draft, add_video, add_audio, add_text, add_subtitle,
           add_image, add_effect, add_sticker, save_draft
 """
-import argparse, json, os, pickle, sys, time, uuid, shutil, subprocess, re
+import argparse, json, os, pickle, sys, time, uuid, shutil, subprocess, re, unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -14,7 +14,11 @@ from lib.env import load_skill_env
 load_skill_env()
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-CAPCUT_MCP_DIR = os.environ.get("CAPCUT_MCP_DIR") or str(SCRIPT_DIR / "vendor")
+# env 覆盖仅在确实指向含 pyJianYingDraft 的目录时生效；失效路径
+# （如旧机器迁移残留）自动回退到随 skill 附带的 vendor，避免静默断链
+_env_mcp = os.environ.get("CAPCUT_MCP_DIR")
+CAPCUT_MCP_DIR = _env_mcp if _env_mcp and os.path.isdir(
+    os.path.join(_env_mcp, "pyJianYingDraft")) else str(SCRIPT_DIR / "vendor")
 
 def _bootstrap():
     import types
@@ -67,6 +71,60 @@ def _hex_to_rgb_tuple(hex_color):
     b = int(h[4:6], 16) / 255.0
     return (r, g, b)
 
+def _name_key(name):
+    """文件名占用键：Unicode NFC + casefold。NTFS 不区分大小写，
+    clip.mp4 与 CLIP.mp4 是同一个文件。"""
+    return unicodedata.normalize("NFC", name).casefold()
+
+def _unique_name(name, used_keys):
+    """生成占用键唯一的文件名（循环递增后缀，不会二次碰撞）。"""
+    if _name_key(name) not in used_keys:
+        return name
+    stem, ext = os.path.splitext(name)
+    i = 2
+    while _name_key(f"{stem}-{i}{ext}") in used_keys:
+        i += 1
+    return f"{stem}-{i}{ext}"
+
+def _trash_dir(root):
+    """替换/卸载的待删目录统一放这里。剪映按 <草稿根>/<目录>/
+    draft_content.json 识别草稿，嵌套一层不会被扫成幽灵草稿；
+    同一文件系统内 rename 保持原子。"""
+    d = os.path.join(root, ".jianying-trash")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+def _audio_lane(sc, base_name, seg):
+    """贪心分道：剪映同轨音频段不可重叠。请求轨道装不下时按
+    base-2/base-3... 顺序找第一个不重叠的空位，必要时开新轨。"""
+    def fits(name):
+        t = sc.tracks.get(name)
+        return t is None or not any(s.overlaps(seg) for s in t.segments)
+    name, i = base_name, 2
+    while not fits(name):
+        name = f"{base_name}-{i}"
+        i += 1
+    if name not in sc.tracks:
+        sc.add_track(dy.Track_type.audio, name)
+    return name
+
+def _material_name_for(sc, kind, path):
+    """素材表按 material_name 去重（uuid3(name) 作 id），同名不同文件会被
+    静默合并成第一个素材——错链。这里给不同源文件返回不冲突的名称；
+    同一源文件保持原名，让 add_material 正确复用。"""
+    path = os.path.realpath(os.path.abspath(path))
+    base = os.path.basename(path)
+    existing = {getattr(m, 'material_name', ''): getattr(m, 'path', '')
+                for m in getattr(sc.materials, kind)}
+    if existing.get(base) == path:
+        return base
+    stem, ext = os.path.splitext(base)
+    name, i = base, 2
+    while existing.get(name) not in (None, '', path):
+        name = f"{stem}-{i}{ext}"
+        i += 1
+    return name
+
 # ─── commands ─────────────────────────────────────────────────────────
 
 def cmd_create_draft(a):
@@ -83,7 +141,7 @@ def cmd_add_video(a):
     ts = a.target_start if a.target_start is not None else 0
     # Video_material needs the raw local path (it validates existence)
     mat = dy.Video_material(material_type='video', path=os.path.abspath(a.file),
-                            material_name=os.path.basename(a.file),
+                            material_name=_material_name_for(sc, 'videos', a.file),
                             duration=dur, width=w, height=h)
     sc.add_material(mat)
     tn = a.track_name or "main"
@@ -101,13 +159,19 @@ def cmd_add_audio(a):
     end = a.end if a.end is not None else dur
     ts = a.target_start if a.target_start is not None else 0
     mat = dy.Audio_material(path=os.path.abspath(a.file),
-                            material_name=os.path.basename(a.file), duration=dur)
+                            material_name=_material_name_for(sc, 'audios', a.file), duration=dur)
     sc.add_material(mat)
     tn = a.track_name or "audio_main"
-    sc.add_track(dy.Track_type.audio, tn)
     seg = dy.Audio_segment(mat, _tr(ts, ts + (end - start) / a.speed),
                            source_timerange=_tr(start, end), volume=a.volume)
-    sc.add_segment(seg, tn)
+    if a.no_lane_split:
+        # 严格模式：同轨重叠直接抛 SegmentOverlap（旧行为）
+        sc.add_track(dy.Track_type.audio, tn)
+        sc.add_segment(seg, tn)
+    else:
+        # 贪心分道：重叠音频自动溢出到同名前缀的新轨（如 BGM-2）
+        tn = _audio_lane(sc, tn, seg)
+        sc.add_segment(seg, tn)
     _save(a.cache_dir, a.draft_id, sc)
     print(json.dumps({"success": True, "file": os.path.basename(a.file), "track": tn}))
 
@@ -148,7 +212,7 @@ def cmd_add_image(a):
     ts = a.start if a.start is not None else 0
     te = a.end if a.end is not None else ts + 5
     mat = dy.Video_material(material_type='photo', path=os.path.abspath(a.file),
-                            material_name=os.path.basename(a.file),
+                            material_name=_material_name_for(sc, 'videos', a.file),
                             duration=te-ts, width=w, height=h)
     sc.add_material(mat)
     tn = a.track_name or "image_main"
@@ -185,21 +249,43 @@ def cmd_save_draft(a):
     tmpl = os.path.join(CAPCUT_MCP_DIR, "template_jianying")
     if not os.path.exists(tmpl): tmpl = os.path.join(CAPCUT_MCP_DIR, "template")
     out = os.path.join(a.output, a.draft_id)
-    if os.path.exists(out): shutil.rmtree(out)
-    shutil.copytree(tmpl, out)
-    sc.dump(os.path.join(out, "draft_content.json"))
-    # Copy referenced media to draft assets/
-    assets = os.path.join(out, "assets"); os.makedirs(assets, exist_ok=True)
-    for mat in sc.materials.videos:
-        lp = getattr(mat, 'local_path', '')
-        if lp and os.path.exists(lp):
-            dest = os.path.join(assets, os.path.basename(lp))
-            if not os.path.exists(dest): shutil.copy2(lp, dest)
-    for mat in sc.materials.audios:
-        lp = getattr(mat, 'local_path', '')
-        if lp and os.path.exists(lp):
-            dest = os.path.join(assets, os.path.basename(lp))
-            if not os.path.exists(dest): shutil.copy2(lp, dest)
+    # 旧草稿先移入回收目录（嵌套一层，剪映不会扫成幽灵草稿），
+    # 全部成功后才清理；中途失败自动回滚复位
+    old = None
+    if os.path.exists(out):
+        old = os.path.join(_trash_dir(a.output),
+                           f"{a.draft_id}.replaced-{time.strftime('%Y%m%d-%H%M%S')}")
+        os.rename(out, old)
+    try:
+        shutil.copytree(tmpl, out)
+        sc.dump(os.path.join(out, "draft_content.json"))
+        # 媒体拷进 assets/：同名碰撞（含大小写不同）自动加后缀，
+        # 绝不静默复用错文件；同一源文件只拷一次
+        assets = os.path.join(out, "assets"); os.makedirs(assets, exist_ok=True)
+        used_keys, copied = set(), set()
+        for mat in list(sc.materials.videos) + list(sc.materials.audios):
+            lp = getattr(mat, 'path', '')
+            if not (lp and os.path.exists(lp)):
+                continue
+            key = os.path.realpath(lp)
+            if key in copied:
+                continue
+            copied.add(key)
+            name = _unique_name(os.path.basename(lp), used_keys)
+            used_keys.add(_name_key(name))
+            shutil.copy2(lp, os.path.join(assets, name))
+    except BaseException:
+        if os.path.exists(out):
+            shutil.rmtree(out, ignore_errors=True)
+        if old and os.path.exists(old):
+            os.rename(old, out)
+        raise
+    if old:
+        try:
+            shutil.rmtree(old)
+        except OSError as e:
+            print(f"[warn] 旧草稿副本删除失败（位于回收目录，剪映不会扫描到），"
+                  f"请手动清理：{old}（{e}）")
     print(json.dumps({"success": True, "output": out,
         "message": f"草稿已保存。打开剪映专业版即可看到 {a.draft_id}"}))
 
@@ -211,7 +297,7 @@ def main():
 
     p = sub.add_parser('create_draft'); p.add_argument('--width', type=int, default=1920); p.add_argument('--height', type=int, default=1080); p.add_argument('--cache-dir', required=True); p.set_defaults(fn=cmd_create_draft)
     p = sub.add_parser('add_video'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_video)
-    p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_audio)
+    p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--no-lane-split', action='store_true', dest='no_lane_split', help='disable greedy lane split; overlapping audio raises SegmentOverlap'); p.set_defaults(fn=cmd_add_audio)
     p = sub.add_parser('add_text'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--text', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--font-size', type=float); p.add_argument('--font-color'); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_text)
     p = sub.add_parser('add_subtitle'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--srt', required=True); p.add_argument('--time-offset', type=float); p.add_argument('--font-size', type=float, default=5.0); p.add_argument('--font-color', default='#FFFFFF'); p.add_argument('--track-name'); p.add_argument('--max-chars', type=float, default=18, dest='max_chars', help='max display units per cue (CJK=1, ASCII=0.5)'); p.add_argument('--min-chars', type=float, default=6, dest='min_chars'); p.add_argument('--no-split', action='store_true', dest='no_split', help='import the SRT as-is without splitting'); p.set_defaults(fn=cmd_add_subtitle)
     p = sub.add_parser('add_image'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--width', type=int); p.add_argument('--height', type=int); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_image)
