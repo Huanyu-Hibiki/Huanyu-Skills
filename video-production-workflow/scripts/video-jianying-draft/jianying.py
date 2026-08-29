@@ -125,6 +125,60 @@ def _material_name_for(sc, kind, path):
         i += 1
     return name
 
+def _jianying_running():
+    """剪映专业版进程检测：save_draft 写盘前剪映必须完全退出。
+    tasklist 在中文 Windows 输出 GBK，按 bytes 捕获再 errors='ignore'
+    解码（JianyingPro 是 ASCII，不受非 ASCII 丢弃影响）。"""
+    if sys.platform == 'win32':
+        r = subprocess.run(
+            ['tasklist', '/FI', 'IMAGENAME eq JianyingPro.exe', '/NH'],
+            capture_output=True)
+        return 'JianyingPro' in r.stdout.decode('utf-8', errors='ignore')
+    try:
+        out = subprocess.run(['pgrep', '-fl', '-i', 'JianyingPro'],
+                             capture_output=True, text=True).stdout or ''
+    except FileNotFoundError:
+        return False
+    return bool(out.strip())
+
+def _default_draft_root():
+    """剪映 Windows 草稿根候选探测。只接受「存在且含至少一个真草稿子目录」
+    的候选（子目录里有 draft_content.json 或 draft_info.json）——目录存在
+    且被剪映用过才可信；两个候选都不满足时返回 None，不猜。"""
+    cands = [
+        os.path.expandvars(r'%LOCALAPPDATA%\JianyingPro\User Data\Projects\com.lveditor.draft'),
+        os.path.expanduser(r'~\JianyingPro Drafts'),
+    ]
+    for c in cands:
+        if not os.path.isdir(c):
+            continue
+        try:
+            subs = os.listdir(c)
+        except OSError:
+            continue
+        for sub in subs:
+            d = os.path.join(c, sub)
+            if os.path.isfile(os.path.join(d, 'draft_content.json')) or \
+               os.path.isfile(os.path.join(d, 'draft_info.json')):
+                return c
+    return None
+
+def _validate_draft_name(draft_id, root):
+    """校验草稿名并返回目标路径。save 会对目标 rename/rmtree，
+    名字含路径分隔符、盘符或 .. 时会逃逸草稿根（任意目录删除），必须拒绝。"""
+    if (not draft_id or draft_id in ('.', '..')
+            or '/' in draft_id or '\\' in draft_id or ':' in draft_id
+            or os.path.isabs(draft_id)):
+        print(f"ERROR: 非法草稿名 {draft_id!r}：不能为空、含路径分隔符或为绝对路径",
+              file=sys.stderr)
+        sys.exit(1)
+    target = os.path.realpath(os.path.join(root, draft_id))
+    if os.path.dirname(target) != os.path.realpath(root):
+        print(f"ERROR: 草稿名 {draft_id!r} 解析后逃逸草稿根目录：{target}",
+              file=sys.stderr)
+        sys.exit(1)
+    return os.path.join(root, draft_id)
+
 # ─── commands ─────────────────────────────────────────────────────────
 
 def cmd_create_draft(a):
@@ -246,34 +300,55 @@ def cmd_add_sticker(a):
 
 def cmd_save_draft(a):
     sc = _load(a.cache_dir, a.draft_id)
+    if _jianying_running():
+        print("ERROR: 剪映专业版正在运行——完全退出后再 save_draft（写盘时草稿打开会导致损坏）",
+              file=sys.stderr)
+        sys.exit(1)
+    root, root_source = a.output, "explicit"
+    if not root:
+        root = _default_draft_root()
+        if not root:
+            print("ERROR: 未指定 --output 且未能探测到剪映草稿根。"
+                  "请在剪映「全局设置→草稿位置」复制真实路径后用 --output 传入",
+                  file=sys.stderr)
+            sys.exit(1)
+        root_source = "auto-detected"
     tmpl = os.path.join(CAPCUT_MCP_DIR, "template_jianying")
     if not os.path.exists(tmpl): tmpl = os.path.join(CAPCUT_MCP_DIR, "template")
-    out = os.path.join(a.output, a.draft_id)
+    out = _validate_draft_name(a.draft_id, root)
     # 旧草稿先移入回收目录（嵌套一层，剪映不会扫成幽灵草稿），
     # 全部成功后才清理；中途失败自动回滚复位
     old = None
     if os.path.exists(out):
-        old = os.path.join(_trash_dir(a.output),
+        old = os.path.join(_trash_dir(root),
                            f"{a.draft_id}.replaced-{time.strftime('%Y%m%d-%H%M%S')}")
         os.rename(out, old)
+    missing = []
     try:
         shutil.copytree(tmpl, out)
-        sc.dump(os.path.join(out, "draft_content.json"))
-        # 媒体拷进 assets/：同名碰撞（含大小写不同）自动加后缀，
-        # 绝不静默复用错文件；同一源文件只拷一次
+        # 媒体拷进 assets/ 并改写 replace_path → 草稿自包含：
+        # 原素材被移动/删除不影响草稿；同名碰撞自动加后缀，绝不静默错链。
+        # replace_path 必须在 dump 之前设置（dump 直接序列化它）
         assets = os.path.join(out, "assets"); os.makedirs(assets, exist_ok=True)
-        used_keys, copied = set(), set()
+        used_keys, mapped = set(), {}
         for mat in list(sc.materials.videos) + list(sc.materials.audios):
             lp = getattr(mat, 'path', '')
-            if not (lp and os.path.exists(lp)):
+            if not lp:
                 continue
             key = os.path.realpath(lp)
-            if key in copied:
+            if not os.path.exists(lp):
+                missing.append(lp)
                 continue
-            copied.add(key)
-            name = _unique_name(os.path.basename(lp), used_keys)
-            used_keys.add(_name_key(name))
-            shutil.copy2(lp, os.path.join(assets, name))
+            if key not in mapped:
+                name = _unique_name(os.path.basename(lp), used_keys)
+                used_keys.add(_name_key(name))
+                shutil.copy2(lp, os.path.join(assets, name))
+                mapped[key] = os.path.join(assets, name)
+            mat.replace_path = mapped[key]
+        # 原子落盘：先写 tmp 再 os.replace，中途崩溃不留半截 JSON
+        content_tmp = os.path.join(out, 'draft_content.json.tmp')
+        sc.dump(content_tmp)
+        os.replace(content_tmp, os.path.join(out, 'draft_content.json'))
     except BaseException:
         if os.path.exists(out):
             shutil.rmtree(out, ignore_errors=True)
@@ -287,6 +362,8 @@ def cmd_save_draft(a):
             print(f"[warn] 旧草稿副本删除失败（位于回收目录，剪映不会扫描到），"
                   f"请手动清理：{old}（{e}）")
     print(json.dumps({"success": True, "output": out,
+        "draft_root_source": root_source, "media_copied": len(mapped),
+        "missing_media": missing,
         "message": f"草稿已保存。打开剪映专业版即可看到 {a.draft_id}"}))
 
 # ─── CLI ──────────────────────────────────────────────────────────────
@@ -303,7 +380,7 @@ def main():
     p = sub.add_parser('add_image'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--width', type=int); p.add_argument('--height', type=int); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_image)
     p = sub.add_parser('add_effect'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--effect', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_effect)
     p = sub.add_parser('add_sticker'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--sticker-id', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--width', type=int, default=1080); p.add_argument('--height', type=int, default=1920); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_sticker)
-    p = sub.add_parser('save_draft'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--output', required=True); p.set_defaults(fn=cmd_save_draft)
+    p = sub.add_parser('save_draft'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--output', help='剪映真实草稿根；缺省时自动探测已验证的默认候选，探测不到必须显式传入'); p.set_defaults(fn=cmd_save_draft)
 
     a = pa.parse_args(); a.fn(a)
 
