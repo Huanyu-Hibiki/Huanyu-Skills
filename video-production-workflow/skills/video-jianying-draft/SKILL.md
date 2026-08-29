@@ -56,6 +56,7 @@ create_draft
 | 媒体文件被移走 | 草稿自包含不受影响；`missing_media` 项补回后重存 | manifest 记断链，路由回用户补素材 |
 | `import pyJianYingDraft` 失败 | env `CAPCUT_MCP_DIR` 失效——已自动回退内置 vendor，修正 `.env` | 确认 `vendor/pyJianYingDraft/` 完整 |
 | 新机器/新剪映版本 | 先跑「冒烟测试」再正片 | 冒烟不过按上表排查，仍不过走 SRT 降级 |
+| Mac 报「未找到可抄设备指纹的明文老草稿」 | 全新机器正常现象——造 donor（剪映新建草稿立即退出）后 `--donor-draft` 传入 | `--allow-missing-fingerprint` 实验安装，剪映可能拒载 |
 
 🔴 **CHECKPOINT：`save_draft` 前确认草稿根（探测结果首跑也确认）+ 剪映已完全退出（脚本再拦一道）；保存后展示 manifest 与输出 JSON（media_copied/missing_media/字幕条数），确认才算完成。**
 
@@ -103,6 +104,14 @@ Rough/
 ```
 
 三查：① 不报「内容已损坏/媒体丢失」；② 三轨都在；③ 文字可改内容/字号。不过按失败表排查；验证完删草稿。
+
+## macOS 支持
+
+同一 CLI，`save_draft` 检测到 darwin 自动走 Mac 链路（移植自 video-shotcraft mac_draft.py，Mac 剪映 11.2 实测）。Mac 三坑已内置：入口 `draft_info.json`、`platform` 机器指纹、`draft_materials(type 0)` 媒体登记；草稿根默认 `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`，注册进 `root_meta_info.json`（先备份、失败回滚）。
+
+- **指纹**：自动扫草稿库明文老草稿抄本机 `device_id`；全新机器扫不到即中止——`--donor-draft` 指定明文草稿，或 `--allow-missing-fingerprint` 实验安装（未经实测）；
+- 新 Mac 机器首次先冒烟；无明文老草稿时教用户造 donor：剪映新建草稿立即退出，仍明文即可用；
+- Mac 草稿 platform 含本机设备标识——自包含草稿目录不分发他人。
 
 ## 交付验收
 
