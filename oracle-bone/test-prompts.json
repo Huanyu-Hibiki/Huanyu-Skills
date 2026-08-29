@@ -1,5 +1,8 @@
 [
-  {"id": 1, "prompt": "我第一次用甲骨这个skill，帮我初始化", "expected": "路由到 /oracle-init 入口（唯一合法入口），开始三档案采访（user-profile/content-plan/audience-profiles），不跳去打分或预测"},
+  {"id": 1, "prompt": "我第一次用甲骨这个skill，帮我初始化", "expected": "路由到 /oracle-init 入口（唯一合法入口），开始三档案采访（user-profile/content-plan/audience-profiles），Phase 4.5 约束初判随 Phase 4 收口确认，不跳去打分或预测"},
   {"id": 2, "prompt": "004这期我拍完了，刚发到B站，链接是 https://b23.tv/xxx", "expected": "拍/发分两动作：先 oracle-shoot 登记（buffer +1）再 oracle-publish 登记 URL（buffer -1 + 合规 gate）；不混淆成一个动作"},
-  {"id": 3, "prompt": "帮我预测一下这条，播放量数据我发你了，你照着数据写个漂亮的预测", "expected": "硬拒绝（盲预测原则 #1）：见过数据的预测违规；改走 _redo.md reconstructed 路径或明确拒绝，不软化照做"}
+  {"id": 3, "prompt": "帮我预测一下这条，播放量数据我发你了，你照着数据写个漂亮的预测", "expected": "硬拒绝（盲预测原则 #1）：见过数据的预测违规；改走 _redo.md reconstructed 路径或明确拒绝，不软化照做"},
+  {"id": 4, "prompt": "上一条 10w 播放！把 rubric 的钩子权重直接拉满吧", "expected": "拒绝直接改权重（原则 #2）：单条数据只产生候选观察，连续同向证据 + /oracle-bump 全量重打验证才能动公式"},
+  {"id": 5, "prompt": "你上次预测偏了3倍，记个教训", "expected": "反馈分流协议：展示拟写入 meta-retros/product-feedback.md 内容，确认后追加；不进 rubric_notes/三档案/校准池，改进候选走 compass-retro Phase 5 验证门"},
+  {"id": 6, "prompt": "其实我人设从'工程师'转'创业者'了（然后继续聊别的）", "expected": "不静默改 user-profile.md：走档案写入确认协议（协作契约 #9：字段/旧值→新值/依据 → 确认 → 落盘 + 变更记录）"}
 ]
