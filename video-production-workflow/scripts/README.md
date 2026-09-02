@@ -6,8 +6,9 @@
 
 | 目录 | 来源能力 | 主要入口 |
 |---|---|---|
-| `video-caption-correct/` | 本地 Whisper/Fun-ASR 或可选火山引擎转录、字幕格式化、口癖识别、审核页、FCPXML 辅助 | `run_transcribe.sh`、`doctor.js`、`generate_review.js`、`lib/` |
-| `video-rough-cut/` | Whisper/Fun-ASR 转录、字幕映射、EDL 渲染、调色、时间线预览 | `transcribe.py`、`render.py`、`align_to_manuscript.py` |
+| `setup/` | 一键依赖安装（install.ps1/install.sh）和模型下载（download_models.py） | `install.ps1`、`install.sh`、`download_models.py` |
+| `video-caption-correct/` | 本地 faster-whisper/Whisper 或可选火山引擎转录、字幕格式化、口癖识别、审核页、FCPXML 辅助 | `run_transcribe.ps1`（Windows）/ `run_transcribe.sh`、`doctor.js`、`generate_review.js`、`lib/` |
+| `video-rough-cut/` | faster-whisper/Whisper 转录、字幕映射、EDL 渲染、调色、时间线预览 | `transcribe.py`、`render.py`、`align_to_manuscript.py` |
 | `video-jianying-draft/` | 剪映原生 Draft 生成及其内置适配库 | `jianying.py`、`vendor/pyJianYingDraft/`、`vendor/template_jianying/` |
 | `video-assets/` | 图片、Stock 视频、YouTube 下载、裁切、标准化和许可证登记 | `media_cli.py`、`normalize_asset.py`；配置见 Skill 根 `.env` |
 | `b-roll-finder/` | B-roll 静帧微动、网页截图和候选 cutaway 处理 | `zoom_still.py`、`cdp_capture.py` |

@@ -1,13 +1,18 @@
-"""Transcribe a video with Whisper + Fun-ASR.
+"""Transcribe a video with faster-whisper (default) or openai-whisper.
 
-Uses Whisper for word-level timestamps and Fun-ASR for accurate Chinese
-recognition. Combines both results for optimal output.
+faster-whisper is the default engine: it works well on Windows (CPU int8 and
+CUDA), is fast, and produces word-level timestamps. openai-whisper remains
+available with --engine whisper.
+
+Models are resolved in this order:
+1. <skill>/models/faster-whisper/<name>/ or <skill>/models/whisper/<name>.pt
+2. Engine auto-download into <skill>/models/ (never the user cache)
 
 Usage:
     python scripts/video-rough-cut/transcribe.py <video_path>
-    python scripts/video-rough-cut/transcribe.py <video_path> --edit-dir /custom/edit
+    python scripts/video-rough-cut/transcribe.py <video_path> --engine whisper
     python scripts/video-rough-cut/transcribe.py <video_path> --language zh
-    python scripts/video-rough-cut/transcribe.py <video_path> --whisper-model large-v3
+    python scripts/video-rough-cut/transcribe.py <video_path> --model large-v3
 """
 
 from __future__ import annotations
@@ -22,12 +27,22 @@ import time
 from pathlib import Path
 from typing import Optional
 
-import whisper
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.env import load_skill_env
 
 load_skill_env()
+
+SKILL_ROOT = Path(__file__).resolve().parents[2]
+MODELS_ROOT = SKILL_ROOT / "models"
+
+ENGINES = ("faster-whisper", "whisper")
+
+
+def default_engine() -> str:
+    env_engine = os.environ.get("ASR_ENGINE", "").strip().lower()
+    if env_engine in ENGINES:
+        return env_engine
+    return "faster-whisper"
 
 
 def default_device() -> str:
@@ -50,22 +65,97 @@ def extract_audio(video_path: Path, dest: Path) -> None:
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def resolve_faster_whisper_model(name: str) -> str:
+    """Prefer a pre-downloaded model under <skill>/models/faster-whisper/<name>."""
+    local = MODELS_ROOT / "faster-whisper" / name
+    if (local / "model.bin").exists() or (local / "config.json").exists():
+        return str(local)
+    return name
+
+
+def resolve_whisper_model(name: str) -> str:
+    """Prefer a pre-downloaded .pt under <skill>/models/whisper/<name>.pt."""
+    if os.path.isabs(name):
+        return name
+    local = MODELS_ROOT / "whisper" / f"{name}.pt"
+    if local.exists():
+        return str(local)
+    return name
+
+
+def transcribe_with_faster_whisper(
+    audio_path: Path,
+    model_name: str = "large-v3",
+    language: Optional[str] = None,
+    device: str = "cpu",
+    initial_prompt: Optional[str] = None,
+) -> dict:
+    from faster_whisper import WhisperModel
+
+    resolved = resolve_faster_whisper_model(model_name)
+    compute_type = "float16" if device.startswith("cuda") else "int8"
+    print(f"  loading faster-whisper model: {model_name} (device={device}, compute={compute_type})")
+    if resolved == model_name:
+        # let faster-whisper auto-download into <skill>/models/faster-whisper
+        download_root = str(MODELS_ROOT / "faster-whisper")
+        model = WhisperModel(resolved, device=device, compute_type=compute_type, download_root=download_root)
+    else:
+        print(f"  using local model: {resolved}")
+        model = WhisperModel(resolved, device=device, compute_type=compute_type)
+
+    print("  transcribing with faster-whisper...")
+    segments_iter, info = model.transcribe(
+        str(audio_path),
+        language=language,
+        word_timestamps=True,
+        vad_filter=True,
+        initial_prompt=initial_prompt,
+    )
+
+    words = []
+    for segment in segments_iter:
+        for word in segment.words or []:
+            text = word.word.strip()
+            if text:
+                words.append({
+                    "type": "word",
+                    "text": text,
+                    "start": word.start,
+                    "end": word.end,
+                    "confidence": float(word.probability or 0.0),
+                })
+
+    return {
+        "text": " ".join(w["text"] for w in words),
+        "segments": [],
+        "words": words,
+        "language": info.language if info is not None else "",
+        "source": "faster_whisper",
+    }
+
+
 def transcribe_with_whisper(
     audio_path: Path,
     model_name: str = "large-v3",
     language: Optional[str] = None,
+    initial_prompt: Optional[str] = None,
 ) -> dict:
+    import whisper
+
+    resolved = resolve_whisper_model(model_name)
+    download_root = str(MODELS_ROOT / "whisper")
     print(f"  loading Whisper model: {model_name}")
-    model = whisper.load_model(model_name)
-    
-    print(f"  transcribing with Whisper...")
+    model = whisper.load_model(resolved, download_root=download_root)
+
+    print("  transcribing with Whisper...")
     result = model.transcribe(
         str(audio_path),
         language=language,
         word_timestamps=True,
+        initial_prompt=initial_prompt,
         verbose=False,
     )
-    
+
     words = []
     for segment in result.get("segments", []):
         for word in segment.get("words", []):
@@ -77,184 +167,23 @@ def transcribe_with_whisper(
                 "confidence": word.get("probability", 0.0),
             })
 
-    result_text = result.get("text", "")
-    result_language = result.get("language", "")
-
-    # Explicitly release model + GPU memory before Fun-ASR loads (prevents OOM on low-VRAM GPUs)
-    del model
-    del result
-    import gc
-    gc.collect()
-    try:
-        import torch
-        torch.cuda.empty_cache()
-    except Exception:
-        pass
-
     return {
-        "text": result_text,
+        "text": result.get("text", ""),
         "segments": [],
         "words": words,
-        "language": result_language,
-    }
-
-
-def transcribe_with_funasr(
-    audio_path: Path,
-    model_dir: str = "FunAudioLLM/Fun-ASR-Nano-2512",
-    device: str = "cpu",
-) -> dict:
-    try:
-        # FunASR Nano 1.3.1 ships model.py with local absolute imports like
-        # `from ctc import CTC`; register that package path before AutoModel.
-        funasr_candidates = []
-        if os.environ.get("FUNASR_NANO_DIR"):
-            funasr_candidates.append(Path(os.environ["FUNASR_NANO_DIR"]))
-        for funasr_nano_dir in funasr_candidates:
-            if funasr_nano_dir.exists() and str(funasr_nano_dir) not in sys.path:
-                sys.path.insert(0, str(funasr_nano_dir))
-                break
-        try:
-            import funasr.models.fun_asr_nano.model  # noqa: F401
-        except ImportError:
-            pass
-
-        from funasr import AutoModel
-        
-        print(f"  loading Fun-ASR model: {model_dir}")
-        model = AutoModel(
-            model=model_dir,
-            trust_remote_code=False,
-            device=device,
-        )
-        
-        print(f"  transcribing with Fun-ASR...")
-        result = model.generate(
-            input=[str(audio_path)],
-            cache={},
-            batch_size=1,
-            language="中文",
-            itn=True,
-        )
-        
-        text = result[0]["text"] if result else ""
-        return {"text": text}
-        
-    except Exception as e:
-        print(f"  Fun-ASR failed: {e}")
-        print(f"  Falling back to Whisper only")
-        return {"text": ""}
-
-
-def merge_transcriptions(
-    whisper_result: dict,
-    funasr_result: dict,
-) -> dict:
-    whisper_words = whisper_result.get("words", [])
-    whisper_text = whisper_result.get("text", "")
-    funasr_text = funasr_result.get("text", "")
-    
-    if not funasr_text:
-        print("  using Whisper result only (Fun-ASR empty)")
-        return {
-            "text": whisper_text,
-            "words": whisper_words,
-            "language": whisper_result.get("language", ""),
-            "source": "whisper_only",
-        }
-
-    if "[SP]" in funasr_text or "<|" in funasr_text:
-        print("  using Whisper result only (Fun-ASR returned control tokens)")
-        return {
-            "text": whisper_text,
-            "words": whisper_words,
-            "language": whisper_result.get("language", ""),
-            "source": "whisper_only",
-            "funasr_text": funasr_text,
-        }
-    
-    if not whisper_words:
-        print("  warning: no word timestamps from Whisper")
-        return {
-            "text": funasr_text,
-            "words": [],
-            "language": whisper_result.get("language", ""),
-            "source": "funasr_only",
-        }
-    
-    print("  merging Whisper timestamps with Fun-ASR text...")
-    
-    merged_words = []
-    whisper_idx = 0
-    funasr_idx = 0
-    
-    while whisper_idx < len(whisper_words) and funasr_idx < len(funasr_text):
-        w_word = whisper_words[whisper_idx]["text"]
-        f_char = funasr_text[funasr_idx]
-        
-        if w_word and f_char and (
-            w_word[0].lower() == f_char.lower() or
-            (len(w_word) > 1 and w_word[0] == f_char)
-        ):
-            merged_words.append({
-                "type": "word",
-                "text": f_char,
-                "start": whisper_words[whisper_idx]["start"],
-                "end": whisper_words[whisper_idx]["end"],
-                "confidence": whisper_words[whisper_idx].get("confidence", 0.0),
-            })
-            funasr_idx += 1
-            if len(w_word) <= 1:
-                whisper_idx += 1
-            else:
-                whisper_words[whisper_idx]["text"] = w_word[1:]
-        else:
-            whisper_idx += 1
-
-    if len(merged_words) < max(10, len(whisper_words) * 0.5):
-        print("  using Whisper result only (Fun-ASR merge coverage too low)")
-        return {
-            "text": whisper_text,
-            "words": whisper_words,
-            "language": whisper_result.get("language", ""),
-            "source": "whisper_only",
-            "funasr_text": funasr_text,
-        }
-    
-    if funasr_idx < len(funasr_text):
-        last_end = merged_words[-1]["end"] if merged_words else 0.0
-        for i, char in enumerate(funasr_text[funasr_idx:]):
-            merged_words.append({
-                "type": "word",
-                "text": char,
-                "start": last_end + i * 0.1,
-                "end": last_end + (i + 1) * 0.1,
-                "confidence": 0.5,
-            })
-    
-    merged_text = "".join(w["text"] for w in merged_words)
-    
-    if len(funasr_text) > len(merged_text) * 1.2:
-        final_text = funasr_text
-    else:
-        final_text = merged_text
-    
-    return {
-        "text": final_text,
-        "words": merged_words,
-        "language": whisper_result.get("language", ""),
-        "source": "merged",
-        "whisper_text": whisper_text,
-        "funasr_text": funasr_text,
+        "language": result.get("language", ""),
+        "source": "whisper",
     }
 
 
 def transcribe_one(
     video: Path,
     edit_dir: Path,
-    whisper_model: str = "large-v3",
+    model: str = "large-v3",
+    engine: str = "faster-whisper",
     language: Optional[str] = None,
     device: str = "auto",
+    initial_prompt: Optional[str] = None,
     verbose: bool = True,
 ) -> Path:
     transcripts_dir = edit_dir / "transcripts"
@@ -276,30 +205,35 @@ def transcribe_one(
         size_mb = audio.stat().st_size / (1024 * 1024)
         if verbose:
             print(f"  processing {video.stem}.wav ({size_mb:.1f} MB)", flush=True)
-        
-        resolved_device = default_device() if device == "auto" else device
-        whisper_result = transcribe_with_whisper(audio, whisper_model, language)
-        funasr_result = transcribe_with_funasr(audio, device=resolved_device)
-        merged_result = merge_transcriptions(whisper_result, funasr_result)
-        
-        merged_result["source_video"] = str(video)
-        merged_result["whisper_model"] = whisper_model
-        merged_result["processing_time"] = time.time() - t0
 
-    out_path.write_text(json.dumps(merged_result, indent=2, ensure_ascii=False), encoding="utf-8")
+        resolved_device = default_device() if device == "auto" else device
+        if engine == "whisper":
+            result = transcribe_with_whisper(audio, model, language, initial_prompt)
+        else:
+            # faster-whisper on cuda:0 / cpu; large models on low VRAM fall
+            # back to CPU int8 automatically via compute_type choice
+            fw_device = "cuda" if resolved_device.startswith("cuda") else "cpu"
+            result = transcribe_with_faster_whisper(audio, model, language, fw_device, initial_prompt)
+
+        result["source_video"] = str(video)
+        result["asr_engine"] = engine
+        result["whisper_model"] = model
+        result["processing_time"] = time.time() - t0
+
+    out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
     dt = time.time() - t0
 
     if verbose:
         kb = out_path.stat().st_size / 1024
         print(f"  saved: {out_path.name} ({kb:.1f} KB) in {dt:.1f}s")
-        print(f"    words: {len(merged_result.get('words', []))}")
-        print(f"    source: {merged_result.get('source', 'unknown')}")
+        print(f"    words: {len(result.get('words', []))}")
+        print(f"    engine: {engine}")
 
     return out_path
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Transcribe a video with Whisper + Fun-ASR")
+    ap = argparse.ArgumentParser(description="Transcribe a video with faster-whisper / Whisper")
     ap.add_argument("video", type=Path, help="Path to video file")
     ap.add_argument(
         "--edit-dir",
@@ -308,22 +242,38 @@ def main() -> None:
         help="Edit output directory (default: <video_parent>/Rough)",
     )
     ap.add_argument(
+        "--engine",
+        type=str,
+        default=default_engine(),
+        choices=list(ENGINES),
+        help="ASR engine (default: faster-whisper; override with env ASR_ENGINE)",
+    )
+    ap.add_argument(
         "--language",
         type=str,
         default=None,
         help="Optional language code (e.g., 'zh', 'en'). Omit to auto-detect.",
     )
     ap.add_argument(
+        "--initial-prompt",
+        type=str,
+        default=None,
+        help="Optional domain vocabulary / style prompt fed to the ASR model "
+        "(e.g. product names, jargon) to bias recognition.",
+    )
+    ap.add_argument(
+        "--model",
         "--whisper-model",
+        dest="model",
         type=str,
         default="large-v3",
-        help="Whisper model name (default: large-v3)",
+        help="Model name (default: large-v3)",
     )
     ap.add_argument(
         "--device",
         type=str,
         default="auto",
-        help="Device for Fun-ASR (default: auto, uses cuda:0 when available)",
+        help="Device (default: auto, uses cuda when available)",
     )
     args = ap.parse_args()
 
@@ -336,9 +286,11 @@ def main() -> None:
     transcribe_one(
         video=video,
         edit_dir=edit_dir,
-        whisper_model=args.whisper_model,
+        model=args.model,
+        engine=args.engine,
         language=args.language,
         device=args.device,
+        initial_prompt=args.initial_prompt,
     )
 
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Video production workflow scripts"
 requires-python = ">=3.11,<3.14"
 dependencies = [
-    "funasr",
+    "faster-whisper",
     "google-genai",
     "imageio",
     "librosa",
@@ -22,6 +22,9 @@ dependencies = [
 
 [project.optional-dependencies]
 manim = ["manim"]
+# Fun-ASR 已不参与默认转录（默认 faster-whisper，备选 whisper）；
+# 仅需要 legacy funasr_srt.py 时安装：uv sync --extra funasr
+funasr = ["funasr"]
 
 [tool.uv]
 package = false

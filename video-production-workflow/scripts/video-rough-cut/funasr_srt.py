@@ -1,3 +1,12 @@
+"""LEGACY: Fun-ASR SRT generation.
+
+默认转录已切换为 faster-whisper（transcribe.py，--engine whisper 备选）。
+本脚本保留给仍需 Fun-ASR 输出的场景，需要先安装可选依赖：
+
+    uv sync --extra funasr
+    uv run python scripts/video-rough-cut/funasr_srt.py <video>
+"""
+
 from __future__ import annotations
 
 import argparse

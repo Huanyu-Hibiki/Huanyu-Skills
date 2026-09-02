@@ -42,6 +42,17 @@ create_draft
 - 不遇到错误就反复 `create_draft` 生成新草稿；
 - 每次保存写入 `Rough/jianying_draft_manifest.md`，记录 draft id、cache、输出根和媒体清单。
 
+## 成片导出模式（成片 → 可编辑剪映草稿）
+
+除「EDL → 草稿」正向流程外，还支持把 `video-polish` 交付的成片反导出为**可编辑剪映草稿**：用户可在剪映里改字幕内容/字号/颜色、逐镜头变速/重排、调整或替换 SFX/BGM。
+
+- 分层原则：镜头内动效烘焙进底片；镜头边界切段可变速重排；字幕/音频走原生轨道全开；
+- Remotion 来源先渲 plate 底片（`--props='{"plate":true,"bgm":false}'` 网关剥离字幕/SFX/BGM）；
+- 时间线三表（镜头/字幕/SFX）从 manifest 提取，浮点秒记账，禁止手抄约数帧号；
+- 复用本 skill 标准命令序列：`add_video` 同一 plate 按镜头区间切段 → `add_subtitle` → `add_audio`（贪心分道）→ `save_draft`。
+
+完整流程见 [references/video-jianying-draft/remotion-export.md](../../references/video-jianying-draft/remotion-export.md)（方法论改编自 video-shotcraft，Apache-2.0）。成片交付后默认询问用户一次是否需要剪映工程；剪映打开保存后草稿加密，单向转换，重导出即重装覆盖。
+
 ## 失败模式与恢复
 
 | 触发条件 | 一线修复 | 仍失败兜底 |

@@ -38,6 +38,16 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 - 如果删除会造成字幕和口播不同步，优先回到剪辑决策，而不是只改字幕；
 - 纠错和断行分两步，不要混成一次不可审计的重写。
 
+## 语义分页与标点（拆条/断行时遵守）
+
+拆条（`subtitle_split.py` / 剪映导入前）按语义断行，不按固定宽度机械切：
+
+- **按语义完整 thought 分页**：断点优先落在标点/语气停顿处；一个完整意思尽量在一页内，避免把主谓/数字与单位/品牌与型号撕开；
+- **禁止按固定字符数硬切**：固定宽度代码点切分必然在词中间断开；
+- **标点显示规则**：页内标点保留；页尾可省略的分离符（逗号/句号/分号/冒号/顿号）按风格省略，但**页尾问号/叹号必须保留**；成对结构符（引号/括号）后闭合符必须保留；数字/型号/单位中的点号永不删；
+- 改动分页后重查最长两行卡与字幕安全区；放大字号后必须重新断行，不是只改 size；
+- 中文显示宽度按汉字 1、ASCII 0.5 计（`subtitle_split.py` 的默认口径）。
+
 ## 失败模式与恢复
 
 | 触发条件 | 一线修复 | 仍失败兜底 |
@@ -64,7 +74,11 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 # 首次环境检查
 node "<合集根>/scripts/video-caption-correct/doctor.js"
 
-# 默认使用本地 Whisper + Fun-ASR，不需要 VOLCENGINE_API_KEY
+# 默认使用本地 faster-whisper（备选 whisper），不需要 VOLCENGINE_API_KEY
+# Windows 用 PowerShell 原生入口（无需 Git Bash）：
+powershell -ExecutionPolicy Bypass -File "<合集根>/scripts/video-caption-correct/run_transcribe.ps1" `
+  "<项目>/Raw/实拍.mp4" "<项目>/Rough/caption-work" --local
+# macOS / Linux：
 bash "<合集根>/scripts/video-caption-correct/run_transcribe.sh" \
   "<项目>/Raw/实拍.mp4" "<项目>/Rough/caption-work" --local
 

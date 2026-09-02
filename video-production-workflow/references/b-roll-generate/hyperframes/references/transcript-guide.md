@@ -110,7 +110,7 @@ var words = raw.filter(function (w) {
 
 ## External transcription
 
-本 Skill 默认使用本地 Whisper + Fun-ASR，不配置 OpenAI、Groq 或其他对话模型供应商的 API Key。若本地转录质量不足，由当前 Agent 根据可用工具和用户授权选择外部路线；外部路线的模型和凭证不写入本 Skill 的 `.env`。
+本 Skill 默认使用本地 faster-whisper（备选 openai-whisper），不配置 OpenAI、Groq 或其他对话模型供应商的 API Key。若本地转录质量不足，由当前 Agent 根据可用工具和用户授权选择外部路线；外部路线的模型和凭证不写入本 Skill 的 `.env`。
 
 ## If No Transcript Exists
 

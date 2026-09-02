@@ -1,14 +1,15 @@
 """Batch-transcribe every video in a directory with 4 parallel workers.
 
-Walks <videos_dir> for common video extensions, runs local Whisper + Fun-ASR
-on each, and writes transcripts to <videos_dir>/Rough/transcripts/<name>.json.
+Walks <videos_dir> for common video extensions, runs local faster-whisper
+(default) or Whisper on each, and writes transcripts to
+<videos_dir>/Rough/transcripts/<name>.json.
 
 Cached per-file: any source that already has a transcript is skipped.
 
 Usage:
     python scripts/video-rough-cut/transcribe_batch.py <videos_dir>
     python scripts/video-rough-cut/transcribe_batch.py <videos_dir> --workers 4
-    python scripts/video-rough-cut/transcribe_batch.py <videos_dir> --num-speakers 2
+    python scripts/video-rough-cut/transcribe_batch.py <videos_dir> --engine whisper
     python scripts/video-rough-cut/transcribe_batch.py <videos_dir> --edit-dir /custom/edit
 """
 
@@ -45,22 +46,29 @@ def main() -> None:
     )
     ap.add_argument("--workers", type=int, default=4, help="Parallel workers (default: 4)")
     ap.add_argument(
+        "--engine",
+        type=str,
+        default="faster-whisper",
+        choices=["faster-whisper", "whisper"],
+        help="ASR engine (default: faster-whisper)",
+    )
+    ap.add_argument(
+        "--model",
+        type=str,
+        default="large-v3",
+        help="Model name (default: large-v3)",
+    )
+    ap.add_argument(
         "--language",
         type=str,
         default=None,
         help="Optional ISO language code. Omit to auto-detect per file.",
     )
     ap.add_argument(
-        "--num-speakers",
-        type=int,
-        default=None,
-        help="Optional number of speakers. Improves diarization when known.",
-    )
-    ap.add_argument(
         "--device",
         type=str,
         default="auto",
-        help="Device for Fun-ASR (default: auto, uses cuda:0 when available)",
+        help="Device (default: auto, uses cuda:0 when available)",
     )
     args = ap.parse_args()
 
@@ -93,6 +101,8 @@ def main() -> None:
                 transcribe_one,
                 video=v,
                 edit_dir=edit_dir,
+                model=args.model,
+                engine=args.engine,
                 language=args.language,
                 device=args.device,
                 verbose=False,

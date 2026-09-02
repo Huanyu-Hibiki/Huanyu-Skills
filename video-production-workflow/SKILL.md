@@ -21,7 +21,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 ## 模型调用约定
 
-对话、分析、规划和校对统一使用当前 Agent 提供的模型，不在 Skill 中配置固定对话模型或供应商级对话密钥。Whisper/Fun-ASR 是本地转录工具；Gemini/Veo 的模型参数只服务于明确的专用图像或视频生成 API，不代表对话模型选择。
+对话、分析、规划和校对统一使用当前 Agent 提供的模型，不在 Skill 中配置固定对话模型或供应商级对话密钥。faster-whisper / Whisper 是本地转录工具（默认 faster-whisper，Windows 友好；备选 openai-whisper）；Gemini/Veo 的模型参数只服务于明确的专用图像或视频生成 API，不代表对话模型选择。
 
 ## 部署边界
 
@@ -64,7 +64,7 @@ OBS 不是固定的 A-roll 或 B-roll：人物边操作边讲解时是 A-roll；
   ↓
 用户拍摄 / OBS 录制 —— 素材进入 Raw\
   ↓
-03 /video-rough-cut —— Fun-ASR 或 Whisper + 文稿 + FFmpeg → 粗剪与词级转录
+  03 /video-rough-cut —— faster-whisper（备选 Whisper）+ 文稿 + FFmpeg → 粗剪与词级转录
   ↓
 04 /video-caption-correct —— 根据文稿校对初始字幕和口误
   ↓
@@ -98,6 +98,7 @@ Final\video_final.mp4
 | 分析哪里需要 B-roll、设计 B-roll | `/b-roll-finder` | 剪映精剪后的 SRT | B-roll 机会表、母片段设计、风格建议 |
 | 生成 B-roll、做 Remotion/HyperFrames/拼贴动画 | `/b-roll-generate` | 已确认的 B-roll 设计 | B-roll 视频、透明素材、静帧和提示词 |
 | 调整 B-roll 位置、合成音效、输出成片 | `/video-polish` | 精剪视频 + B-roll + SRT | `Polished\`、`Final\video_final.mp4`、QA 记录 |
+| 把成片导出为可编辑剪映工程（改字幕/变速/换音频） | `/video-jianying-draft`（成片导出模式） | 成片 + manifest + 字幕/SFX 钉帧表 | 可编辑剪映草稿（底片切段 + 原生字幕/音频轨） |
 | 迁移旧状态、升级 schema、修复项目结构 | `/video-migrate` | 旧版 state 或目录 | 备份、迁移报告、更新后的 state |
 | 记录任务教训、复盘协作、优化管线 Skill | `/video-skill-optimize` | 真实任务/对话证据或验证案例 | 本地证据、候选、Gate 结果、经确认的 Skill 更新 |
 
@@ -135,13 +136,15 @@ not_started -> in_progress -> awaiting_approval -> completed
 |---|---|
 | 文稿、分镜和交接文档 | `skills/video-plan/SKILL.md` + `templates/`（该阶段为模型生成型，`scripts/video-plan/` 仅存说明） |
 | 转录、粗剪、FFmpeg、精剪合成 | `scripts/video-rough-cut/` |
-| 字幕转录、口误识别和纠错 | `scripts/video-caption-correct/` |
-| 剪映原生 Draft | `scripts/video-jianying-draft/` |
+| 字幕转录、口误识别和纠错 | `scripts/video-caption-correct/`（Windows 原生入口 `run_transcribe.ps1`） |
+| 剪映原生 Draft 与成片导出 | `scripts/video-jianying-draft/`；成片→剪映草稿导出见 `references/video-jianying-draft/remotion-export.md` |
 | 下载、许可证、转码和归档 | `scripts/video-assets/` |
 | B-roll 机会分析和素材处理 | `scripts/b-roll-finder/` + `skills/b-roll-finder/SKILL.md` |
 | 半调纸拼贴 AI B-roll、HyperFrames 检查 | `scripts/b-roll-generate/` |
 | Remotion / HyperFrames 技术规则 | `references/b-roll-generate/remotion-best-practices/`、`references/b-roll-generate/hyperframes/` |
+| BGM 卡点装配 | `references/video-polish/music-beat-sync.md`（`video-polish` 装配时读取） |
 | 任务证据、候选 Skill 和验证闸门 | `scripts/video-skill-optimize/` + `skills/video-skill-optimize/SKILL.md` |
+| 外部参考项目与许可证 | `shared-references/external-references.md` |
 
 注：`video-fine-cut` 的执行主体是用户在剪映/Filmora 内的人工精剪，`scripts/video-fine-cut/` 仅存说明文档；其合成与 QA 脚本位于 `scripts/video-polish/`。
 
@@ -152,8 +155,10 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 ├── SKILL.md                        # 本文件：路由、原则、阶段顺序
 ├── README.md / CHANGELOG.md / DEPENDENCIES.md
 ├── pyproject.toml / uv.lock        # 唯一 Python 环境
+├── models/                         # 本地 AI 模型（download_models.py 管理，不入库）
 ├── scripts/                        # 全部可执行实现（按子 skill 分目录）
 │   ├── lib/
+│   ├── setup/                      # 一键安装 install.ps1/install.sh + download_models.py
 │   ├── b-roll-finder/
 │   ├── b-roll-generate/
 │   ├── video-assets/
@@ -177,9 +182,13 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 │   ├── video-folder-schema.md / state-management.md / handoff-contracts.md
 │   ├── a-roll-b-roll-routing.md / b-roll-style-catalog.md
 │   ├── b-roll-timing-and-qa.md / motion-engine-decision.md
+│   ├── motion-brief-standards.md   # 动效导演简报（输入分类/时长/五相位/覆盖模式/风格闸门）
+│   ├── external-references.md      # 外部参考项目登记与许可证边界
 │   ├── b-roll-taste-profile.md / approval-gates.md / skill-optimization.md
 ├── references/                     # 深度参考资料（按消费者分目录）
 │   ├── video-caption-correct/ ├── video-assets/ ├── video-plan/
+│   ├── video-jianying-draft/       # 含 remotion-export.md（成片→剪映草稿导出）
+│   ├── video-polish/               # 含 music-beat-sync.md（BGM 卡点装配）
 │   └── b-roll-generate/（hyperframes/ remotion-material/ remotion-best-practices/ …）
 ├── templates/                      # 交接文件模板（workflow/status/storyboard/broll 系列/motion-request-list 等）
 └── migrations/                     # schema 迁移登记
@@ -202,7 +211,7 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 | 触发条件 | 一线处理 | 仍失败兜底 |
 |---|---|---|
 | Python 环境损坏（`uv run` 报错 / `.venv` 缺失） | 按 [DEPENDENCIES.md](DEPENDENCIES.md) 重建环境 | 列出不可用阶段 + 指出可继续的人工步骤（如剪映内精剪不依赖脚本），**不换系统 Python 硬跑** |
-| 转录失败（Fun-ASR / Whisper 不可用或 CUDA 异常） | 切换备选转录器（Fun-ASR ↔ Whisper） | 降级为用户提供现成 SRT/字幕进入人工对齐，**不硬编时间轴** |
+| 转录失败（faster-whisper / Whisper 不可用或 CUDA 异常） | 切换备选转录引擎（faster-whisper ↔ Whisper，`--engine`） | 降级为用户提供现成 SRT/字幕进入人工对齐，**不硬编时间轴** |
 | 剪映 Draft 生成失败（vendor 模板损坏 / 剪映版本不兼容） | 按 `scripts/video-jianying-draft/` 说明检查模板与版本 | 输出 EDL/剪辑决策清单，由用户在剪映内手工建草稿 |
 | 素材下载失败（源失效 / 登录墙） | 按 B-roll 路由表换备选源 | 登记进 missing-materials 清单并在分镜处留占位说明，**不伪造素材** |
 

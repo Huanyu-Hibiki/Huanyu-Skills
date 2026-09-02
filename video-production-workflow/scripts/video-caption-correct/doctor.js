@@ -158,7 +158,7 @@ function checkEnv() {
     return r;
   }
   if (r.state === 'missing_file' || r.state === 'missing_key') {
-    console.log(`  ${WARN} 未配置 VOLCENGINE_API_KEY（本地 Whisper + Fun-ASR 不需要）`);
+    console.log(`  ${WARN} 未配置 VOLCENGINE_API_KEY（本地 faster-whisper/whisper 不需要）`);
     console.log(C.dim('   默认转录引擎为 local；只有显式选择 flash、v3-standard 或 auto 时才需要该 Key。'));
     return { ...r, state: 'optional_missing' };
   }

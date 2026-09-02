@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.7.1 - 2026-09-02
+
+- **吸收 video-shotcraft（Apache-2.0，署名改编）**：新增 `references/video-jianying-draft/remotion-export.md`——成片反导出为可编辑剪映草稿（分层原则/plate 底片/时间线三表/安装验收/单向转换与隐私警告），`video-jianying-draft` SKILL.md 增「成片导出模式」章节并在主 SKILL.md 路由表登记；新增 `references/video-polish/music-beat-sync.md`——BGM 节拍网格测定（最小二乘拟合/半双倍歧义/鼓 stem 分离）、kick/snare/hihat 三分类、网格四指标验收、拍号时间线、渲后回测 ≤3f 与输出音轨偏移分账、BGM/无 BGM 双版本交付。
+- **吸收 video-talkcraft（PolyForm-NC，仅原理自写，禁止复制内容——见 external-references.md）**：`b-roll-timing-and-qa.md` 增词锚机器校验（落点查表生成/误差 ≤0.1s/镜尾保护带 ≥0.5s/未到拍不显形/开镜不空台）与音效电平纪律（≤0.35、低口播 12dB、同帧一 cue）；`motion-brief-standards.md` 增排版预算（同屏主体组 ≤3、空象限、新元素只在语义拍边界进场、三段式铁律、人物角标 chip、真图硬规与标注坐标机器实测）；`video-polish` 增 P0/P1/P2 缺陷分级、全新上下文独立评审（≤3 轮）、返修时间码三段闭环、390px 手机宽可读性终检、loudnorm 响度归一交付。
+- **外部项目许可证登记**：新增 `shared-references/external-references.md`（shotcraft Apache-2.0 可改编 / talkcraft PolyForm-NC 仅原理 / Remotion 公司许可提示等），b-roll-generate 外部参考表登记 talkcraft 并标注许可证红线。
+- **字幕语义分页**：`video-caption-correct` 增语义分页与标点规则（按语义断行禁固定宽度硬切、页尾分离符省略但问叹号/成对结构符保留、放大字号必须重排）。
+- **转录与安装增强**：`transcribe.py` 增 `--initial-prompt`（领域词表偏置识别，两引擎都支持）；`install.ps1` 增 `-AutoInstall` 静默模式（无人值守/CI）；新增 `run_transcribe.ps1` Windows 原生转录入口（本地引擎免 Git Bash，云端引擎委托 bash）；ModelScope 镜像仓实测校验回填（Systran 官方仓存在，镜像列表修正）。
+
+## v0.7.0 - 2026-09-02
+
+- **转录引擎切换**（用户指定）：默认引擎改为 **faster-whisper large-v3**（Windows 友好：CPU int8 / CUDA 双支持，无显卡可跑），openai-whisper 保留为备选（`--engine whisper` 或 `ASR_ENGINE=whisper`）；Fun-ASR 移出默认转录路径与默认依赖（`uv sync --extra funasr` 可选安装，仅 legacy `funasr_srt.py` 使用）。`transcribe.py` 重写为单引擎词级转录（去除 Fun-ASR 合并逻辑），输出 JSON 格式向后兼容（words 结构不变），`transcribe_batch.py` 同步 `--engine/--model`。
+- **一键安装**（用户指定）：新增 `scripts/setup/install.ps1`（Windows）与 `install.sh`（macOS/Linux）——自动装 uv、建 `.venv`、`uv sync`、检查 FFmpeg/Node（winget/brew 提示安装）、支持国内 `-Mirror` 清华镜像、引导模型下载。
+- **模型一键下载**（用户指定）：新增 `scripts/setup/download_models.py`——默认只下载 faster-whisper large-v3 到 Skill 根 `models/`；`--source auto/modelscope/huggingface`（国内魔搭优先、国外 HF、HF 失联自动切 hf-mirror）；`--include whisper/funasr` 可选追加；断点续传 + `--list` 状态查看；`transcribe.py` 优先解析 `models/` 本地模型，自动下载也落入 `models/`（`VIDEO_MODELS_DIR` 可覆盖）。
+- **README 小白化重写**（用户指定）：安装章节按「装 Agent → 放 Skill → 一键安装 → 配密钥」四步重写，含 uv/FFmpeg/Node 手动安装指引、模型国内外双源说明、安装自检与 FAQ。
+- **动效导演简报标准**（吸收 motion-director / ai-video-director 两套模板 skill）：新增 `shared-references/motion-brief-standards.md`——输入四分类（目标帧重构/概念文案/流程数据/稿转场景）、时长默认假设、五相位交叠时间轴、自然语言→动作翻译表、趣味性策略、覆盖模式（A-only/B-only/AB-live 四布局）、引擎选择速查、导演简报输出结构、三帧静图+3s 短样片风格闸门、执行验收清单。
+- **分镜模板升级**：`storyboard.template.md` 主表增「覆盖模式」列；新增「动效导演简报」区（MOTION-XXX 编号）与「Remotion/HyperFrames 素材组织」区（composition 命名、props 参数化、透明通道、独立工作区结构）；`broll_candidates` 增 `coverage_mode/input_class/motion_brief_ref` 字段；`motion-request-list.template.md` 同步覆盖模式列。
+- 子 skill 联动：`video-plan` 增「动效条目导演简报（必做）」与规划规则；`b-roll-generate` Gate 1 增「三帧一样片」风格预览闸门与五相位时间轴检查、brief.md 必须承接分镜简报；`motion-engine-decision.md` 增速查交叉引用与双引擎互斥；README/DEPENDENCIES/SKILL/doctor.js/run_transcribe.sh 等全部文档同步 faster-whisper 语义；`.gitignore` 增 `models/`。
+
 ## v0.6.0 - 2026-08-29
 
 - video-jianying-draft 对标 video-shotcraft 实战库重写健壮性（darwin 四轮，paired judge 累计 4×3-0 keep，功能测试 40 项全过）：

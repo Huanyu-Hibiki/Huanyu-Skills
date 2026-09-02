@@ -4,7 +4,7 @@
 # 用法: ./run_transcribe.sh <video.mp4> [base_output_dir] [--local|--flash|--v3-standard|--auto]
 #
 # 引擎选项（默认 local）:
-#   --local       使用本地 Whisper + Fun-ASR，不需要 VOLCENGINE_API_KEY
+#   --local       使用本地 faster-whisper（备选 whisper），不需要 VOLCENGINE_API_KEY
 #   --auto        每次在 flash / 标准版 间交替，分摊两份各 20h 免费额度 ≈ 共 40h
 #                 （需在控制台同时开通极速版 auc_turbo 与标准版 auc 两个资源）
 #   --flash       只用极速版 auc_turbo（一次直出、最快；只开了一个资源时用这个）
@@ -110,7 +110,7 @@ echo "🚀 步骤2+3: 转录（引擎: $ENGINE）..."
 
 case "$ENGINE" in
   local)
-    echo "🖥️ 步骤2+3: 本地 Whisper + Fun-ASR 转录..."
+    echo "🖥️ 步骤2+3: 本地 faster-whisper 转录..."
     LOCAL_EDIT_DIR="$TRANSCRIBE_DIR/local"
     "$PYTHON_BIN" "$WORKFLOW_DIR/scripts/video-rough-cut/transcribe.py" \
       "$VIDEO_PATH" --edit-dir "$LOCAL_EDIT_DIR"

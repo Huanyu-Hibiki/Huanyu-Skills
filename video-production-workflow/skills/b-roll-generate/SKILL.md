@@ -45,6 +45,7 @@ B-roll request 是一个独立的可复用素材单元，不把多个条目偷�
 
 | 资料 | 用途 |
 |---|---|
+| `../../shared-references/motion-brief-standards.md` | 动效导演简报标准：输入分类、时长假设、五相位时间轴、自然语言翻译、覆盖模式、三帧一样片风格闸门、执行验收清单 |
 | `../../references/b-roll-generate/remotion-material/motion-request-template.md` | Motion request 的字段契约 |
 | `../../references/b-roll-generate/remotion-material/implementation-plan-template.md` | Remotion 写代码前的实现计划契约 |
 | `../../references/b-roll-generate/remotion-material/export-formats.md` | MP4、透明 WebM、PNG sequence、ProRes 4444 导出命令 |
@@ -60,6 +61,7 @@ B-roll request 是一个独立的可复用素材单元，不把多个条目偷�
 | `<外部参考项目根>\video-shotcraft\references\pipeline.md` | Remotion 单镜头实现、静帧验收和确定性渲染原则（可选） |
 | `<外部参考项目根>\video-shotcraft\references\aesthetic-rules.md` | 质感、可读性、节奏、音频和技术 QA 判例（可选） |
 | `<外部参考项目根>\video-shotcraft\references\final-review.md` | 最终独立审查的输入和报告格式（可选） |
+| `<外部参考项目根>\video-talkcraft\` | 口播视频方法论参考（可选）：SHOTBOOK 层矩阵、词锚机器可验、排版预算、三重验收。⚠️ **PolyForm-NC 许可证：只允许分析原理，禁止复制其代码/文本/模板进本合集**；登记见 [shared-references/external-references.md](../../shared-references/external-references.md) |
 
 当前合集根目录 = 包含 `scripts/b-roll-generate/` 的目录，即本 SKILL.md 向上两级（`skills/b-roll-generate/` → 合集根）。部署位置因机器而异，**用目录结构特征定位，不硬编码绝对路径**：
 
@@ -193,6 +195,7 @@ AI 路线的**受控**生成有两种模式（纯文生视频不在此列——�
 
 - Motion Request ID 和关联 B-roll ID；
 - 精剪时间区间、建议进入词和放置方式；
+- **覆盖模式**（A-only / B-only / AB-live + 具体布局），与分镜表声明一致；
 - `Material Workspace`、`Remotion Project Path`、`Render Output Path`；
 - composition name；
 - purpose、format、resolution、FPS、duration、background/alpha；
@@ -200,6 +203,8 @@ AI 路线的**受控**生成有两种模式（纯文生视频不在此列——�
 - props、数据来源、素材依赖、许可证 manifest；
 - 已读的准确模板/scene 文件、参考实现和任何适配改动；
 - 两个以上验收帧、风险和回退路线。
+
+`brief.md` 必须先落导演简报（按 [motion-brief-standards.md](../../shared-references/motion-brief-standards.md) 第 8 节结构），承接分镜阶段（`remotion_candidate_list.md`）的简报并按精剪真实时间码修订；分镜缺简报时先补简报再进计划。
 
 必须先生成 `implementation_plan.md`。默认等待用户确认后才写 Remotion 代码；用户明确说
 “直接实现/直接生成”时，仍要把计划先写入工作区并记录“direct implementation approved”。
@@ -320,6 +325,14 @@ AI 路线的**受控**生成有两种模式（纯文生视频不在此列——�
 ## Gate 1：实现计划确认
 
 🔴 **CHECKPOINT：Remotion 路线的 `implementation_plan.md` 写好后必须等用户确认（或用户明说「直接实现」并记录 `direct implementation approved`），才允许进入 Gate 2 写生产代码。付费模型调用前同理——没有明确批准记录就停在计划阶段。**
+
+**风格预览闸门（三帧一样片）**：同风格的一批 request 第一次实现时，先做 3 张关键帧静图（入场/动作峰值/终态）+ 1 条 3s 短样片给用户确认风格（见 [motion-brief-standards.md](../../shared-references/motion-brief-standards.md) 第 9 节）；确认前不批量实现其余条目。静图与样片存入首条工作区 `qa/`，作为本批对照基准。用户只对风格点头，不重启已确认的导演简报。
+
+时间轴检查（写进计划，别留到渲染后）：
+
+- 短动效按五相位（Establish 0-12% / 主动作 8-38% / 主内容 28-68% / 次级细节 55-82% / Hold 78-100%）交叠规划，不顺序排满；
+- 主动作弧给足约 3s；信息卡/结论落定后 hold ≥1s；每个主动作 settle/hold ≥0.5s；
+- 用户的"有冲击力""高级""科技感""有梗"按简报标准的自然语言翻译表落成动作因果，不堆装饰。
 
 ## Gate 2：Remotion 实现
 
@@ -459,6 +472,8 @@ uv run --project "<合集根>" python "<合集根>/scripts/b-roll-generate/gener
 
 从 Remotion project 根目录执行，输出写入同一 request 的 `../out/`：
 
+**交付渲染一律 `--concurrency=1`**：多 tab 并发渲染的光栅化亚像素相位不一致，会让静态文字区以"并发数"为周期周期性抖动（并发 4 实测帧差呈 1.4→3.1→4.0→0.9 循环），`remotion still` 单进程量不出来，只能量成片 mp4；预览/中间验证可加 `--concurrency=4` 提速。
+
 ```bash
 # Studio
 npm run dev
@@ -510,6 +525,7 @@ B-roll 默认静音。用 `ffprobe` 检查没有音频流；如果用户明确�
 - 音频来源、许可证、起止时间和音量写入 manifest；
 - 不重复 A-roll 台词，不让源音覆盖主口播；
 - 音效按真实动作选择，不使用没有叙事理由的游戏式 bleep/notification；
+- 电平纪律：单条音效成片电平 ≤0.35、整体比口播低约 12dB、同一时刻最多一条 cue（细则见 `shared-references/b-roll-timing-and-qa.md` 音频规则）；
 - 时长超过 5s 的音频显式截断，不能拖过动作结束；
 - 画面时间线改变后，所有音频钉帧重新对齐。
 
