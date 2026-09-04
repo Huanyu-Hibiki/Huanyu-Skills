@@ -39,35 +39,150 @@ skill-master 是一个 **skill 合集路由器**（总协议 + 路由表）：�
 
 子 skill 之间有明确转介规则（如 manager 只读、发现健康问题只给建议不代改；安全扫描发现质量问题转介 optimizer），不越界代办。
 
-## 📦 安装
+## 📦 安装（写给完全没接触过 AI 工具的你）
+
+整个安装分 3 步：**① 装好 AI 编程助手 → ② 放好本 Skill 文件夹 → ③ 安装脚本增强能力（可选）**。跟着做就行，每步都有说明。
+
+### 第 0 步：先弄清楚两个概念
+
+| 名词 | 是什么 | 例子 |
+|---|---|---|
+| **AI Agent（编程助手）** | 能帮你操作电脑、读写文件的 AI 助手软件，本 Skill 的"大脑" | Claude Code、OpenCode、Codex CLI、Cursor |
+| **Skill（技能）** | 教会 Agent 做某类工作的说明书文件夹，放到指定位置 Agent 就会自动使用 | 本项目 `skill-master` |
+
+> 你至少需要安装并登录其中一个 Agent，才能使用本 Skill。Agent 一般按模型用量向官方付费，与本 Skill 无关（本 Skill 免费、开源）。
+
+### 第 1 步：把本 Skill 放到 Agent 能读到的位置
+
+**方式一：从 GitHub 获取（需要安装 [Git](https://git-scm.com/downloads)）**
 
 ```bash
-# 方式一：从 GitHub 获取
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cp -r Huanyu-Skills/skill-master <你的 skills 目录>/skill-master
-
-# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
-cp -r skill-master <你的 skills 目录>/skill-master
 ```
 
-| Runtime | skills 目录 |
+**方式二：直接下载文件夹（购买/获赠/网盘）**，跳过 Git。
+
+然后把它复制到你 Agent 的 skills 目录（任选其一位即可）：
+
+| Agent | skills 目录（`<用户名>` 换成你的） |
 |---|---|
-| Claude Code | `~/.claude/skills/` |
-| OpenCode | `~/.opencode/skills/` |
-| Codex / Cursor / 其他 | 各自的 skills 目录 |
+| Claude Code | `C:\Users\<用户名>\.claude\skills\`（macOS/Linux：`~/.claude/skills/`） |
+| OpenCode | 项目或全局 `.opencode/skills/` |
+| Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
 
-**可选**：盘点、编写、优化等核心能力开箱即用；安全扫描与分析的脚本增强能力需要 Python 3.11+，在合集目录执行 `uv sync`（或 Windows 双击 `install.ps1`）安装依赖。
+复制后最终路径应类似：
 
-## 🚀 快速开始
-
-对 Agent 说一句话即可：
-
+```text
+C:\Users\<用户名>\.claude\skills\skill-master\
+├── SKILL.md          ← Agent 读的入口说明书
+├── scripts\          ← 安全扫描 / 盘点 / 报告脚本
+├── skills\           ← 5 个子 skill 的 SKILL.md
+└── ...
 ```
+
+**或者用一键安装脚本（自动创建链接，更新无需重复安装）：**
+
+```powershell
+cd C:\Users\<用户名>\.claude\skills\Huanyu-Skills\skill-master
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+| 参数 | 作用 |
+|---|---|
+| `-Target <路径>` | 指定其他 Agent 的 skills 目录 |
+| `-Name <名称>` | 安装后的目录名（默认 `skill-master`） |
+| `-Remove` | 移除已安装的链接 |
+| `-WhatIf` | 预览模式，不实际执行 |
+
+### 第 2 步：安装脚本增强能力（可选）
+
+盘点、编写、优化等核心能力**开箱即用**，不需要任何额外安装。
+
+安全扫描与分析的**脚本增强能力**需要 Python 3.12+。打开终端（Windows 用 **PowerShell**：开始菜单搜 "PowerShell" 回车），进入 Skill 目录：
+
+```powershell
+# Windows 示例（路径换成你的实际位置）
+cd C:\Users\<用户名>\.claude\skills\skill-master
+```
+
+运行一键安装：
+
+**Windows（PowerShell）：**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup\install.ps1
+```
+
+国内网络推荐加 `-Mirror`（清华镜像加速）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup\install.ps1 -Mirror
+```
+
+**macOS / Linux（终端）：**
+
+```bash
+bash scripts/setup/install.sh        # 国内网络加 -mirror
+```
+
+脚本会自动完成：
+
+1. 检查/安装 **uv**（Python 包管理器，自动管理 Python 3.12，无需你装 Python）；
+2. 创建独立虚拟环境 `.venv` 并安装依赖（首次约 1-2 分钟）；
+3. 运行健康检查，确认安装成功。
+
+#### 手动安装（不想用脚本的话）
+
+```powershell
+# 1. 安装 uv：Windows 在 PowerShell 执行
+powershell -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 | iex"
+#    macOS/Linux: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. 创建环境并装依赖（在 Skill 根目录）
+uv venv .venv --python 3.12
+uv sync
+```
+
+### 安装自检
+
+```powershell
+uv run python -c "import json; print('Python OK')"
+uv run python scripts\scanner.py --help
+uv run python scripts\inventory.py --help
+```
+
+三条都有正常输出 = 安装成功。
+
+### 常见问题（FAQ）
+
+| 问题 | 解决 |
+|---|---|
+| `uv` 提示找不到命令 | 安装后**关闭并重开 PowerShell/终端**再试 |
+| 依赖下载超时 | 用国内镜像重跑：`install.ps1 -Mirror`（macOS：`install.sh -mirror`） |
+| 没有 Python 3.12 | 不需要手动装：uv 会自动管理 Python 版本 |
+| 脚本报权限错误 | Windows 用 `powershell -ExecutionPolicy Bypass` 前缀运行 |
+| Agent 没识别到 skill | 确认路径下有 `SKILL.md` 文件，重启 Agent 会话 |
+
+---
+
+## 🚀 第一次使用
+
+在你的 Agent 里直接说：
+
+```text
 盘点我装了哪些 skill
-检查这个 skill 安全吗：<路径>
-分析这个开源 skill：<路径>
-帮我写一个 <主题> 的 skill
-优化这个 skill：<路径>
+```
+
+Agent 会自动调用 `sm-manager`，扫描你所有 Agent 的 skills 目录，输出清单 + 健康报告。
+
+## 💬 日常用法
+
+```text
+盘点我装了哪些 skill                        → sm-manager（清单 + 健康看板）
+检查这个 skill 安全吗：<路径>                → sm-security（安全扫描）
+分析这个开源 skill：<路径>                    → sm-analyzer（结构分析）
+帮我写一个 <主题> 的 skill                   → sm-writer（访谈 + 落盘）
+优化这个 skill：<路径>                       → sm-optimizer（四维诊断）
 ```
 
 ## ✅ 适合 / ❌ 不适合
@@ -78,7 +193,7 @@ cp -r skill-master <你的 skills 目录>/skill-master
 
 ## 📄 License
 
-MIT
+MIT。商用、改造、闭源接入都行。
 
 ---
 
@@ -102,4 +217,3 @@ MIT
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
 </div>
-

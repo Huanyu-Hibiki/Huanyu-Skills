@@ -39,41 +39,84 @@
 - **战略文档分级保护**：战略备忘录 / 人设宪章严格不可改；商业画布 / 内容漏斗季度可调但须附数据依据，变更留痕（`strategy-immutability.md`）。
 - **内置国内 GEO 指南**：面向 AI 搜索（Kimi / 豆包 / DeepSeek / 元宝 / 秘塔等）的优化动作与月度自检，让内容在 AI 时代也能被检索到。
 
-## 📦 安装
+## 📦 安装（写给完全没接触过 AI 工具的你）
 
-任一 skills-compatible 运行时（Claude Code / OpenCode / Codex / Cursor 等）均可：
+整个安装分 2 步：**① 装好 AI 编程助手 → ② 放好本 Skill 文件夹**。跟着做就行，每步都有说明。
+
+### 第 0 步：先弄清楚两个概念
+
+| 名词 | 是什么 | 例子 |
+|---|---|---|
+| **AI Agent（编程助手）** | 能帮你操作电脑、读写文件的 AI 助手软件，本 Skill 的"大脑" | Claude Code、OpenCode、Codex CLI、Cursor |
+| **Skill（技能）** | 教会 Agent 做某类工作的说明书文件夹，放到指定位置 Agent 就会自动使用 | 本项目 `founder-ip` |
+
+> 你至少需要安装并登录其中一个 Agent，才能使用本 Skill。Agent 一般按模型用量向官方付费，与本 Skill 无关（本 Skill 免费、开源）。
+
+### 第 1 步：把本 Skill 放到 Agent 能读到的位置
+
+**方式一：从 GitHub 获取（需要安装 [Git](https://git-scm.com/downloads)）**
 
 ```bash
-# 方式一：从 GitHub 获取
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cp -r Huanyu-Skills/founder-ip <你的 skills 目录>/founder-ip
-
-# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
-cp -r founder-ip <你的 skills 目录>/founder-ip
 ```
 
-| Runtime | skills 目录 |
+**方式二：直接下载文件夹（购买/获赠/网盘）**，跳过 Git。
+
+然后把它复制到你 Agent 的 skills 目录（任选其一位即可）：
+
+| Agent | skills 目录（`<用户名>` 换成你的） |
 |---|---|
-| Claude Code | `~/.claude/skills/` |
-| OpenCode | `~/.opencode/skills/` |
-| Codex | `~/.codex/skills/` |
-| 通用（多 agent 共享） | `~/.agents/skills/` |
+| Claude Code | `C:\Users\<用户名>\.claude\skills\`（macOS/Linux：`~/.claude/skills/`） |
+| OpenCode | 项目或全局 `.opencode/skills/` |
+| Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
 
-装好后初始化你的访谈档案（每个使用者一份，含个人数据）：
+复制后最终路径应类似：
 
-```bash
-cd <你的 skills 目录>/founder-ip/shared-references/
-cp interview-profile.example.md interview-profile.md
-# 编辑 interview-profile.md 填入你的情况；或直接跑 /ip-strategy，系统会引导你完成访谈
+```text
+C:\Users\<用户名>\.claude\skills\founder-ip\
+├── SKILL.md              ← Agent 读的入口说明书
+├── shared-references\    ← 方法论精华（开箱即用）
+├── skills\               ← 5 个子 skill
+│   ├── ip-strategy\
+│   ├── ip-persona\
+│   ├── ip-content-funnel\
+│   ├── ip-business-model\
+│   └── ip-opc-system\
+└── ...
 ```
+
+> 本 Skill **不需要安装任何额外依赖**——它是纯 LLM 工作流，放好文件夹就能用。
+
+### 第 2 步：初始化你的访谈档案（可选但推荐）
+
+```powershell
+# 进入 shared-references 目录
+cd C:\Users\<用户名>\.claude\skills\founder-ip\shared-references\
+
+# 复制模板
+Copy-Item interview-profile.example.md interview-profile.md
+```
+
+然后编辑 `interview-profile.md` 填入你的情况；或者直接跳过这步，跑 `/ip-strategy` 时系统会引导你完成访谈。
 
 > `shared-references/` 已自包含核心方法论精华，开箱即用；如拥有徐沪生原书 / dontbesilent 原库等第三方版权内容，可另行配置用于原文回查，不配置不影响运行。
 
-## 🚀 快速开始
+### 常见问题（FAQ）
+
+| 问题 | 解决 |
+|---|---|
+| Agent 没识别到 skill | 确认路径下有 `SKILL.md` 文件，重启 Agent 会话 |
+| 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
+| 不确定自己的 IP 类型 | 先跑 `/ip-strategy`，系统会帮你诊断 |
+| 想和 oracle-bone 配合用 | founder-ip 产出战略文档，oracle-bone 负责执行层，天然互补 |
+
+---
+
+## 🚀 第一次使用
 
 跑完 5 步，创始人 IP 的战略层就立起来了：
 
-```
+```text
 1. /ip-strategy       → 锁定战略 + 立项决心（最重要，所有后续的根基）
 2. /ip-persona        → 基于战略定人设
 3. /ip-business-model → 基于战略 + 人设定变现路径
@@ -82,6 +125,18 @@ cp interview-profile.example.md interview-profile.md
 ```
 
 **定期复盘**：每月 `/ip-opc-system --optimize`；每季度战略 / 商业模式 / 内容漏斗 `--review`；每半年人设 `--review`。
+
+## 💬 日常用法
+
+```text
+/ip-strategy                               → 锁定战略 + 立项决心
+/ip-persona                                → 定人设 + 起源故事
+/ip-business-model                         → 搭商业模式 + 变现路径
+/ip-content-funnel                         → 设计内容漏斗 + GEO 覆盖
+/ip-opc-system                             → 整合每周执行循环
+/ip-opc-system --optimize                  → 瓶颈优化
+/ip-strategy --review                      → 季度战略复盘
+```
 
 ## ✅ 适合 / ❌ 不适合
 
@@ -115,4 +170,3 @@ AGPL-3.0
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
 </div>
-

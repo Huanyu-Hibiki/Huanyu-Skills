@@ -52,34 +52,86 @@
 | 5 | `sy-practice` 实践转化 | "实践转化" / "萃取技能" / "怎么用这本书" |
 | 6 | `sy-evolve` 自进化 | "迭代技能" / "技能不好用" / "优化阅读技能" |
 
-## 📦 安装
+## 📦 安装（写给完全没接触过 AI 工具的你）
+
+整个安装分 2 步：**① 装好 AI 编程助手 → ② 放好本 Skill 文件夹**。跟着做就行，每步都有说明。
+
+### 第 0 步：先弄清楚两个概念
+
+| 名词 | 是什么 | 例子 |
+|---|---|---|
+| **AI Agent（编程助手）** | 能帮你操作电脑、读写文件的 AI 助手软件，本 Skill 的"大脑" | Claude Code、OpenCode、Codex CLI、Cursor |
+| **Skill（技能）** | 教会 Agent 做某类工作的说明书文件夹，放到指定位置 Agent 就会自动使用 | 本项目 `shendu-yuedu` |
+
+> 你至少需要安装并登录其中一个 Agent，才能使用本 Skill。Agent 一般按模型用量向官方付费，与本 Skill 无关（本 Skill 免费、开源）。
+
+### 第 1 步：把本 Skill 放到 Agent 能读到的位置
+
+**方式一：从 GitHub 获取（需要安装 [Git](https://git-scm.com/downloads)）**
 
 ```bash
-# 方式一：从 GitHub 获取
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cp -r Huanyu-Skills/shendu-yuedu <你的 skills 目录>/shendu-yuedu
-
-# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
-cp -r shendu-yuedu <你的 skills 目录>/shendu-yuedu
 ```
 
-| Runtime | skills 目录 |
+**方式二：直接下载文件夹（购买/获赠/网盘）**，跳过 Git。
+
+然后把它复制到你 Agent 的 skills 目录（任选其一位即可）：
+
+| Agent | skills 目录（`<用户名>` 换成你的） |
 |---|---|
-| Claude Code | `~/.claude/skills/` |
-| OpenCode | `~/.opencode/skills/` |
-| Codex / Cursor / 其他 | 各自的 skills 目录 |
+| Claude Code | `C:\Users\<用户名>\.claude\skills\`（macOS/Linux：`~/.claude/skills/`） |
+| OpenCode | 项目或全局 `.opencode/skills/` |
+| Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
 
-## 🚀 快速开始
+复制后最终路径应类似：
 
-对 Agent 说：
-
+```text
+C:\Users\<用户名>\.claude\skills\shendu-yuedu\
+├── SKILL.md          ← Agent 读的入口说明书
+├── 01-init\          ← 子 skill：初始化
+├── 02-decompose\     ← 子 skill：拆解书籍
+├── 03-preread\       ← 子 skill：预读
+├── 04-deepread\      ← 子 skill：结构化精读
+├── 05-practice\      ← 子 skill：实践转化
+├── 06-evolve\        ← 子 skill：自进化
+└── ...
 ```
+
+> 本 Skill **不需要安装任何额外依赖**——它是纯 LLM 工作流，放好文件夹就能用。
+
+### 常见问题（FAQ）
+
+| 问题 | 解决 |
+|---|---|
+| Agent 没识别到 skill | 确认路径下有 `SKILL.md` 文件，重启 Agent 会话 |
+| 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
+| 想放在项目目录而非全局 | 可以，只要 Agent 能索引到该目录即可 |
+| Obsidian 用户 | 产出文件自带 YAML frontmatter，天然兼容 Obsidian 双链 |
+
+---
+
+## 🚀 第一次使用
+
+在你的 Agent 里直接说：
+
+```text
 阅读初始化
 ```
 
 #1 会采访式引导：确定知识库位置 → 建目录骨架 → 登记在读书目。之后每读一本书：拆解 → 预读出问题清单 → 精读中整理知识卡片 → 读完萃取成可执行技能。所有输出都在你的知识库里，永远可检索。
 
 **人 × AI 分工**：人负责真实阅读、记录想法、把技能用到真实场景、反馈好不好用；AI 负责拆解结构、设计问题、整理卡片、萃取与迭代技能。
+
+## 💬 日常用法
+
+```text
+阅读初始化                                    → sy-init（建阅读档案）
+拆解这本书                                    → sy-decompose（P0/P1/P2/P3 优先级）
+预读                                          → sy-preread（问题清单 + 锚点）
+整理笔记 / 知识卡片                           → sy-deepread（L1-L4 渐进摘要）
+实践转化 / 萃取技能                           → sy-practice（可执行 skill 输出）
+迭代技能 / 技能不好用                         → sy-evolve（按使用反馈迭代）
+```
 
 ## ✅ 适合 / ❌ 不适合
 
@@ -119,4 +171,3 @@ MIT
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
 </div>
-

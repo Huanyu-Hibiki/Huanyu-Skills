@@ -64,24 +64,72 @@ Layer 4: 质检进化  → pulse-humanize / evolve / review
 
 登记了「定位协议」（品牌手册 / IP 对齐 / 内容红线）→ 所有 skill 先读并优先服从；没登记 → 按档案自身定位执行。
 
-## 📦 安装
+## 📦 安装（写给完全没接触过 AI 工具的你）
+
+整个安装分 2 步：**① 装好 AI 编程助手 → ② 放好本 Skill 文件夹**。跟着做就行，每步都有说明。
+
+### 第 0 步：先弄清楚两个概念
+
+| 名词 | 是什么 | 例子 |
+|---|---|---|
+| **AI Agent（编程助手）** | 能帮你操作电脑、读写文件的 AI 助手软件，本 Skill 的"大脑" | Claude Code、OpenCode、Codex CLI、Cursor |
+| **Skill（技能）** | 教会 Agent 做某类工作的说明书文件夹，放到指定位置 Agent 就会自动使用 | 本项目 `pulsehub` |
+
+> 你至少需要安装并登录其中一个 Agent，才能使用本 Skill。Agent 一般按模型用量向官方付费，与本 Skill 无关（本 Skill 免费、开源）。
+
+### 第 1 步：把本 Skill 放到 Agent 能读到的位置
+
+**方式一：从 GitHub 获取（需要安装 [Git](https://git-scm.com/downloads)）**
 
 ```bash
-# 方式一：从 GitHub 获取
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cp -r Huanyu-Skills/pulsehub ~/.claude/skills/pulsehub   # 或你的 skills 目录
-
-# 方式二：已拿到 skill 文件夹（购买 / 下载），直接复制进去
-cp -r pulsehub <你的 skills 目录>/pulsehub
 ```
 
-**兼容性**：任何能读 `SKILL.md` 的 Agent 都能用——OpenCode（读 `AGENTS.md`，最佳适配）、Claude Code、Cursor（`@workspace` 索引）、OpenClaw 及自定义 Agent。单个 skill 被单独复制出去时，共享脚本不可达属预期，各 `SKILL.md` 已内置人工/浏览器替代路径。
+**方式二：直接下载文件夹（购买/获赠/网盘）**，跳过 Git。
 
-## 🚀 快速开始
+然后把它复制到你 Agent 的 skills 目录（任选其一位即可）：
+
+| Agent | skills 目录（`<用户名>` 换成你的） |
+|---|---|
+| Claude Code | `C:\Users\<用户名>\.claude\skills\`（macOS/Linux：`~/.claude/skills/`） |
+| OpenCode | 项目或全局 `.opencode/skills/` |
+| Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
+
+复制后最终路径应类似：
+
+```text
+C:\Users\<用户名>\.claude\skills\pulsehub\
+├── SKILL.md / AGENTS.md  ← Agent 读的入口说明书
+├── pulse-router\         ← 入口：路由分发
+├── pulse-init\           ← 业务：初始化项目
+├── pulse-copywrite\      ← 业务：文案生成
+├── pulse-leads\          ← 业务：评论线索
+├── _shared\              ← 共享资源（脚本、信号、类型）
+└── ...
+```
+
+> 本 Skill **不需要安装任何额外依赖**——它是纯 LLM 工作流，放好文件夹就能用。
+
+### 兼容性说明
+
+任何能读 `SKILL.md` 的 Agent 都能用——OpenCode（读 `AGENTS.md`，最佳适配）、Claude Code、Cursor（`@workspace` 索引）、OpenClaw 及自定义 Agent。单个 skill 被单独复制出去时，共享脚本不可达属预期，各 `SKILL.md` 已内置人工/浏览器替代路径。
+
+### 常见问题（FAQ）
+
+| 问题 | 解决 |
+|---|---|
+| Agent 没识别到 skill | 确认路径下有 `SKILL.md` 或 `AGENTS.md` 文件，重启 Agent 会话 |
+| 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
+| pulse-init 没创建项目大脑 | 确认 Agent 有写权限，项目大脑目录在 `~/.pulsehub/archive/` |
+| 单个 skill 被复制出去了 | 共享脚本不可达是预期行为，各 SKILL.md 已内置替代路径 |
+
+---
+
+## 🚀 第一次使用
 
 首次运行推荐顺序：
 
-```
+```text
 1. pulse-router     → 我准备好了吗？
 2. pulse-init       → 建立项目大脑（采集主平台 / 定位协议）
 3. pulse-insight    → 搞懂你的用户
@@ -93,6 +141,20 @@ cp -r pulsehub <你的 skills 目录>/pulsehub
 ```
 
 对 Agent 直接说需求即可（"我想找客户" / "帮我写条文案" / "抓一下评论线索"），路由层自动分发。
+
+## 💬 日常用法
+
+```text
+我准备好了吗？                               → pulse-router（诊断方向）
+初始化项目                                   → pulse-init（建立项目大脑）
+搞懂用户                                     → pulse-insight（痛点提炼）
+找选题                                       → pulse-topics（爆款选题）
+写文案                                       → pulse-copywrite（个人风格对齐）
+写脚本                                       → pulse-script（口播稿 + 分镜）
+抓评论线索                                   → pulse-leads（线索机会）
+去 AI 味                                     → pulse-humanize（24 模式质检）
+迭代 skill                                   → pulse-evolve（数据反哺）
+```
 
 ## ✅ 适合 / ❌ 不适合
 
@@ -126,4 +188,3 @@ MIT。商用、改造、闭源接入都行。
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
 </div>
-

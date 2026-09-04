@@ -60,18 +60,59 @@
 - 🛡️ **升级有刹车**：换公式必须用新公式重判所有历史样本，能比旧公式更准才放行；还要跨模型独立审一次——**防你自己骗自己**。
 - 🪒 **rubric 是工作台不是博物馆**：被推翻的观察删，被吸收的也删，永远只放当下最有用的。
 
-## 📦 安装
+## 📦 安装（写给完全没接触过 AI 工具的你）
+
+整个安装分 3 步：**① 装好 AI 编程助手 → ② 放好本 Skill 文件夹 → ③ 运行安装脚本**。跟着做就行，每步都有说明。
+
+### 第 0 步：先弄清楚两个概念
+
+| 名词 | 是什么 | 例子 |
+|---|---|---|
+| **AI Agent（编程助手）** | 能帮你操作电脑、读写文件的 AI 助手软件，本 Skill 的"大脑" | Claude Code、OpenCode、Codex CLI、Cursor |
+| **Skill（技能）** | 教会 Agent 做某类工作的说明书文件夹，放到指定位置 Agent 就会自动使用 | 本项目 `oracle-bone` |
+
+> 你至少需要安装并登录其中一个 Agent，才能使用本 Skill。Agent 一般按模型用量向官方付费，与本 Skill 无关（本 Skill 免费、开源）。
+
+### 第 1 步：把本 Skill 放到 Agent 能读到的位置
+
+**方式一：从 GitHub 获取（需要安装 [Git](https://git-scm.com/downloads)）**
 
 ```bash
-# 方式一：从 GitHub 获取
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cd Huanyu-Skills/oracle-bone
+```
 
-# 方式二：已拿到 skill 文件夹（购买 / 下载），直接进入该目录
+**方式二：直接下载文件夹（购买/获赠/网盘）**，跳过 Git。
 
+然后把它复制到你 Agent 的 skills 目录（任选其一位即可）：
+
+| Agent | skills 目录（`<用户名>` 换成你的） |
+|---|---|
+| Claude Code | `C:\Users\<用户名>\.claude\skills\`（macOS/Linux：`~/.claude/skills/`） |
+| OpenCode | 项目或全局 `.opencode/skills/` |
+| Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
+
+### 第 2 步：运行安装脚本（一键链接 26 个子 skill）
+
+**macOS / Linux（终端）：**
+
+```bash
+cd <你的 skills 目录>/oracle-bone
 bash install.sh                    # 默认 → ~/.claude/skills/
 bash install.sh --target <dir>     # 其他 runtime：装到你的 skills 目录
 ```
+
+**Windows（PowerShell）：**
+
+```powershell
+cd C:\Users\<用户名>\.claude\skills\Huanyu-Skills\oracle-bone
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+| 参数 | 作用 |
+|---|---|
+| `-Target <路径>` | 指定其他 Agent 的 skills 目录 |
+| `-Copy` | 冻结模式：复制而非链接（仓库更新后需重新运行） |
+| `-Remove` | 卸载：移除已安装的链接（不动你的内容数据） |
 
 | Runtime | skills 目录 |
 |---|---|
@@ -79,14 +120,25 @@ bash install.sh --target <dir>     # 其他 runtime：装到你的 skills 目录
 | OpenCode | `<project>/.opencode/skills/` 或 `~/.config/opencode/skills/` |
 | Codex CLI / 其他 | 见各 runtime 文档，`--target` 指过去即可 |
 
-> 冻结版本：`bash install.sh --copy`；卸载：`bash uninstall.sh`（不动你的内容数据）。
-> Windows 无 bash？把文件夹整个复制到上表对应目录也可以。
+> Windows 无 bash？用 `install.ps1` 或把文件夹整个复制到上表对应目录也可以。
 
-## 🚀 第一次跑
+### 常见问题（FAQ）
+
+| 问题 | 解决 |
+|---|---|
+| `install.sh` 报权限错误 | 运行 `chmod +x install.sh` 后重试 |
+| Agent 没识别到 skill | 确认 26 个子 skill 目录已正确链接/复制到 skills 目录，重启 Agent |
+| 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
+| Windows 没有 bash | 用 `install.ps1` 或直接复制文件夹 |
+| 想卸载 | `bash uninstall.sh` 或 `powershell -ExecutionPolicy Bypass -File uninstall.ps1`（不动内容数据） |
+
+---
+
+## 🚀 第一次使用
 
 在你的内容项目目录里开任一 skills-compatible agent（Claude Code / OpenCode / Codex CLI ...），说：
 
-```
+```text
 初始化 oracle-bone
 ```
 
@@ -96,7 +148,7 @@ bash install.sh --target <dir>     # 其他 runtime：装到你的 skills 目录
 
 ## 💬 日常用法
 
-```
+```text
 找选题 / 推荐选题 / 抓热点        → 选题
 打分这篇 scripts/<...>.md         → 评分
 给我标题 / 选标题 / 写简介 / 封面  → 打磨链
@@ -137,4 +189,3 @@ MIT。商用、改造、闭源接入都行。
 <sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
 
 </div>
-
