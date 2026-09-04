@@ -109,6 +109,26 @@
 
 ---
 
+## 信息主档速查表（哪条信息住在哪，防同一事实多处维护）
+
+| 信息 | 唯一主档 | 写入者 | 只读消费方 |
+|---|---|---|---|
+| 创作者档案（变现/优势/形象/风格/红线） | `user-profile.md` | init / 用户拍板修订 | seed / learn-from / who-for / cover |
+| 内容规划（轨道定义/占比/成功指标） | `content-plan.md`（人读版）+ `state.tracks`（机读缓存） | init / compass-retro 建议+用户拍板 | seed 分流 / recommend / bump / status |
+| 受众画像 | `audience-profiles.md` | init / who-for 逐稿深化 | simulate-audience / seed |
+| rubric（各轨维度/权重/bucket） | `rubric_notes.md`（分轨节） | oracle-bump | score / predict / trends 粗打分 |
+| 写作 pattern（含 source/status 标记） | `script_patterns.md`（分轨节） | retro 4b / learn-from / apprentice 验证后 | seed 选结构 / bump（只信 self+verified） |
+| 候选项 | `candidates.md` | seed / trends / learn-from | recommend |
+| 预测（含 Track 字段） | `predictions/*.md` | oracle-predict（immutable） | retro / bump / status |
+| 对标账号统计信号 | `benchmark.md` | oracle-learn-from | seed context / bump 参考 |
+| 对标写法拆解（知识卡片） | `study/<博主>-apprentice/` | oracle-apprentice | seed 写稿提醒 |
+| 产品反馈（对 skill 的评价） | `meta-retros/product-feedback.md` | 用户确认后 | compass-retro 自进化 |
+| 运行时状态 / 累计指标 | `.oracle-state.json` | 各 skill 按上方责任表 | 全部 |
+
+**纪律**：同一事实只在主档维护；汇总 / 看板类文件引用主档，不复制全文；跨档案重复记录的字段（如 user-profile 的"内容风格"与 script_patterns 的声音参考）——user-profile 存**定位级**风格宣言（三词/红线），script_patterns 存**可执行**句式口头禅，边界在"宣言 vs 句子"。
+
+---
+
 ## 读写协议
 
 ### 读（任何 skill）

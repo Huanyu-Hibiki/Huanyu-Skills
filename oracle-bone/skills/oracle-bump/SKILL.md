@@ -48,6 +48,19 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 校准池 = `state.calibration_samples_by_track[<track>]` 登记的该轨样本；cross 样本两轨各计 0.5。**一次只 bump 一轨**——`--propose` 跨轨公式 → 拒绝，按轨各算一次。
 
+### Phase 0.5: 🔴 影响面摘要（高成本操作前的一步确认）
+
+Phase 0 通过后、写公式前，输出影响面摘要让用户看清成本再继续：
+
+```
+🔴 本次 bump 影响面：
+- 将重打：该轨 N 个校准样本（M 篇 prediction 追加 Re-scored 行）
+- 将修改：rubric_notes.md 该轨节 + N 个 prediction 文件 + state
+- 回滚条件：Phase 3 排序一致性 <0.8（本地终止）或跨模型审核 REJECT
+- 不可逆部分：无——所有改动可由 git 回溯，prediction 预测段始终 immutable
+确认继续 → 说 "继续"；重新考虑 → 说 "等等"
+```
+
 ### Phase 1: 写出新公式完整方程
 
 不能只接受简短描述，展开为完整方程（标轨道 + 版本号）：

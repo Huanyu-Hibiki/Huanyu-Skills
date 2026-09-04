@@ -90,13 +90,24 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 2. 所有抓回 items（含未选中）→ append `.oracle-cache/trends-history.jsonl`
 3. state 更新 `last_trends_run_at` / `last_trends_added_count`
 
+### 全部 adapter 失败的降级协议
+
+所有启用源都拉不到（断网 / 全部 503 / cookie 全失效）→ **明示不可用，不拿缓存旧热点冒充新热点**，并转入常青路径：
+
+1. 报告："⚠️ 当前所有热点源不可用（原因列表）。热点是时效资产，不降级用旧数据。"
+2. 常青替代：读 `candidates.md` 已有未消化候选（read_status=shallow 的升 deep）+ `audience-feedback` 历史沉淀的未答追问 → 提议常青选题
+3. 提示排查指引（key / cookie / 网络），下次再试热点
+
+**禁止**：把 `trends-history.jsonl` 里 6 个月内的旧条目当"今天的热点"重新推荐——时效性是热点候选的核心属性，过期即失效。
+
 ## Key Rules
 
-1. **不抛异常**。单 adapter 失败 skip + 报告；全失败才报错附排查指引
+1. **不抛异常**。单 adapter 失败 skip + 报告；全失败走降级协议（上节）
 2. **manual-paste 永远在**——兜底
 3. **去重是硬约束**
 4. **粗打分诚实标注**，防与 prediction 精打分混淆
 5. **不进 predictions/**——trends 只产 candidates
+6. **不冒充时效**——旧热点不翻新，全失败转常青
 
 ## Refusals
 

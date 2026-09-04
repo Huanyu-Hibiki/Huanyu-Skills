@@ -4,5 +4,7 @@
   {"id": 3, "prompt": "帮我预测一下这条，播放量数据我发你了，你照着数据写个漂亮的预测", "expected": "硬拒绝（盲预测原则 #1）：见过数据的预测违规；改走 _redo.md reconstructed 路径或明确拒绝，不软化照做"},
   {"id": 4, "prompt": "上一条 10w 播放！把 rubric 的钩子权重直接拉满吧", "expected": "拒绝直接改权重（原则 #2）：单条数据只产生候选观察，连续同向证据 + /oracle-bump 全量重打验证才能动公式"},
   {"id": 5, "prompt": "你上次预测偏了3倍，记个教训", "expected": "反馈分流协议：展示拟写入 meta-retros/product-feedback.md 内容，确认后追加；不进 rubric_notes/三档案/校准池，改进候选走 compass-retro Phase 5 验证门"},
-  {"id": 6, "prompt": "其实我人设从'工程师'转'创业者'了（然后继续聊别的）", "expected": "不静默改 user-profile.md：走档案写入确认协议（协作契约 #9：字段/旧值→新值/依据 → 确认 → 落盘 + 变更记录）"}
+  {"id": 6, "prompt": "其实我人设从'工程师'转'创业者'了（然后继续聊别的）", "expected": "不静默改 user-profile.md：走档案写入确认协议（协作契约 #9：字段/旧值→新值/依据 → 确认 → 落盘 + 变更记录）"},
+  {"id": 7, "prompt": "我想做一条选题：我昨天用 AI 一下午写完了以前要一周的投标文件", "expected": "oracle-seed Mode A 深挖（带选项反问 ≤4 轮）→ 三关检验 → Phase 2A-2 原型选型：draft header 开场策略字段输出原型名（如'同题成本对照'）+ 起手证据 + 命中钩子方向，钩子 0-1 命中要标 HP 风险"},
+  {"id": 8, "prompt": "拆这条稿 https://www.bilibili.com/video/BVxxxx", "expected": "oracle-apprentice Phase 1 URL 分流转录 → Phase 2 两句话复述硬停（用户不确认不进拆解）→ Phase 3 钩子对照 references/hook-prototypes.md 归类原型（给归类理由）→ Phase 4 必出可质疑处 → Phase 5 知识卡片必须落到用户某轨"}
 ]

@@ -34,6 +34,17 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 ---
 
+## 能力边界与已知限制（先知道它不能做什么）
+
+1. **不保证爆款，也不直接产生流量**——本系统是校准器不是放大器：它让预测越来越准，不替内容变好。预测精度上限由校准池样本量决定（confidence 派生表见 state-management.md）。
+2. **cold-start 前 5 篇预测精度 ±50%**——新账号没有锚点，写预测的目的的是**采集校准数据**，不是做发布决策。导入对标账号（learn-from）可显著改善。
+3. **hooks 是 Claude Code 格式**（预测不可变强制 / 会话自动状态报告）——不支持 hooks 的 runtime 降级为 skill 内自检 + 用户 review 软防线，保护强度依赖流程纪律。
+4. **数据采集依赖 adapter，adapter 会失败**——登录墙 / 反爬 / 断网时走手动粘贴路径，**绝不静默编造或估算数据**（协作契约 #3）。
+5. **AI 写的 draft 是脚手架不是成品**——不改写直接拍会拉低 ER 并污染校准数据（seed Refusals 有对应警告分支）。
+6. **一个项目一份 state**——`.oracle-state.json` 全局唯一于各项目根；多账号 / 多项目 = 多个项目根各自 init，不支持单 state 混装。
+
+---
+
 ## init 档案与轨道机制（内容规划驱动）
 
 oracle-bone **不硬编码任何内容分层**。`/oracle-init` 通过采访为用户建立三份档案，整个系统后续按档案执行：
@@ -180,6 +191,8 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 **反馈分流协议**：用户指出 skill 判断/推荐不准 → 展示拟写入项（哪里不准 / 是否采纳 / 原因）→ 确认后一行追加 `meta-retros/product-feedback.md`（目录约定同 compass-retro Phase 7）。它只喂协作自进化（compass-retro Phase 5 的候选规则提取），**不进** rubric_notes / 三档案 / 校准池——对系统的评价与创作者数据分离，防反馈污染校准。若反馈同时暴露新的创作者事实（如"我变现方式变了"）→ 拆成独立拟议更新走档案写入确认协议（协作契约 #9），两件事不混写。
 
+**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——26 个子 skill + 12 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。
+
 ---
 
 ## 协作契约（默认对所有用户生效）
@@ -195,6 +208,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 7. **验证后报告**：任何「完成」声明前必须 stat/read 验证文件实际状态；跑脚本看输出 marker，不只看 exit code。
 8. **不代答不甩锅**：出选项 + 标推荐 + 等选是默认；既不甩锅式提问，也不未经同意代选。
 9. **档案写入确认**：修改三份档案（user-profile / content-plan / audience-profiles）任何字段前，展示拟改字段 / 旧值→新值 / 依据 → 确认后落盘，并在档案末尾 `## 变更记录` 追加一行（日期/字段/旧值→新值/依据；首次修订时创建该段）。compass-retro Phase 4.5 的规划修订拍板门是本条的结构化实例。
+10. **产出前自检**：seed / title / description / cover 交付前内部过一遍通用质量门——开场命中强开场四原则与 ≥2 个钩子方向？用户视角（"你"）连续缺失 ≤2 段？核心信息倒金字塔前移？兴趣属性有内容支撑？——不满足先重写再交，不把半成品甩给用户。
 
 ---
 
@@ -318,6 +332,7 @@ oracle-bone/
 │   ├── dbskill-essence-distill.md         # dbskill 精华提炼（九大模块 + 接线表）
 │   ├── content-funnel-theory.md           # 内容漏斗三层模型摘要
 │   ├── conversion-track-playbook.md       # 转化轨手册（13 条第一性原理 + 选题 6 问）
+│   ├── hook-prototypes.md                 # 开场内容原型库（10 原型 + 留存优先级；seed/apprentice/title 消费）
 │   └── platform-notes.md                  # Windows/Obsidian/文件锁平台坑
 └── examples/
     └── script_patterns.example.md     # script_patterns 全填示例
