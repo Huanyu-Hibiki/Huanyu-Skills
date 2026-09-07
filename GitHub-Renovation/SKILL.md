@@ -128,7 +128,7 @@ gh api users/USERNAME --jq '{bio,company,location,website,public_repos}'
 
 | 字段 | 规则 | 落地方式 |
 |---|---|---|
-| 仓库名 | 最重要的排名因素；连字符连接关键词（`react-markdown-editor` 而非 `my-project`） | 建仓时定，改名成本高要想好 |
+| 仓库名 | 最重要的排名因素；连字符连接关键词（`react-markdown-editor` 而非 `my-project`）；**红海词警惕**：目标关键词已被知名同类库占据时，改用可品牌化的独特名，泛词让给 description 和 topics 做长尾覆盖 | 建仓时定，改名成本高要想好 |
 | description | **= Google 搜索结果的标题**（仓库页 `<title>` 是 `owner/repo: description`）；≤350 字符、前 120 字符最关键；关键词前置，中文为主尾缀英文 | `gh repo edit OWNER/REPO --description "..."` |
 | topics | ≤20 个；三类都覆盖：技术栈（react, python）+ 项目类型（cli, web-app）+ 领域（machine-learning）；既进仓库 HTML 又进站内 /topics/ 话题页 | `gh repo edit OWNER/REPO --add-topic a,b,c` |
 | Website | 有官网 / 文档站必填 | `gh repo edit OWNER/REPO --homepage URL` |
