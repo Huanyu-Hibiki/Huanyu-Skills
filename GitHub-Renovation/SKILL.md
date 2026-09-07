@@ -61,6 +61,8 @@ gh api users/USERNAME --jq '{bio,company,location,website,public_repos}'
 | （主页）社媒链接、是否全网同名 | 品牌词占位策略 |
 | （主页）当前阶段：0-star 起步还是已有代表作 | 决定展示策略（减法原则） |
 
+🔴 CHECKPOINT · 🛑 STOP：把提炼出的**定位一句话**先给用户确认——README 模式确认项目定位，主页模式确认个人叙事线（SEO 体检模式跳过本检查点）。定位错了后面全部返工，确认前不动笔。
+
 ## Phase 2A：项目 README
 
 先读 `template/readme参考/README.md`；数据采集 / 合规类项目加读 `README-1.md`，有画廊或演示站的加读 `README-2.md`。**不是逐节照抄**——按项目从下面骨架里取舍：
