@@ -2,11 +2,11 @@
 
 # Huanyu-Skills · 呼风唤雨的焕羽的 Agent Skills 合集
 
-**6 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作**
+**7 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作 → 闲鱼变现**
 
 *Production-grade AI agent skills for Claude Code / OpenCode / Codex / Cursor — open-sourced Build-in-Public from a one-person company (OPC).*
 
-[![Skills](https://img.shields.io/badge/skills-6%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
+[![Skills](https://img.shields.io/badge/skills-7%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-快速开始)
 [![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/Huanyu-Hibiki/Huanyu-Skills?style=flat&color=ffd700)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/stargazers)
@@ -28,11 +28,12 @@
 | [shendu-yuedu](shendu-yuedu/) | 深度阅读系统（Deep Reading System）：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
 | [skill-master](skill-master/) | skill 全生命周期管家（Skill Lifecycle Manager）：盘点 / 安全扫描 / 分析 / 编写 / 优化 | 5 | 1.0.0 | MIT |
 | [video-production-workflow](video-production-workflow/) | 视频制作管线（Video Production Pipeline）：终稿 → 分镜 → 粗剪 → 剪映 → B-roll → 成片 QA | 13 | 0.6.0 | MIT |
+| [xianyu-skill](xianyu-skill/) | 闲鱼卖货系统（Xianyu Virtual Goods Ops）：爆款拆解 → 商品文案 → 详情图，把 AI skill 挂上闲鱼卖 | 3 | 1.0.0 | MIT |
 
 <details>
 <summary><b>📖 English</b></summary>
 
-**Huanyu-Skills** is a collection of 6 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
+**Huanyu-Skills** is a collection of 7 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
 
 | Skill | What it does |
 |---|---|
@@ -42,6 +43,7 @@
 | [shendu-yuedu](shendu-yuedu/) | Deep reading system: turn "read and forget" into a personal knowledge wiki of callable skills |
 | [skill-master](skill-master/) | Skill lifecycle manager: inventory / security scan / analyze / write / optimize skills |
 | [video-production-workflow](video-production-workflow/) | Video production pipeline: script → storyboard → rough cut → JianYing (CapCut) draft → B-roll → final QA |
+| [xianyu-skill](xianyu-skill/) | Xianyu (idle-fish marketplace) selling system: competitor teardown → listing copy → product detail images for AI skill packages |
 
 ```bash
 git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
@@ -60,6 +62,8 @@ oracle-bone 跑每周执行循环（选题 → 打分 → 盲预测 → 复盘 �
 pulsehub 把内容变成客户（画像 / 选题 / 文案 / 脚本 / 私域 / 评论线索）
       ↓
 video-production-workflow 把稿子稳定做成片
+      ↓
+xianyu-skill 把成品挂上闲鱼变现（拆竞品 → 写文案 → 出详情图）
 
 shendu-yuedu 管输入：读书读完变技能，喂给上面所有环节
 skill-master 管技能本身：这套系统的"系统"，装、扫、析、写、优
@@ -106,4 +110,4 @@ cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone    # Claude Code
 
 ## 📄 License
 
-各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow 为 MIT。
+各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow / xianyu-skill 为 MIT。
