@@ -37,7 +37,8 @@ description: GitHub 装修：为开源项目编写完整专业的 README、搭�
 | [template/readme参考/README.md](template/readme参考/README.md) | 功能型项目 README 范本（信息架构最全） | 写 README 前必读 |
 | [template/readme参考/README-1.md](template/readme参考/README-1.md) | 数据工具类范本（强合规 / 隐私声明 / 已知限制写法） | 项目涉及数据采集、隐私、合规时 |
 | [template/readme参考/README-2.md](template/readme参考/README-2.md) | 媒体视觉型范本（在线画廊 / 社媒徽章 / 素材授权说明） | 项目有画廊、演示站、视频产出时 |
-| [template/模板仓库/zarazhangrui/](template/模板仓库/zarazhangrui/) | profile 主页双语范本 + star 数自动更新 workflow 与脚本 | 做主页仓库时必读（Phase 2B） |
+| [references/profile-要素.md](references/profile-要素.md) | 主页设计要素单一来源（机制 / 双语 / 漏斗结构 / 项目行格式 / 减法清单） | 做主页仓库时必读（Phase 2B） |
+| [references/update-stars.py](references/update-stars.py) / [update-stars.yml](references/update-stars.yml) | star 数自动刷新脚本与 workflow（通用版，改 OWNER 即用） | Phase 2B 步骤 5 复制进主页仓库 |
 | [template/装修技巧.md](template/装修技巧.md) | SEO 技巧全景 + 实战复盘（含还没用上的技巧） | Phase 3 必读 |
 
 ## Phase 1：信息收集（一次问全，不逐条追问）
@@ -97,7 +98,7 @@ gh api users/USERNAME --jq '{bio,company,location,website,public_repos}'
 
 ## Phase 2B：主页仓库（profile README）
 
-先读 `template/模板仓库/zarazhangrui/` 下的 `README.md` 与 `README.zh-CN.md`。机制：**创建与用户名完全同名的公开仓库，根目录放 `README.md`**，GitHub 自动渲染到个人主页 Overview——这是唯一官方途径。
+先读 `references/profile-要素.md`——主页设计要素的单一来源（渲染机制、双语互链、漏斗结构、项目行格式、减法清单），按要素执行，**不引用或复刻任何第三方主页仓库**。机制：**创建与用户名完全同名的公开仓库，根目录放 `README.md`**，GitHub 自动渲染到个人主页 Overview——这是唯一官方途径。
 
 ### 步骤
 
@@ -116,9 +117,9 @@ gh api users/USERNAME --jq '{bio,company,location,website,public_repos}'
    ```
 
    star 数用 `<!--stars:repo-->N<!--/stars-->` 标记包裹，供脚本自动刷新；**0-star 阶段整个括号不加**。
-5. **star 自动更新**：把范本的两个文件复制进主页仓库并改造：
-   - `.github/workflows/update-stars.yml` —— workflow_dispatch 手动触发，无需改动
-   - `.github/scripts/update_stars.py` —— **必须把 `OWNER` 改成用户名**，`FILES` 与实际双语文件名一致
+5. **star 自动更新**：把本 skill 的两个 reference 文件复制进主页仓库并改造：
+   - `references/update-stars.yml` → `.github/workflows/update-stars.yml` —— workflow_dispatch 手动触发，无需改动
+   - `references/update-stars.py` → `.github/scripts/update_stars.py` —— **必须把 `OWNER` 改成用户名**，`FILES` 与实际双语文件名一致
 6. **profile 元数据**（给用户的自查清单）：填满 Bio（= 主页的 meta description）、Company、Location、Website；Pin 最多 6 个精选仓库；头像清晰。
 7. 🔴 完整 README 落盘展示，用户确认后再推送到仓库。
 

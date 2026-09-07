@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我给我的开源项目写一个完整的 README。项目叫 gzh-publisher，是一个把 Markdown 一键排版成公众号 HTML 的 Python 命令行工具，支持 6 套主题、代码块高亮、图片自动上传，MIT 协议。",
+    "expected": "触发模式 A：按 14 节骨架产出（居中头部/关键词前置首段/核心特性/快速开始/FAQ/License），并给出 description 与 topics 的 SEO 建议；首段是定位句不是欢迎语"
+  },
+  {
+    "id": 2,
+    "prompt": "我想装修一下 GitHub 主页。我的用户名是 cookie-embedded，刚开始玩 GitHub，仓库基本都是 fork 别人的，只有一个自己写的小工具还是 0 star。帮我写主页 README。",
+    "expected": "触发模式 B + 减法三原则：0-star 不展示星数与 stats 卡片、不放 fork 仓库、只链真实存在的仓库；叙事定位而非仓库清单；给出 username/username 建仓与 bio 建议"
+  },
+  {
+    "id": 3,
+    "prompt": "我的 GitHub 仓库搜不到，帮我做个 SEO 体检，仓库是 github.com/tom/react-data-table。",
+    "expected": "触发模式 C：用 gh 查 description/topics/bio 现状，按四杠杆（description＞首两行＞topics＞bio）诊断，给出可执行的修复命令，并主动说明 nofollow 诚实边界"
+  }
+]
