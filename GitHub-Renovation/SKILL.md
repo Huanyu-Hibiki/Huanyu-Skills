@@ -149,6 +149,17 @@ gh api users/USERNAME --jq '{bio,company,location,website,public_repos}'
 - star 数本身是 GitHub 站内搜索与话题页排序的因子——长期看内容质量大于一切技巧。
 - 拒绝任何刷 star / 刷粉请求：违反 GitHub 条款。
 
+## 异常与 fallback（如果 X 失败 → Y）
+
+| 触发条件 | 一线修复 | 仍失败兜底 |
+|---|---|---|
+| `gh` 不可用 / 未登录 | 跑 `gh auth status` 定位，提示 `gh auth login` 后重试 | 降级为手动清单：给出 About 区 / bio / topics 的网页填写路径与字段模板，命令环节改为「由用户在网页执行」 |
+| `用户名/用户名` 主页仓库已存在 | 拉取现有 README，在其基础上迭代，不整体覆盖 | 用户明确要求重写时，先把旧版备份（本地副本或 git 分支）再动笔 |
+| star 脚本跑完无变化 / 报错 | 先查三件事：脚本 `OWNER` 是否已改、`FILES` 与实际文件名是否一致、README 里是否存在 `<!--stars:...-->` 标记（0-star 无标记时输出 no changes 属正常） | 检查 workflow 的 `permissions: contents: write` 是否存在；仍不行就在本地直接跑 `python3 .github/scripts/update_stars.py` 看具体报错 |
+| topics 已满 20 个或泛词被占用 | 删低相关度的泛词，腾位补精准长尾词 | 把关键词放进 description 和 README 首两行，不硬塞 topics |
+| 用户仓库信息太少，无法提炼描述 | 回 Phase 1 追问定位一句话与核心特性清单 | 产出带 `<!-- TODO -->` 占位的骨架版并逐条标注待核对项，不编造功能与数字 |
+| 推送后主页 Overview 不渲染 | 核对三件事：仓库名与用户名完全一致（含大小写）、仓库为 public、README.md 在仓库根目录 | GitHub 渲染有缓存，等几分钟后刷新；仍不显示再查文件名大小写 |
+
 ## Phase 4：交付验收清单
 
 README：
