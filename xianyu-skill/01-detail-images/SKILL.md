@@ -67,7 +67,7 @@ description: 闲鱼商品详情图生成（功能1）。用 HTML+CSS 制作封�
 
 - 单文件 HTML、内联 CSS、无外部 JS 依赖；中文字体走 Google Fonts（Noto Serif SC / Noto Sans SC）并带系统字体回退栈
 - 网络字体加载等待后再截图（`--wait-for-timeout=2500`）
-- 落盘：HTML 存 `<商品目录>/detail-html/`，PNG 存 `<商品目录>/images/01-封面.png` 起编号
+- 落盘：HTML 存 `<商品目录>/detail-html/`，PNG 存 `<商品目录>/images/01-封面.png` 起编号。`<商品目录>` 永远解析到**当前工作目录**下（见路由器"商品目录约定"）；商品源目录（skill 本体所在处）只读，不写入任何产出
 
 ### Step 4 · 导出与自检
 
