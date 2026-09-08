@@ -34,6 +34,7 @@ allowed-tools: Bash(*), Read, Glob, Grep
 | 来源 | 用途 |
 |---|---|
 | `.oracle-state.json` | 主状态（tracks / buffer / pending_retros） |
+| `python tools/context.py <项目根> --task status`（可选快速路径） | ≤6KB 全局摘要基线（confidence / buffer / 待复盘口径与 Phase 2 一致），再按需扫文件核验 |
 | `<NNN>_*/predictions/*.md` | 校准样本数核验 |
 | `candidates.md` | 候选池规模 |
 | `rubric_notes.md` | 行数 / 各轨版本 |

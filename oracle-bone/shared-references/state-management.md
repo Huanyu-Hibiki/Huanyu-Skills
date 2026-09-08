@@ -121,6 +121,7 @@
 | 候选项 | `candidates.md` | seed / trends / learn-from | recommend |
 | 预测（含 Track 字段） | `predictions/*.md` | oracle-predict（immutable） | retro / bump / status |
 | 对标账号统计信号 | `benchmark.md` | oracle-learn-from | seed context / bump 参考 |
+| 对标封面拆解与视觉配方 | `cover-patterns.md` | oracle-cover-analyze（用户确认后 append） | oracle-cover（框架来源 #2） |
 | 对标写法拆解（知识卡片） | `study/<博主>-apprentice/` | oracle-apprentice | seed 写稿提醒 |
 | 产品反馈（对 skill 的评价） | `meta-retros/product-feedback.md` | 用户确认后 | compass-retro 自进化 |
 | 运行时状态 / 累计指标 | `.oracle-state.json` | 各 skill 按上方责任表 | 全部 |
@@ -155,6 +156,11 @@ if state.get("schema_version") != LATEST_SCHEMA:
 - 读完不立刻关心字段缺失——用 `state.get(field, default)` 容错。新版 skill 引入新字段时旧 state file 会缺该字段，应优雅默认而非崩溃
 - **绝不**在内存里 mutate state 后忘记写回——下游 skill 读到的是磁盘版
 - **操作前先读全局验证已有事实**——用户说"X 已落盘"不等于没落盘，先 stat/read 验证再行动（协作契约 #7）
+
+> **任务摘要快速路径**：子 skill 在 Phase 0/1 只需要全局口径（confidence / buffer / 待复盘 / 约束）时，
+> 调 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读，退出码 0/2/3），
+> 不必逐字段全量解读；confidence 派生、buffer 口径、约束兜底以该脚本实现为准。
+> 需要逐字段读写时，再按上方伪代码操作。
 
 ### 写（任何 skill）
 

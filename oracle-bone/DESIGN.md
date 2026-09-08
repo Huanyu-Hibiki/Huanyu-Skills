@@ -165,7 +165,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 
 ---
 
-## 5. 26 个子 skill 完整清单
+## 5. 27 个子 skill 完整清单
 
 统一前缀 `oracle-`，功能词与原版一致。
 
@@ -195,6 +195,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 10 | oracle-title-pick | 淘汰制评审选最优标题 → 改标题行 + 改文件夹名 + 触发钩子维度重判 | "选标题" / "哪个标题好" | 更新 draft + 目录改名 |
 | 11 | oracle-description | 多平台简介生成（按 init 配置的平台集） | "写简介" / "视频描述" | append 到脚本发布文案段 |
 | 12 | oracle-cover | 封面架构：统一框架 → 图像生成 prompt（按平台比例派生） | "封面" / "cover" | prompt/cover/ 目录 |
+| 27 | oracle-cover-analyze | 对标封面拆解：构图/层级/动线/隐喻 → 结构配方落盘 cover-patterns.md（借结构不借元素；参考程度门：轻度/重度） | "拆封面" / "分析封面" / "对标封面" | cover-patterns.md（append-only） |
 | 13 | oracle-no-ai-slop | AI 味检测与修正（16 模式 + 中文 AI 腔词表 + 口播适配）——**锁定预测前必跑** | "AI 味" / "去 AI 味" / "读着不顺" | 检测报告或改稿 |
 | 14 | oracle-who-for | 采访式受众价值审查 ~8 问（流量/共鸣类轨道用；以 init 画像为基线逐稿深化） | "这是拍给谁的" / "who-for" | audience-brief.md |
 | 15 | oracle-open-source | 采访式自我开源度审查 ~9 问 + 反套路镜子（转化类轨道用） | "自我开源" / "这条够真诚吗" | open-source-audit.md |
@@ -243,6 +244,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 ━━━ 阶段 2：发布前打磨链（顺序敏感）━━━
 /oracle-title → /oracle-title-pick → /oracle-description → /oracle-cover
     → /oracle-no-ai-slop（必跑）
+    [可选，首建框架/换风格前] /oracle-cover-analyze（拆对标封面 → cover-patterns.md，cover 读配方）
     → [按轨道 review]  流量/共鸣轨: /oracle-who-for（以 init 画像为基线）
                        转化轨: /oracle-open-source
     → [可选] /oracle-simulate-audience（用 init 画像模拟评论区）
@@ -394,7 +396,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 ├── DESIGN.md                   # 本文档
 ├── CHANGELOG.md / LICENSE / .gitignore
 ├── install.sh / uninstall.sh
-├── skills/                     # 26 个 oracle-*/SKILL.md
+├── skills/                     # 27 个 oracle-*/SKILL.md
 ├── shared-references/          # §7.3 所列 12 份协议
 ├── starter-rubrics/
 │   ├── opinion-video.md        # 观点视频（继承已拟合版，默认）

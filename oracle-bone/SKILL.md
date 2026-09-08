@@ -164,10 +164,11 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 | "拜师" / "拆这条稿" / "学这个博主的表达" / "apprentice" | `/oracle-apprentice` | 手艺层拆稿（钩子/节奏/金句/结构）→ 四步闭环内化；与 learn-from 分工：learn-from=数据信号，apprentice=单条写法 |
 | "找选题" / "我不知道做什么" / "seed" | `/oracle-seed` | 已 init（cold-start 用户专用一次性种子动作） |
 | "打分这篇 [path]" / "score this [path]" | `/oracle-score` | rubric_notes.md 存在（不存在时自动从 starter-rubric 兜底） |
-| "给我标题" / "标题候选" | `/oracle-title` | 有 draft |
+| "给我标题" / "标题候选" / "诊断标题" | `/oracle-title` | 有 draft |
 | "选标题" / "哪个标题好" / "title-pick" | `/oracle-title-pick` | 有 title 候选 |
 | "写简介" / "视频描述" / "description" | `/oracle-description` | 有定稿脚本 |
 | "封面" / "cover" / "封面 prompt" | `/oracle-cover` | 有定稿脚本 |
+| "拆封面" / "分析封面" / "对标封面" | `/oracle-cover-analyze` | 已 init + 有参考封面图（三维度对标的视觉维度） |
 | "这是拍给谁的" / "受众是谁" / "who-for" | `/oracle-who-for` | 已 init + 有 draft（流量/共鸣类轨道每条建议跑） |
 | "自我开源" / "这条够真诚吗" / "open-source" | `/oracle-open-source` | 已 init + 有 draft（转化类轨道专用） |
 | "模拟评论" / "换位思考" / "评论区预判" | `/oracle-simulate-audience` | 已 init（直接用 audience-profiles.md，发布前压力测试） |
@@ -191,7 +192,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 **反馈分流协议**：用户指出 skill 判断/推荐不准 → 展示拟写入项（哪里不准 / 是否采纳 / 原因）→ 确认后一行追加 `meta-retros/product-feedback.md`（目录约定同 compass-retro Phase 7）。它只喂协作自进化（compass-retro Phase 5 的候选规则提取），**不进** rubric_notes / 三档案 / 校准池——对系统的评价与创作者数据分离，防反馈污染校准。若反馈同时暴露新的创作者事实（如"我变现方式变了"）→ 拆成独立拟议更新走档案写入确认协议（协作契约 #9），两件事不混写。
 
-**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——26 个子 skill + 12 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。
+**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——27 个子 skill + 12 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；任务前要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读），不逐字段全量解读 state。
 
 ---
 
@@ -248,7 +249,7 @@ oracle-bone/
 ├── SKILL.md                           # 本文件（总协议 + 路由）
 ├── README.md                          # 门面
 ├── DESIGN.md                          # 设计文档（完整流程梳理）
-├── skills/                            # 26 个子 skill
+├── skills/                            # 27 个子 skill
 │   ├── oracle-init/SKILL.md           # 入口：五 Phase onboarding（档案+规划+画像+脚手架）
 │   ├── oracle-learn-from/SKILL.md     # 对标账号导入（拆 pattern + 派生 rubric 信号）
 │   ├── oracle-apprentice/SKILL.md     # 拜师拆稿（单条写法拆解 + 四步闭环内化）
@@ -261,6 +262,7 @@ oracle-bone/
 │   ├── oracle-title-pick/SKILL.md     # 淘汰制选标题 + 改名
 │   ├── oracle-description/SKILL.md    # 多平台简介
 │   ├── oracle-cover/SKILL.md          # 封面 prompt（按平台比例派生）
+│   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解（借结构不借元素 → cover-patterns.md）
 │   ├── oracle-no-ai-slop/SKILL.md     # AI 味检测与修正（预测前必跑）
 │   ├── oracle-who-for/SKILL.md        # 受众价值采访（流量/共鸣轨）
 │   ├── oracle-open-source/SKILL.md    # 自我开源度审查（转化轨）
@@ -317,6 +319,7 @@ oracle-bone/
 │   ├── session-start.json/.sh             # 会话自动状态报告
 │   └── meta-logging.json / log-event.sh   # 被动记录
 ├── tools/                             # 独立 CLI 脚本
+│   ├── context.py                     # 任务状态摘要（只读 ≤6KB；退出码 0/2/3，schema 漂移提示 migrate）
 │   ├── score-curve.py                 # 预测精度收敛曲线（md-to-sqlite / validate-bump 预留）
 │   ├── snapshot_store.py              # 采集快照库（runs + snapshots 时序模型，latest vs prev diff）
 │   ├── data_normalizer.py             # 四平台作品数据统一归一器
@@ -364,6 +367,7 @@ oracle-bone/
 - 新增内容形态 → 加 `starter-rubrics/<form>.md`
 - 新增热点抓取源 → 加 `adapters/trend-sources/<name>.md`，符合 [candidate-schema.md](shared-references/candidate-schema.md) 输出契约
 - 修改原则 → 改 `shared-references/<protocol>.md`，所有引用它的 skill 自动跟进
+- 上下文预算 / 协议同步规则 / 发布前检查 → [MAINTENANCE.md](MAINTENANCE.md)（tests/ 有预算棘轮测试）
 - 修改路由 → 改本文件的"路由表"段
 - 子 skill 内部细节 → 直接改对应 `skills/oracle-*/SKILL.md`
 - 用户想参考更多方法论 → 放 `references/`，子 skill 按需引用

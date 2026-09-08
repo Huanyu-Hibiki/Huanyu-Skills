@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — 标题策略引擎 + 封面创意四检查（2026-09-09，第十四批，吸收 jennie-dingding-cover-packager + self-media-title-generator）
+- **oracle-title 重构为标题策略引擎**：① 原料表提取（8 项：对象/旧问题/工具方法/独特结果/事实证据/反转判断/视觉词/场景，定稿为唯一来源，只展示有内容项）② 策略族地图——7 族（判断选择/痛点避坑/身份代入/结果清单/体验反转/好奇缺口/互动测试）按本次用户动作选 1 主 + 1 备 ③ 内部发散 ≥8 → 淘汰清单筛 → 输出 3-5（原直出 3-5）④ 点击承诺三件套至少含两项（对象/方法变化/结果爽点）⑤ 新增已有标题诊断（—diagnose：五查 + 直接保留/轻微压缩/建议重做 + 同策略/换策略优化版）⑥ 事实纪律：数字/结果/经历必须可回溯定稿，不为套策略编造
+- **oracle-cover 吸收封面创意系统**：创意四检查（语义准确/因果可见/高概念/低视觉噪音）为落盘前硬自检 + 语义桥接三行（标题承诺/内容机制/画面机制说同一件事，字面具象化=弱）+ 3:4 两行标题默认占比数值（宽 90-93%/高 31-34%/顶距 6-8%/左右 4-5%）+ 跨平台锁定（同标题同主题同配色，按比例重构图不裁切；确认后标题逐字锁定）
+- **oracle-cover-analyze 对偶接线**：拆解卡新增"创意四项快评"（✅/⚠️/❌ + 一句理由）——拆图与生成用同一把尺；cover-patterns.template.md 同步
+- **版权边界**：只吸收策略族分类学/流程思想与排版数值，未复制 75 公式文本；公式精炼引用走自有的 references/dbskill-essence-distill.md（title 接线行）
+- 主 SKILL.md 路由表同步"诊断标题"触发词
+
+### Changed — oracle-description 反 AI 味重写（2026-09-09，第十三批，实战反馈 + 真实语料校准）
+- **根因（实战 EP007-EP014 复盘）**：旧规范自己教的——"每行一个价值点，emoji 引导""小红书高 emoji 密度""标签 10-15 个"产出五件套模板腔（钩子→emoji 价值点→🎯适合→❤️支持→署名），期期同骨架
+- **两条铁律（🛑）**：① 内容事实一致——描述是视频内容的概括，每个数字/结果/承诺必须能在定稿找到出处（Workflow 新增"事实清单"步骤：定稿提取 3-5 条最强事实，所有平台文案只从清单取材 + 逐句回溯自检）；② 反 AI 味——混进真人描述堆违和即重写
+- **emoji 配额制**：B站/视频号/公众号/抖音 0-1 个，小红书 ≤3 个且禁做项目符号；情绪靠语气词和具体事实（真实语料九篇几乎零 emoji："啊啊啊啊太可爱了！"）
+- **结构纪律**：废五件套；改"第一人称 + 具体事实 + 自然段落"；句式黑名单（纯纯干货/排比三连/还在纠结XX/课程目录式罗列）+ 口吻三禁（公告/公关稿/功能说明书）
+- **标签收敛**：每平台 ≤8 个（小红书 4-8 / 抖音 3-5），只写定稿真实相关词 + 已有活动标签；CTA 收敛为整个描述一个主 CTA
+- 行为用例补 3 条（用例 13-15：emoji 超配额 / 事实漂移 / 模板腔）；方法论来源：对标/视频文案/文案参考.md 九篇真人描述 + jennie-dingding-cover-packager 的"第一人称自然口吻、避免公告/公关稿/功能说明书语气"与内容兑现检查思想（只借思想，未复制文本）
+
+### Added — oracle-cover-analyze 对标封面拆解（2026-09-09，第十二批）
+- **新子 skill oracle-cover-analyze**（27 号）：拆解对标封面 → 固定 schema（构图结构/标题区层级/人物与物件/背景氛围/视觉动线/视觉隐喻）→ 复用配方落盘项目根 `cover-patterns.md`（append-only，不嵌原图）——补齐三维度对标的视觉维度（learn-from=数据 / apprentice=写法 / cover-analyze=视觉）
+- **参考程度门**（🔴 Phase 1 一次确认）：轻度=只借结构逻辑与隐喻转译 / 重度=构图层级字体氛围尽量贴近；默认轻度，重度须显式
+- **版权三不三借**（🛑 硬红线）：不复制人物身份/logo/品牌元素/原文案/水印，只借构图结构/信息层级/视觉逻辑；字体气质与色彩氛围只记方向
+- 批量共性归纳（≥3 张、须 ≥ 半数样本出现）；URL 走 curl 下载到 `.oracle-cache/cover-ref/`（gitignore 区），不开浏览器 GUI（Adapter 铁律）；识别不了标"无法判断"不编造
+- **oracle-cover 接线**：框架来源新增 #2"对标配方"（cover-patterns.md），优先级在 _base.md 之后、user-profile 之前；Inputs 表 + Integration 同步
+- 接线：主 SKILL.md（路由表 + 文件清单 + 26→27）/ DESIGN.md（§5 清单 + §6 链路 + §10）/ state-management.md 信息主档表（cover-patterns.md 主档行）/ tools/context.py（cover 任务读取清单）
+- 新模板：templates/cover-patterns.template.md（拆解档案骨架）
+- 来源：结合 template/cover 三个封面 skill（dailun / oh-my / xiaoliang）的生成方法论与"对标封面拆解"实战思路（参考程度确认 + 结构拆解 + 替换边界）设计；实现为 oracle-bone 原创表达
+
+### Added — 上下文预算棘轮 + 任务摘要出口（2026-09-09，第十一批，对照 template/ip-strategist 借鉴）
+- **MAINTENANCE.md 新增**：上下文预算棘轮表（主 SKILL ≤31KB / 子 skill ≤18KB / 协议 ≤15KB / 单任务运行时 ≤78KB / 摘要 ≤6KB，只许收紧）+ 跨文件同步规则矩阵（协议↔子 skill / schema↔migrations / 路由↔frontmatter / 工具须有消费方）+ 发布前检查清单
+- **tools/context.py 新增**：任务状态摘要器（只读，≤6KB）——confidence 派生表 / buffer / 待复盘到期 / stage_constraint 兜底 / schema 漂移警告代码化为单一口径；退出码 0/2/3（未初始化不代建，路由 /oracle-init）；26 子 skill 后缀各配建议读取清单
+- **tests/test_context_budget.py 新增**（首个 unittest 套件，纯 stdlib）：预算棘轮 4 项 + context.py 行为回归 6 项，`python -m unittest discover -s tests -v` 即跑
+- 接线：主 SKILL.md（按需读取纪律 + 文件清单 + 开发者节）/ state-management.md 读协议（任务摘要快速路径）/ oracle-status Inputs（可选快速路径）
+- **借鉴边界（clean-room）**：设计思想借鉴 template/ip-strategist（CC BY-NC 4.0）的预算棘轮 / 任务摘要 / 真源-运行层同步三项工程纪律，实现按 oracle-bone 自身架构原创重写，未复制任何文本或代码；oracle-bone 维持 MIT 不变，致谢见 MAINTENANCE.md §5
+
 ### Added — 三平台五维详情采集（2026-08-26，第十批）
 - **B站/小红书/视频号补齐五维增量指标**（对齐抖音统一键：封面点击率/跳出率+口径/5s完播率/完播率/平均播放时长）——此前三平台只有播放/点赞/收藏/评论基本计数
 - 采集路径：B站=本卡片「数据」弹窗刮取+XHR 监听；小红书=「数据分析」触发 analyze/note_detail API；视频号=「数据中心」触发详情 API；均为 DOM 叫法刮取 + API 容错解析双源
