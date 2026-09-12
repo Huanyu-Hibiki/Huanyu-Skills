@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - content-folder-schema.md：voice/ 子目录 + 转写轮次产物行 + 初始化步骤改 seed/voice 共用
 - DESIGN.md：§5 清单重排连续编号（1-27）+ §6 链路图 + §10 分工；README/MAINTENANCE/install/uninstall/context.py/workflow.template 同步
 - 文档漂移修正：子 skill 计数统一为 27（原 26/27 混用）；协议计数 12→13
+- 转写默认档 medium → **large-v3-turbo**（large 级精度、速度与 medium 相近；transcribe.py DEFAULT_MODEL + README 档位表 + turbo 下载路径 + oracle-voice 措辞同步）
 - 行为用例补 5 条（用例 16-20：原话保真 / 跳过录音改道 / title 单次确认 / 全淘汰不硬选 / 转写绝不编造）；test-prompts 同步（root + title 合并版 + voice + cover-analyze）
 
 ### Changed — 标题策略引擎 + 封面创意四检查（2026-09-09，第十四批，吸收 jennie-dingding-cover-packager + self-media-title-generator）

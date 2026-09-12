@@ -50,7 +50,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 # macOS/Linux: .venv/bin/python
 ```
 
-产出：`voice/round-<N>/transcript.md`（whisper 本地转录，medium 档为中文口播推荐档）。
+产出：`voice/round-<N>/transcript.md`（whisper 本地转录，默认 large-v3-turbo 档）。
 
 | 如果 | 则 |
 |---|---|

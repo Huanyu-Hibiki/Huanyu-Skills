@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_MODEL = "medium"
+DEFAULT_MODEL = "large-v3-turbo"
 LOCAL_MODELS_DIR = HERE / "models"
 SUB_LANGS = "zh-Hans,zh-Hant,zh-CN,zh,zh-Hans_orig,en,en-US,en-GB"
 LANG_PRIORITY = ["zh-Hans", "zh-Hans_orig", "zh-Hant", "zh-CN", "zh", "en-US", "en-GB", "en"]

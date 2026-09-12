@@ -51,8 +51,8 @@ $PY transcribe.py "<分享短链 v.douyin.com/...>" --out study/<博主>-apprent
 ```
 adapters/script-extraction/
 └── models/
-    └── faster-whisper-medium/      ← 下载后长这样（gitignored）
-        ├── model.bin               ← 主权重（medium 约 1.5GB）
+    └── faster-whisper-large-v3-turbo/   ← 下载后长这样（gitignored）
+        ├── model.bin               ← 主权重（turbo 约 1.6GB）
         ├── config.json
         ├── tokenizer.json
         └── vocabulary.txt / vocabulary.json
@@ -79,9 +79,9 @@ $PY transcribe.py <input> --model-dir "C:\Users\<你>\.cache\huggingface\manual\
 |---|---|---|
 | tiny / base | ~75MB / ~145MB | 快速试验，错字多 |
 | small | ~490MB | 短口播可用 |
-| **medium（默认）** | ~1.5GB | 中文口播推荐，CPU int8 约 1:1 实时 |
+| **large-v3-turbo（默认）** | ~1.6GB | 中文口播推荐——large 级精度 + 接近 medium 速度 |
+| medium | ~1.5GB | 备选：turbo 不可用时的稳定选择，CPU int8 约 1:1 实时 |
 | large-v3 | ~3.1GB | 精度最高，CPU 慢（建议 GPU） |
-| large-v3-turbo | ~1.6GB | large 级精度 + 接近 medium 速度 |
 
 ### 来源 A：魔搭社区 ModelScope（国内推荐，免翻墙、快）
 
@@ -114,6 +114,14 @@ uv pip install --python .venv/Scripts/python.exe -U huggingface_hub
 
 > macOS/Linux 把 `.venv/Scripts/xxx.exe` 换成 `.venv/bin/xxx`。
 > 旧版 huggingface_hub 的命令名是 `huggingface-cli download`，参数相同。
+
+### 默认档 large-v3-turbo 的下载（HF，ModelScope 未必有官方镜像）
+
+```bash
+.venv/Scripts/hf.exe download deepdml/faster-whisper-large-v3-turbo-ct2 --local-dir models/faster-whisper-large-v3-turbo
+# 国内加镜像：export HF_ENDPOINT=https://hf-mirror.com 后再跑
+# 校验：models/faster-whisper-large-v3-turbo/ 里有 model.bin 即合法；无网机器 → --model-dir 接任意已有 turbo 目录
+```
 
 ## 日常运行
 
@@ -152,7 +160,7 @@ URL ──yt-dlp──> 字幕轨？──有──> VTT/SRT 清洗 ────
 - **B 站字幕需登录 cookie**（无 cookie 时字幕轨拿不到，全靠本地 whisper）：`--cookies-from-browser chrome` 最省事
 - **抖音/小红书被拦**：确认 ①浏览器已登录 ②读取 cookie 时浏览器已退出 ③装了 curl-cffi（否则无 TLS 拟真）——仍失败说明进风控期，走录屏/文案复制
 - **`--cookies-from-browser` 读不到 cookie**：Windows 下 Chrome/Edge 运行中会锁 cookie 数据库，先完全退出浏览器再跑
-- **长视频转录耗时约 1:1 实时**（CPU int8 medium 档）——一律后台跑，不占前台
+- **长视频转录耗时约 1:1 实时**（CPU int8，turbo/medium 档相近）——一律后台跑，不占前台
 - **转录产物立刻落盘**（`--out` 直接指向 `study/<博主>-apprentice/<标题>/`）——临时目录会被清
 - **转录准确度低于粘贴文本**（错字/漏字/标点不准）——能用"文案提取小程序/字幕导出"就别用 whisper
 - **模型在线下载在国内大概率失败**——按「模型下载」节预下载到 `models/`，一劳永逸
