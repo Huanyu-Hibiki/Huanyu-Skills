@@ -2,11 +2,11 @@
 
 # Huanyu-Skills · 呼风唤雨的焕羽的 Agent Skills 合集
 
-**7 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作 → 闲鱼变现**
+**8 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作 → 闲鱼变现 → GitHub 装修**
 
 *Production-grade AI agent skills for Claude Code / OpenCode / Codex / Cursor — open-sourced Build-in-Public from a one-person company (OPC).*
 
-[![Skills](https://img.shields.io/badge/skills-7%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
+[![Skills](https://img.shields.io/badge/skills-8%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-快速开始)
 [![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/Huanyu-Hibiki/Huanyu-Skills?style=flat&color=ffd700)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/stargazers)
@@ -23,6 +23,7 @@
 | Skill | 一句话 | 子 skill | 版本 | License |
 |---|---|---|---|---|
 | [founder-ip](founder-ip/) | 创始人 IP 战略层系统（Founder IP Strategy）：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层一次想清楚 | 5 | 1.2.0 | AGPL-3.0 |
+| [GitHub-Renovation](GitHub-Renovation/) | GitHub 仓库门面装修（GitHub Renovation）：项目 README / profile 主页 / 仓库 SEO，先定位后装修，写入前必须确认 | 1 | 1.0.0 | MIT |
 | [oracle-bone](oracle-bone/) | 内容预测校准循环（Content Calibration Loop）：打分 → 盲预测 → 发布 → 复盘 → 进化你自己的爆款公式 | 26 | 1.0.0 | MIT |
 | [pulsehub](pulsehub/) | 获客系统（Lead Generation System）：16 个 skill 四层闭环 + 随使用积累的"项目大脑" | 16 | 1.0.0 | MIT |
 | [shendu-yuedu](shendu-yuedu/) | 深度阅读系统（Deep Reading System）：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
@@ -33,11 +34,12 @@
 <details>
 <summary><b>📖 English</b></summary>
 
-**Huanyu-Skills** is a collection of 7 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
+**Huanyu-Skills** is a collection of 8 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
 
 | Skill | What it does |
 |---|---|
 | [founder-ip](founder-ip/) | Founder IP strategy layer: strategy / persona / content funnel / business model / OPC pipeline |
+| [GitHub-Renovation](GitHub-Renovation/) | GitHub repository renovation: professional project READMEs / profile homepage repos / repo SEO — positioning first, nothing written to GitHub without confirmation |
 | [oracle-bone](oracle-bone/) | Content calibration loop: score → blind-predict → publish → review → evolve your own hit formula |
 | [pulsehub](pulsehub/) | Lead generation system: 16 skills in 4 layers + a "project brain" that grows with use |
 | [shendu-yuedu](shendu-yuedu/) | Deep reading system: turn "read and forget" into a personal knowledge wiki of callable skills |
@@ -67,6 +69,7 @@ xianyu-skill 把成品挂上闲鱼变现（拆竞品 → 写文案 → 出详情
 
 shendu-yuedu 管输入：读书读完变技能，喂给上面所有环节
 skill-master 管技能本身：这套系统的"系统"，装、扫、析、写、优
+GitHub-Renovation 管门面：这套系统的"脸面"，README、主页、仓库 SEO 装修
 ```
 
 每套也完全独立可用，按需取用即可。
@@ -110,4 +113,4 @@ cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone    # Claude Code
 
 ## 📄 License
 
-各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow / xianyu-skill 为 MIT。
+各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow / xianyu-skill / GitHub-Renovation 为 MIT。
