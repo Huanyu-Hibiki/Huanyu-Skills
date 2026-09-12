@@ -121,3 +121,25 @@ AI 会接管整条链：先问你几个问题（卖多少钱、怎么发货、�
 ## 📄 License
 
 MIT
+
+---
+
+## 👤 关于作者 · 呼风唤雨的焕羽
+
+我是**呼风唤雨的焕羽**，**工程合规 AI 创业者**——工程管理专业出身，从央企经营部走出来，现在经营一人公司（OPC），用 AI Agent 重做工程本行（合同审查 / 招投标合规 / 资质管理），全过程 [Build in Public](https://github.com/Huanyu-Hibiki)。本 skill 的完整手把手教程与实战演示，都在我的视频里：
+
+<p>
+  <a href="https://v.douyin.com/eBJ-mM7PvIg"><img alt="在抖音关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E6%8A%96%E9%9F%B3-%E5%85%B3%E6%B3%A8%E6%88%91-000000?style=for-the-badge&logo=tiktok&logoColor=white"></a>
+  <a href="https://space.bilibili.com/338267911"><img alt="在哔哩哔哩关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9-%E5%85%B3%E6%B3%A8%E6%88%91-FB7299?style=for-the-badge&logo=bilibili&logoColor=white"></a>
+  <a href="https://www.xiaohongshu.com/user/profile/677c7be200000000140313f7"><img alt="在小红书关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E5%B0%8F%E7%BA%A2%E4%B9%A6-%E5%85%B3%E6%B3%A8%E6%88%91-FF2442?style=for-the-badge&logo=xiaohongshu&logoColor=white"></a>
+</p>
+
+<div align="center">
+
+🔍 **四个平台全同名，搜索「呼风唤雨的焕羽」看视频教程**
+
+<img src="../assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
+
+<sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
+
+</div>
