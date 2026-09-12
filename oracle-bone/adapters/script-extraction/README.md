@@ -161,6 +161,7 @@ URL ──yt-dlp──> 字幕轨？──有──> VTT/SRT 清洗 ────
 - **抖音/小红书被拦**：确认 ①浏览器已登录 ②读取 cookie 时浏览器已退出 ③装了 curl-cffi（否则无 TLS 拟真）——仍失败说明进风控期，走录屏/文案复制
 - **`--cookies-from-browser` 读不到 cookie**：Windows 下 Chrome/Edge 运行中会锁 cookie 数据库，先完全退出浏览器再跑
 - **长视频转录耗时约 1:1 实时**（CPU int8，turbo/medium 档相近）——一律后台跑，不占前台
+- **hf CLI 走镜像下载报 401（CAS Client Error / cas-server.xethub.hf.co）**：Xet 存储仓库绕过了 HF_ENDPOINT 镜像直连官方 CAS——加 `HF_HUB_DISABLE_XET=1` 强制回退普通 CDN 下载（镜像可代理）。turbo 档实测中招，命令见上节
 - **转录产物立刻落盘**（`--out` 直接指向 `study/<博主>-apprentice/<标题>/`）——临时目录会被清
 - **转录准确度低于粘贴文本**（错字/漏字/标点不准）——能用"文案提取小程序/字幕导出"就别用 whisper
 - **模型在线下载在国内大概率失败**——按「模型下载」节预下载到 `models/`，一劳永逸
