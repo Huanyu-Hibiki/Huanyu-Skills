@@ -123,6 +123,20 @@ uv pip install --python .venv/Scripts/python.exe -U huggingface_hub
 # 校验：models/faster-whisper-large-v3-turbo/ 里有 model.bin 即合法；无网机器 → --model-dir 接任意已有 turbo 目录
 ```
 
+## SenseVoice 安装（可选——oracle-voice 路径 B 中文快线）
+
+只用 whisper 转写就不用装这组（torch 较大）。SenseVoiceSmall（阿里 FunAudioLLM 开源，Apache-2.0，~234M）中文转写比 whisper-large 快一个量级；输出**无标点**——标点由 oracle-voice 文字轮恢复，属预期不是 bug：
+
+```bash
+cd adapters/script-extraction
+uv pip install --python .venv/Scripts/python.exe -r requirements-sensevoice.txt    # 一次性
+.venv/Scripts/python.exe sensevoice_transcribe.py "录音.wav" --out <作品目录>/voice/round-1/
+```
+
+- 模型（SenseVoiceSmall + FSMN-VAD）**首次运行自动从 ModelScope 下载**到 `models/funasr/`（已 gitignore，国内直连稳）
+- `--language auto|zh|yue|en|ja|ko`；GPU 机器 `--device cuda:0` 再快一档
+- 与 transcribe.py 同一输出契约（transcript.md：来源 + 时长 + 转录方式 + 段落全文），来源标注 `SenseVoiceSmall (local, ...)`
+
 ## 日常运行
 
 ```bash
@@ -162,6 +176,8 @@ URL ──yt-dlp──> 字幕轨？──有──> VTT/SRT 清洗 ────
 - **`--cookies-from-browser` 读不到 cookie**：Windows 下 Chrome/Edge 运行中会锁 cookie 数据库，先完全退出浏览器再跑
 - **长视频转录耗时约 1:1 实时**（CPU int8，turbo/medium 档相近）——一律后台跑，不占前台
 - **hf CLI 走镜像下载报 401（CAS Client Error / cas-server.xethub.hf.co）**：Xet 存储仓库绕过了 HF_ENDPOINT 镜像直连官方 CAS——加 `HF_HUB_DISABLE_XET=1` 强制回退普通 CDN 下载（镜像可代理）。turbo 档实测中招，命令见上节
+- **SenseVoice 输出无标点**：属预期（模型本身不产标点）——标点恢复在 oracle-voice 文字轮；要在脚本层解决可另接 FunASR 的 ct-punc 标点模型
+- **SenseVoice 可能带 emoji 事件标记**（🎼音乐/😡愤怒等）：模型的多模态标签，纯音乐/静音段必出现；文字轮整理时随语气词一起清掉。实测 CPU RTF≈0.26（比 whisper medium 的 ~1:1 快约 4 倍）
 - **转录产物立刻落盘**（`--out` 直接指向 `study/<博主>-apprentice/<标题>/`）——临时目录会被清
 - **转录准确度低于粘贴文本**（错字/漏字/标点不准）——能用"文案提取小程序/字幕导出"就别用 whisper
 - **模型在线下载在国内大概率失败**——按「模型下载」节预下载到 `models/`，一劳永逸

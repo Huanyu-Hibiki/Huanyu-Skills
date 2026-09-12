@@ -46,20 +46,26 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 **路径 A（推荐）——录音设备/听写工具自带转写**：手机录音 App 自带转写（小米录音机等）、语音输入法、PC 听写工具（Typeless / OpenTypeless 类）。云端中文 ASR 通常比本地 whisper 更准、自带标点，录完即得文字——把转出的文字**直接粘贴给 AI** 或存成文本文件给路径。
 
-**路径 B（本地兜底）——whisper large-v3-turbo**：音频文件已在电脑 / 无网 / 隐私敏感时用：
+**路径 B（本地兜底）——两个本地引擎任选**：音频文件已在电脑 / 无网 / 隐私敏感时用（解释器必须用 adapter 自带 .venv，同主 SKILL.md「Adapter 铁律」节）：
 
 ```bash
-# <包根> = oracle-bone 根目录；解释器必须用 adapter 自带 .venv（同主 SKILL.md「Adapter 铁律」节）
+# B1 中文快线：SenseVoiceSmall（~234M，中文最快；输出无标点→文字轮恢复标点）
+<包根>/adapters/script-extraction/.venv/Scripts/python.exe \
+  <包根>/adapters/script-extraction/sensevoice_transcribe.py "<音频文件>" --out "<作品目录>/voice/round-<N>/"
+
+# B2 多语种稳线：whisper large-v3-turbo（中英混杂/外语专名多时更稳）
 <包根>/adapters/script-extraction/.venv/Scripts/python.exe \
   <包根>/adapters/script-extraction/transcribe.py "<音频文件>" --out "<作品目录>/voice/round-<N>/"
 # macOS/Linux: .venv/bin/python
 ```
 
-**产物归档**：两条路径的转写文本统一落 `voice/round-<N>-transcript.md`（粘贴文本由 AI 代写归档），首行标注来源（`App 转写：<名称>` / `whisper-large-v3-turbo` / `手动转写`）。
+引擎选择：纯中文口播 → B1（快）；中英混杂 / 英文专名多 → B2。
+
+**产物归档**：各路径的转写文本统一落 `voice/round-<N>-transcript.md`（粘贴文本由 AI 代写归档），首行标注来源（`App 转写：<名称>` / `SenseVoiceSmall (local)` / `whisper-large-v3-turbo` / `手动转写`）。
 
 | 如果 | 则 |
 |---|---|
-| .venv 不存在（路径 B） | 按 [adapters/script-extraction/README.md](../../adapters/script-extraction/README.md) 安装节建 venv + 预下载模型；**不换系统 python** |
+| .venv / SenseVoice 依赖不存在（路径 B） | 按 [adapters/script-extraction/README.md](../../adapters/script-extraction/README.md) 安装节装（SenseVoice 见其专属小节）；**不换系统 python** |
 | 转录失败 / 无模型（路径 B） | 改走路径 A 粘贴——绝不静默编造转写内容 |
 | App 转写把专名打错 | 正常现象——Phase 3 按个人词典纠正；词典没有的收为「词典候选」 |
 | 音频还在手机上 | 手机 App 直接转好粘贴（路径 A），不必传音频文件 |

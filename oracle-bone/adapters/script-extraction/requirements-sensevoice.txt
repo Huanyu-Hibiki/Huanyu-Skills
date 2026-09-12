@@ -1,0 +1,7 @@
+# SenseVoiceSmall 本地转写的可选依赖（oracle-voice 路径 B 中文快线）
+# 装进本 adapter 自带 .venv：uv pip install --python .venv/Scripts/python.exe -r requirements-sensevoice.txt
+# 只用 whisper 转写的话不需要装这组（torch 体积较大）——见 README「SenseVoice 安装」节
+funasr>=1.2.0
+modelscope>=1.20
+torch>=2.1
+torchaudio>=2.1
