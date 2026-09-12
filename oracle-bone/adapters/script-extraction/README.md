@@ -134,8 +134,22 @@ uv pip install --python .venv/Scripts/python.exe -r requirements-sensevoice.txt 
 ```
 
 - 模型（SenseVoiceSmall + FSMN-VAD）**首次运行自动从 ModelScope 下载**到 `models/funasr/`（已 gitignore，国内直连稳）
-- `--language auto|zh|yue|en|ja|ko`；GPU 机器 `--device cuda:0` 再快一档
+- `--language auto|zh|yue|en|ja|ko`
 - 与 transcribe.py 同一输出契约（transcript.md：来源 + 时长 + 转录方式 + 段落全文），来源标注 `SenseVoiceSmall (local, ...)`
+
+### torch 版本：CPU（默认）与 CUDA（有 NVIDIA GPU 才装）
+
+- **无 GPU（大多数情况）**：上面默认命令从 PyPI/镜像装到的就是 **CPU 版**（`torch 2.x+cpu`，约 200MB）——这就是正确状态，直接用。脚本默认 `--device cpu`，实测 RTF≈0.26（3 秒音频 0.8 秒转完），10 分钟录音约 2-3 分钟。
+  验证：`.venv/Scripts/python.exe -c "import torch; print(torch.cuda.is_available())"` 输出 `False` = CPU 版，属预期、不是装错。
+- **有 NVIDIA GPU 想再快**：CPU 版不能直接用 GPU，需换装 CUDA 版（PyPI 默认不给，走 pytorch 官方索引）：
+
+  ```bash
+  uv pip install --python .venv/Scripts/python.exe torch torchaudio --index-url https://download.pytorch.org/whl/cu126 --upgrade
+  ```
+
+  wheel 约 2.5GB（含 CUDA 运行时），且要求本机 NVIDIA 驱动支持对应 CUDA 版本（版本对照见 pytorch.org）。装完验证 `torch.cuda.is_available()` → `True`，跑脚本加 `--device cuda:0`。
+- **whisper 引擎同理**：faster-whisper 的 GPU 路线需要 CUDA + cuDNN 运行时（见 faster-whisper 文档）；无 GPU 机器上 turbo/medium 的 CPU 速度已经够用，不必折腾。
+- 结论：**无 GPU 什么都不用改**；SenseVoice 的 CPU 速度本来就比 whisper 快一个量级。
 
 ## 日常运行
 

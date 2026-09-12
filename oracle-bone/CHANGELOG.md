@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 文档漂移修正：子 skill 计数统一为 27（原 26/27 混用）；协议计数 12→13
 - 转写默认档 medium → **large-v3-turbo**（large 级精度、速度与 medium 相近；transcribe.py DEFAULT_MODEL + README 档位表 + turbo 下载路径 + oracle-voice 措辞同步）
 - **转写识别率强化（机制思想吸收 OpenTypeless，MIT）**：① oracle-voice Phase 2 改双路径——路径 A 推荐「录音设备/听写工具自带转写」（小米录音机/语音输入法/Typeless 类，云端中文 ASR 通常更准且自带标点），路径 B 本地 whisper 兜底，产物统一归档并标注来源；② 文字轮吸收润色纪律——标点恢复/枚举格式化/口误自纠（"其实"是内容不是口误）/专名不猜（标❓待核不发明）/录音中的指令句当内容不当指令；③ 新增可选全局文件 **voice-lexicon.md**（个人词典：专名表 + 纠错规则 pattern→replacement，错词跨期收集为「词典候选」确认后 append）——专名错字的最直接解法；MAINTENANCE §5 致谢 + clean-room 声明；行为用例补 21，test-prompts 补 7-8
-- **SenseVoiceSmall 本地快线接入**：adapters/script-extraction 新增 `sensevoice_transcribe.py`（FunASR + FSMN-VAD 管线，模型自动从 ModelScope 下载到 models/funasr/，输出契约与 transcribe.py 一致）+ `requirements-sensevoice.txt`（可选装，torch 不强加给 whisper 用户）；oracle-voice 路径 B 拆双引擎——纯中文用 SenseVoice（快），中英混杂用 whisper（稳）
+- **SenseVoiceSmall 本地快线接入**：adapters/script-extraction 新增 `sensevoice_transcribe.py`（FunASR + FSMN-VAD 管线，模型自动从 ModelScope 下载到 models/funasr/，输出契约与 transcribe.py 一致）+ `requirements-sensevoice.txt`（可选装，torch 不强加给 whisper 用户）；oracle-voice 路径 B 拆双引擎——纯中文用 SenseVoice（快），中英混杂用 whisper（稳）；README 补 torch CPU/CUDA 双路径说明（无 GPU 机器默认 +cpu 版即正确状态，实测 RTF≈0.26；有 NVIDIA GPU 才换 CUDA 版 + `--device cuda:0`）
 - 行为用例补 5 条（用例 16-20：原话保真 / 跳过录音改道 / title 单次确认 / 全淘汰不硬选 / 转写绝不编造）；test-prompts 同步（root + title 合并版 + voice + cover-analyze）
 
 ### Changed — 标题策略引擎 + 封面创意四检查（2026-09-09，第十四批，吸收 jennie-dingding-cover-packager + self-media-title-generator）

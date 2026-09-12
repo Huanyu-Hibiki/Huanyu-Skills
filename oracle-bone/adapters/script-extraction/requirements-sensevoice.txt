@@ -1,6 +1,8 @@
 # SenseVoiceSmall 本地转写的可选依赖（oracle-voice 路径 B 中文快线）
 # 装进本 adapter 自带 .venv：uv pip install --python .venv/Scripts/python.exe -r requirements-sensevoice.txt
 # 只用 whisper 转写的话不需要装这组（torch 体积较大）——见 README「SenseVoice 安装」节
+# 无 GPU 机器直接装即可：PyPI 默认即 torch CPU 版（+cpu 后缀），脚本默认 --device cpu，无需改动
+# 有 NVIDIA GPU 想用 GPU：换装 CUDA 版（--index-url https://download.pytorch.org/whl/cu126）+ --device cuda:0，见 README
 funasr>=1.2.0
 modelscope>=1.20
 torch>=2.1
