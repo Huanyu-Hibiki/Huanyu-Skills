@@ -2,7 +2,7 @@
 #
 # oracle-bone / uninstall.sh
 #
-# Removes the 26 sub-skills from ~/.claude/skills/.
+# Removes the 27 sub-skills from ~/.claude/skills/.
 #
 # Does NOT touch any content project's data (.oracle-state.json, predictions/,
 # rubric_notes.md, user-profile.md, content-plan.md, candidates.md, etc.) — those
@@ -20,6 +20,7 @@ SKILLS=(
   oracle-trends
   oracle-recommend
   oracle-seed
+  oracle-voice
   oracle-score
   oracle-title
   oracle-description

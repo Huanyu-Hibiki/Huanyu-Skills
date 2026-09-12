@@ -26,9 +26,10 @@ MAX_LIST_ITEMS = 8
 
 # 各任务建议读取清单（文件名与 shared-references 既有协议，不新增事实源）
 TASK_READLIST = {
-    "score": ["rubric_notes.md（该轨节）"],
+    "score": ["rubric_notes.md（该轨节）", "shared-references/scoring-procedure.md（打分规程）"],
     "predict": [
         "rubric_notes.md（该轨节）",
+        "shared-references/scoring-procedure.md（打分规程）",
         "同轨 predictions/*.md header（锚点，排除 reconstructed）",
         "shared-references/prediction-anatomy.md + blind-prediction-protocol.md",
     ],
@@ -48,7 +49,8 @@ TASK_READLIST = {
     ],
     "recommend": ["candidates.md（tier != skip）", "content-plan.md（占比过滤）"],
     "seed": ["user-profile.md（风格 / 红线）", "content-plan.md（track 分流）", "references/hook-prototypes.md"],
-    "trends": ["adapters/trend-sources/（已启用源）", "shared-references/candidate-schema.md"],
+    "voice": ["candidates.md 该 entry（track / 立意 / 受众）", "seed 录音聊天卡（如刚跑完 seed）", "转写: adapters/script-extraction（.venv 解释器，失败走手动粘贴）"],
+    "trends": ["adapters/trend-sources/（已启用源）", "shared-references/candidate-schema.md", "shared-references/scoring-procedure.md（粗打分规程）"],
     "title": ["目标作品 scripts/*.md（draft）", "标题候选列表（评审模式；生成模式自产）"],
     "description": ["目标作品 scripts/*.md（定稿，append 发布文案段）", "state.platforms（平台集）"],
     "cover": ["目标作品 scripts/*.md（定稿）", "user-profile.md（形象三词 / 风格）", "cover-patterns.md（如有，对标视觉配方）"],

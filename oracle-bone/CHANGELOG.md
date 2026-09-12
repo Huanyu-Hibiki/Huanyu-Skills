@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — oracle-voice 语音起稿 + title 合并终审（2026-09-12，第十五批，姜胡说方法论吸收 + 结构简化）
+
+**新增**
+- **新子 skill oracle-voice（语音起稿循环，情绪先行 · 原话保真）**：像和朋友聊天一样录音讲选题（情绪是桥，先接情绪再进内容；不怕跑题停顿，停顿不转文字）→ adapter 转写（script-extraction，.venv 铁律；失败走手动粘贴绝不编造）→ **双心态打磨循环**：文字轮只管吃透知识（去语气词/补"回头查"清单/标❓断点——断点等用户下轮自己圆，AI 不代补；整理稿本身是知识库资产）、录音轮只管表达（不照稿念）→ 收敛判据（无未解断点 + 用户自评讲顺）→ 基于最终转写稿出 **3 条候选稿**（开场黄金 3 秒各配不同 hook-prototypes 原型 + 结构按 script_patterns + 金句必有转写原话原型）→ 🔴 CHECKPOINT 迭代（选 N / 再来 3 条 / 第 X 条缺 Y 微调）→ 定稿落 scripts/（header 继承 seed draft 格式）
+- **oracle-voice 硬纪律**：PRESERVE_VOICE（AI 只删重复/调顺序/拆长句/加小标题，不加一个用户没说过的观点——治"AI 直出稿没有我"）；DASH_BAN（候选稿/定稿禁用破折号）；EMOTION_FIRST；裸转写模式（—transcribe-only，与链路解耦）
+- 补 oracle-cover-analyze/test-prompts.json（此前唯一缺测试 prompts 的子 skill）
+
+**流程变更**
+- **seed → voice 接线**：seed 定题后默认输出「录音聊天卡」（讲什么/讲给谁/看完做什么/情绪触发点）并引导 /oracle-voice；**AI 直出 draft 降级为 seed 显式降级路径**（用户点名"你直接写"才走，脚手架警告不变）；Phase 2A-2 钩子/兴趣属性/互动设计规则保留在 seed 作单一来源，voice Phase 5-6 引用执行
+- **oracle-title 合并 oracle-title-pick**（27→26→27）：Phase A 生成（原流程不动）→ Phase B 终审（淘汰清单合并为一份：结构段 Phase A 筛 + 红线段 Phase B 再拦；5 维隐式评估 + ⭐推荐 ≤80 字理由）→ Phase C **单次 CHECKPOINT**（用推荐/用#N/再来一轮/我自己改——原两次确认往返收敛为一次）→ 改名级联（标题行/目录/文件名/prediction header）+ post_titlepick v2 触发原样保留；独立入口保留（自带候选直评 + —diagnose）；post_titlepick basis 枚举名不变
+- **打分规程下沉 shared-references/scoring-procedure.md**：rubric 解析三步（starter 兜底不写文件）/ 0-5 整数分 / 盲打优先 / 理由 ≤30 字 / composite 公式现场解析不复制——score / predict / trends 三处 inline 拷贝去重，改口径只改一处；predict 的 rubric 兜底从"初始化"对齐为"读 v0 公式不落盘"
+
+**同步**
+- 主 SKILL.md：链路图（seed→voice→title）、路由表（+voice 行，title 行吸收选标题触发词）、作品目录树（+voice/）、能力边界 #5、协作契约 #10
+- content-folder-schema.md：voice/ 子目录 + 转写轮次产物行 + 初始化步骤改 seed/voice 共用
+- DESIGN.md：§5 清单重排连续编号（1-27）+ §6 链路图 + §10 分工；README/MAINTENANCE/install/uninstall/context.py/workflow.template 同步
+- 文档漂移修正：子 skill 计数统一为 27（原 26/27 混用）；协议计数 12→13
+- 行为用例补 5 条（用例 16-20：原话保真 / 跳过录音改道 / title 单次确认 / 全淘汰不硬选 / 转写绝不编造）；test-prompts 同步（root + title 合并版 + voice + cover-analyze）
+
 ### Changed — 标题策略引擎 + 封面创意四检查（2026-09-09，第十四批，吸收 jennie-dingding-cover-packager + self-media-title-generator）
 - **oracle-title 重构为标题策略引擎**：① 原料表提取（8 项：对象/旧问题/工具方法/独特结果/事实证据/反转判断/视觉词/场景，定稿为唯一来源，只展示有内容项）② 策略族地图——7 族（判断选择/痛点避坑/身份代入/结果清单/体验反转/好奇缺口/互动测试）按本次用户动作选 1 主 + 1 备 ③ 内部发散 ≥8 → 淘汰清单筛 → 输出 3-5（原直出 3-5）④ 点击承诺三件套至少含两项（对象/方法变化/结果爽点）⑤ 新增已有标题诊断（—diagnose：五查 + 直接保留/轻微压缩/建议重做 + 同策略/换策略优化版）⑥ 事实纪律：数字/结果/经历必须可回溯定稿，不为套策略编造
 - **oracle-cover 吸收封面创意系统**：创意四检查（语义准确/因果可见/高概念/低视觉噪音）为落盘前硬自检 + 语义桥接三行（标题承诺/内容机制/画面机制说同一件事，字面具象化=弱）+ 3:4 两行标题默认占比数值（宽 90-93%/高 31-34%/顶距 6-8%/左右 4-5%）+ 跨平台锁定（同标题同主题同配色，按比例重构图不裁切；确认后标题逐字锁定）

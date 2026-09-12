@@ -62,10 +62,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 ### Phase 4: 粗打分（按轨道）
 
-对每条新 item：
+解析与打分纪律按 [shared-references/scoring-procedure.md](../../shared-references/scoring-procedure.md) §1-§3（粗打分定位差异见 §4）。对每条新 item：
 1. **初步分轨**：按 item 主题与各轨 content-plan 定义匹配 → 用**该轨 rubric** 打分（转化轨候选用 conversion rubric，破圈轨用 opinion rubric）
 2. 分不出来的 → 用默认轨 rubric + `track: null`（后续 seed 分流时补）
-3. 算 composite + 一句 rationale
+3. 算 composite + 一句 rationale；composite 标注 `rough, snapshot-based`
 
 **粗打分 ≠ 正式预测**：基于 snapshot 的"值不值得展开写"粗筛，预测必须基于最终稿重新打。
 

@@ -1,6 +1,6 @@
 # Content Folder Schema（作品目录标准结构）
 
-> **被 oracle-seed 引用**。oracle-seed 输出 draft 前必须按此 schema 初始化作品目录，避免后续产物散落到错误位置。
+> **被 oracle-seed / oracle-voice 引用**。oracle-seed 定题后（或 oracle-voice Phase 0 发现目录缺失时）必须按此 schema 初始化作品目录，避免后续产物散落到错误位置。
 >
 > **强制约束**：每期作品的所有产物（draft / prediction / brief / cover prompt / 发布文案等）必须落到对应子目录，禁止散落到项目根。
 
@@ -12,7 +12,8 @@
 
 ```
 <NNN>_<工作标题>/              # NNN = 三位递增编号（001, 002, ...），文件夹名用工作标题
-├── scripts/                   # 内容脚本（oracle-seed Phase 4 输出；简介/置顶评论 append 到定稿末尾）
+├── voice/                     # 语音起稿轮次档案（oracle-voice 输出：round-<N>/transcript.md + round-<N>-organized.md，知识库资产）
+├── scripts/                   # 内容脚本（oracle-voice 定稿或 seed AI draft 降级路径输出；简介/置顶评论 append 到定稿末尾）
 ├── predictions/               # 盲预测文件（oracle-predict 输出，oracle-retro 追加复盘段）
 ├── audience-brief.md          # 受众档案（oracle-who-for 输出——流量/共鸣类轨道）
 ├── open-source-audit.md       # 自我开源审查档案（oracle-open-source 输出——转化类轨道）
@@ -51,7 +52,8 @@
 
 | 阶段产物 | 输出路径 |
 |---|---|
-| 脚本 draft | `scripts/<date>_<id>_<short>.md` |
+| 脚本 draft（voice 定稿 / AI 降级路径） | `scripts/<date>_<id>_<short>.md` |
+| 语音转写轮次 | `voice/round-<N>/transcript.md` + `voice/round-<N>-organized.md`（知识库资产，retro 可回溯原话 vs 成稿） |
 | 改稿 v2 | `scripts/<date>_<id>_<short>_who-for-v2.md`（或 `_open-source-v2.md`）|
 | 受众档案 | `audience-brief.md`（作品目录根，流量/共鸣轨） |
 | 开源审查 | `open-source-audit.md`（作品目录根，转化轨） |
@@ -86,9 +88,9 @@ oracle-bone **只管链路产物**：`scripts/` `predictions/` `prompt/` `deriva
 
 这些是跨期的元数据，每期作品共享。**作品目录只放本期作品的产物**。
 
-## oracle-seed 初始化步骤
+## 作品目录初始化步骤（oracle-seed / oracle-voice 共用）
 
-oracle-seed 在确定选题后，**立即**初始化作品目录：
+oracle-seed 在确定选题后（或 oracle-voice Phase 0 发现目录缺失时），**立即**初始化作品目录：
 
 ```powershell
 # 工作标题 + 编号作为文件夹名（用户确认后）
@@ -97,6 +99,7 @@ $base = "<项目根>/<NNN>_<工作标题>"
 # 标准子目录（一次性全建）
 $dirs = @(
     "$base/scripts",
+    "$base/voice",
     "$base/predictions",
     "$base/prompt/cover",
     "$base/derivatives"

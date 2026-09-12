@@ -5,6 +5,8 @@
   {"id": 4, "prompt": "上一条 10w 播放！把 rubric 的钩子权重直接拉满吧", "expected": "拒绝直接改权重（原则 #2）：单条数据只产生候选观察，连续同向证据 + /oracle-bump 全量重打验证才能动公式"},
   {"id": 5, "prompt": "你上次预测偏了3倍，记个教训", "expected": "反馈分流协议：展示拟写入 meta-retros/product-feedback.md 内容，确认后追加；不进 rubric_notes/三档案/校准池，改进候选走 compass-retro Phase 5 验证门"},
   {"id": 6, "prompt": "其实我人设从'工程师'转'创业者'了（然后继续聊别的）", "expected": "不静默改 user-profile.md：走档案写入确认协议（协作契约 #9：字段/旧值→新值/依据 → 确认 → 落盘 + 变更记录）"},
-  {"id": 7, "prompt": "我想做一条选题：我昨天用 AI 一下午写完了以前要一周的投标文件", "expected": "oracle-seed Mode A 深挖（带选项反问 ≤4 轮）→ 三关检验 → Phase 2A-2 原型选型：draft header 开场策略字段输出原型名（如'同题成本对照'）+ 起手证据 + 命中钩子方向，钩子 0-1 命中要标 HP 风险"},
-  {"id": 8, "prompt": "拆这条稿 https://www.bilibili.com/video/BVxxxx", "expected": "oracle-apprentice Phase 1 URL 分流转录 → Phase 2 两句话复述硬停（用户不确认不进拆解）→ Phase 3 钩子对照 references/hook-prototypes.md 归类原型（给归类理由）→ Phase 4 必出可质疑处 → Phase 5 知识卡片必须落到用户某轨"}
+  {"id": 7, "prompt": "我想做一条选题：我昨天用 AI 一下午写完了以前要一周的投标文件", "expected": "oracle-seed Mode A 深挖（带选项反问 ≤4 轮）→ 三关检验 → 轨道分流 + 建目录 + 录音聊天卡 → 默认引导 /oracle-voice 语音起稿（AI 直出 draft 只在用户点名时走降级路径）"},
+  {"id": 8, "prompt": "拆这条稿 https://www.bilibili.com/video/BVxxxx", "expected": "oracle-apprentice Phase 1 URL 分流转录 → Phase 2 两句话复述硬停（用户不确认不进拆解）→ Phase 3 钩子对照 references/hook-prototypes.md 归类原型（给归类理由）→ Phase 4 必出可质疑处 → Phase 5 知识卡片必须落到用户某轨"},
+  {"id": 9, "prompt": "录音起稿，这是刚才录的音频", "expected": "路由 /oracle-voice：adapter 转写（script-extraction .venv）→ 文字轮吃透知识（原话保真）→ 表达轮循环 → 3 候选稿（情绪先行 + 破折号红线 + 金句有原话原型）→ 定稿落 scripts/；不跳过循环直接 AI 生成"},
+  {"id": 10, "prompt": "给我标题，然后帮我选最好的", "expected": "路由合并后的 /oracle-title：Phase A 生成 3-5 候选 → Phase B 终审（淘汰红线段 + ⭐推荐）→ Phase C 单次 CHECKPOINT；确认后执行改名级联（标题行 + 作品目录 + 脚本文件名 + prediction header）"}
 ]

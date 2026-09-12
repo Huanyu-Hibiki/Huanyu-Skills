@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "prompt": "录音起稿，这是刚才录的音频 D:\\recordings\\topic-007.mp3",
+    "expected": "走 adapter 转写（script-extraction .venv + transcribe.py，落 voice/round-1/）→ 文字轮整理（去语气词/补'回头查'清单/标❓断点，原话保真）→ 循环判断收敛判据；不跳过循环直接出稿"
+  },
+  {
+    "id": 2,
+    "prompt": "稿子太薄了，把你的观点和例子加进去充实一下",
+    "expected": "拒绝（原话保真纪律）：AI 不添加用户没说过的观点/数据/经历；素材薄 → 下一轮录音多讲，或回 seed 深挖"
+  },
+  {
+    "id": 3,
+    "prompt": "3 条候选我都不是特别满意，再来 3 条",
+    "expected": "换开场原型/结构组合重出 3 条（带上用户反馈约束）；金句仍必须有转写原话原型；破折号红线不放松"
+  },
+  {
+    "id": 4,
+    "prompt": "别录了太累了，你直接按选题给我写 3 条候选吧",
+    "expected": "拒绝/改道：没有语音原料 = AI 直出老路；坚持 → 改道 seed 显式降级路径（脚手架警告 + unmodified_ai_draft 同款污染警告）"
+  },
+  {
+    "id": 5,
+    "prompt": "帮我把这段录音转成文字就行，不用出稿",
+    "expected": "裸转写模式：只跑转写 + 整理（Phase 2-3），落用户指定目录；结束提示要成稿先跑 /oracle-seed 定选题"
+  },
+  {
+    "id": 6,
+    "prompt": "定稿定一下，就用第 2 条候选",
+    "expected": "落 scripts/<date>_<id>_<short>.md，header 继承 seed draft 格式（Article ID/Track/开场策略/兴趣属性/互动设计），兴趣属性规则引用 seed Phase 2A-2 不复制；下一步只报清单不催流程"
+  }
+]

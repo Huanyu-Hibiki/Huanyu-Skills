@@ -1,6 +1,6 @@
 ---
 name: oracle-bone
-description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"采集数据"/"拉数据"/"迁移"。**首次使用必须先跑 /oracle-init。**
+description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"录音起稿"/"语音起稿"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"采集数据"/"拉数据"/"迁移"。**首次使用必须先跑 /oracle-init。**
 argument-hint: "[draft-path] [— mode: cold-start|calibration]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 ---
@@ -40,7 +40,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 2. **cold-start 前 5 篇预测精度 ±50%**——新账号没有锚点，写预测的目的的是**采集校准数据**，不是做发布决策。导入对标账号（learn-from）可显著改善。
 3. **hooks 是 Claude Code 格式**（预测不可变强制 / 会话自动状态报告）——不支持 hooks 的 runtime 降级为 skill 内自检 + 用户 review 软防线，保护强度依赖流程纪律。
 4. **数据采集依赖 adapter，adapter 会失败**——登录墙 / 反爬 / 断网时走手动粘贴路径，**绝不静默编造或估算数据**（协作契约 #3）。
-5. **AI 写的 draft 是脚手架不是成品**——不改写直接拍会拉低 ER 并污染校准数据（seed Refusals 有对应警告分支）。
+5. **AI 写的 draft 是脚手架不是成品**——不改写直接拍会拉低 ER 并污染校准数据（seed Refusals 有警告分支）。默认起稿 = **oracle-voice 语音起稿**（从用户录音原话长出来）；AI draft 降级为 seed 显式降级路径。
 6. **一个项目一份 state**——`.oracle-state.json` 全局唯一于各项目根；多账号 / 多项目 = 多个项目根各自 init，不支持单 state 混装。
 
 ---
@@ -51,7 +51,7 @@ oracle-bone **不硬编码任何内容分层**。`/oracle-init` 通过采访为�
 
 | 档案 | 内容 | 被谁消费 |
 |---|---|---|
-| `user-profile.md` | 创作者档案：变现方式 / 客单价 / 专业优势 / 形象三词 / 内容风格 / 内容喜好 / 内容红线 | seed / learn-from / who-for / cover |
+| `user-profile.md` | 创作者档案：变现方式 / 客单价 / 专业优势 / 形象三词 / 内容风格 / 内容喜好 / 内容红线 | seed / voice / learn-from / who-for / cover |
 | `content-plan.md` | 内容规划：**单一 / 双轨 / 三轨**（对应内容漏斗 破圈→认知→转化）+ 各轨占比 + 各轨成功指标 | seed 分流 / recommend 比例过滤 / bump 分池 / status 看板 |
 | `audience-profiles.md` | 各轨受众画像（含"一般关注"人群） | simulate-audience / who-for / seed 受众校准 |
 
@@ -78,7 +78,7 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 | `conversion_blocked` 转化受阻 | 转化轨有播放但零咨询/付费信号 | 转化轨 seed 必过 playbook"极刚痛点 6 问"；review 强制 open-source |
 | `none` 无显著约束 | 四类信号都不显著 | 不硬贴标签——没有最大约束本身就是好状态 |
 
-**纪律**：判定必须带依据 + 升级条件；证据不足保守取更早的约束（宁可低估）。切换约束需连续两次 compass-retro 同向证据或用户明确拍板（防单期噪声）。约束与轨道分流**正交**：先轨道后约束，叠加生效。
+**纪律**：判定带依据 + 升级条件；证据不足保守取更早约束。切换需连续两次 compass-retro 同向证据或用户拍板（防单期噪声）；约束与轨道分流**正交**，叠加生效。
 
 ---
 
@@ -93,13 +93,14 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 ```
 <NNN>_<最终标题>/
 ├── predictions/<YYYY-MM-DD>_<id>_<短标题>.md   # oracle-predict 落盘（## 预测 段 immutable）
+├── voice/round-<N>/                             # oracle-voice 转写轮次档案（transcript + organized）
 ├── prompt/cover/                                # oracle-cover 生成（_base.md + 平台比例派生）
 ├── scripts/<最终标题>.md                         # 定稿；简介/置顶评论直接 append 到末尾段
 └── audience-brief.md / open-source-audit.md     # review skill 产出（按轨道二选一）
 ```
 
 **约束**：
-1. `predictions/` `prompt/cover/` `scripts/` = oracle-bone 链路产物；制作管线产物（分镜 / 录屏 / 素材）放作品目录其他子目录，不混入。
+1. `predictions/` `voice/` `prompt/cover/` `scripts/` = oracle-bone 链路产物；制作管线产物（分镜 / 录屏 / 素材）放作品目录其他子目录，不混入。
 2. 简介直接写脚本末尾 `## 发布文案` 段，**不建独立 description 文件**。
 3. `oracle-title` 选定要改名：`mv` 作品目录 + `mv` 脚本文件 + 同步 prediction header 的 Title / Script Path 字段。
 
@@ -108,7 +109,9 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 ## 每期完整链路（顺序敏感）
 
 ```
-oracle-seed (按 track 分流写 draft)
+oracle-seed (按 track 分流定选题 + 建目录 + 录音聊天卡)
+    ↓
+oracle-voice (录音→转文字→双心态循环→3 候选稿→定稿；情绪先行，原话保真)
     ↓
 oracle-title (候选 + 终审推荐 ⭐，确认后改名级联)
     ↓
@@ -163,6 +166,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 | "找对标" / "学这个账号" / "拆这几个对标视频" / "learn from" | `/oracle-learn-from` | 已 init；cold-start 强烈建议；后续可随时 --append / --replace |
 | "拜师" / "拆这条稿" / "学这个博主的表达" / "apprentice" | `/oracle-apprentice` | 手艺层拆稿（钩子/节奏/金句/结构）→ 四步闭环内化；与 learn-from 分工：learn-from=数据信号，apprentice=单条写法 |
 | "找选题" / "我不知道做什么" / "seed" | `/oracle-seed` | 已 init（cold-start 用户专用一次性种子动作） |
+| "录音起稿" / "语音起稿" / "转写这段录音" | `/oracle-voice` | 已 init + 选题已定（聊天卡或作品目录）；`—transcribe-only` 裸转写 |
 | "打分这篇 [path]" / "score this [path]" | `/oracle-score` | rubric_notes.md 存在（不存在时自动从 starter-rubric 兜底） |
 | "给我标题" / "选标题" / "哪个标题好" / "标题候选" / "诊断标题" | `/oracle-title` | 有 draft（生成 + 终审推荐 + 确认后改名级联；自带候选可直评） |
 | "写简介" / "视频描述" / "description" | `/oracle-description` | 有定稿脚本 |
@@ -189,15 +193,15 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 ---
 
-**反馈分流协议**：用户指出 skill 判断/推荐不准 → 展示拟写入项（哪里不准 / 是否采纳 / 原因）→ 确认后一行追加 `meta-retros/product-feedback.md`（目录约定同 compass-retro Phase 7）。它只喂协作自进化（compass-retro Phase 5 的候选规则提取），**不进** rubric_notes / 三档案 / 校准池——对系统的评价与创作者数据分离，防反馈污染校准。若反馈同时暴露新的创作者事实（如"我变现方式变了"）→ 拆成独立拟议更新走档案写入确认协议（协作契约 #9），两件事不混写。
+**反馈分流协议**：用户指出判断/推荐不准 → 展示拟写入项 → 确认后追加 `meta-retros/product-feedback.md`。只喂 compass-retro Phase 5 候选规则提取，**不进** rubric_notes / 三档案 / 校准池；若同时暴露创作者事实（如"变现方式变了"）→ 拆走档案写入确认协议（契约 #9），不混写。
 
-**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——27 个子 skill + 12 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；任务前要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读），不逐字段全量解读 state。
+**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——27 个子 skill + 13 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读）。
 
 ---
 
 ## 协作契约（默认对所有用户生效）
 
-从实战教训泛化的 8 条协作纪律，完整版见 [shared-references/collaboration-contract.md](shared-references/collaboration-contract.md)：
+从实战教训泛化的 10 条协作纪律，完整版见 [shared-references/collaboration-contract.md](shared-references/collaboration-contract.md)：
 
 1. **方案菜单**：改稿/修复默认出 2-4 个方案 + 每案特点/成本/风险 + ⭐推荐 + 等用户选；用户明确说「直接做/你就执行」才代选。
 2. **双角度交叉验证**：每次改稿后重跑 score 对比（composite 前后值 + 各维度变化），不涨则回退提示；改稿日志同步贴对比，供 retro 回溯。
@@ -208,7 +212,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 7. **验证后报告**：任何「完成」声明前必须 stat/read 验证文件实际状态；跑脚本看输出 marker，不只看 exit code。
 8. **不代答不甩锅**：出选项 + 标推荐 + 等选是默认；既不甩锅式提问，也不未经同意代选。
 9. **档案写入确认**：修改三份档案（user-profile / content-plan / audience-profiles）任何字段前，展示拟改字段 / 旧值→新值 / 依据 → 确认后落盘，并在档案末尾 `## 变更记录` 追加一行（日期/字段/旧值→新值/依据；首次修订时创建该段）。compass-retro Phase 4.5 的规划修订拍板门是本条的结构化实例。
-10. **产出前自检**：seed / title / description / cover 交付前内部过一遍通用质量门——开场命中强开场四原则与 ≥2 个钩子方向？用户视角（"你"）连续缺失 ≤2 段？核心信息倒金字塔前移？兴趣属性有内容支撑？——不满足先重写再交，不把半成品甩给用户。
+10. **产出前自检**：seed / voice / title / description / cover 交付前内部过一遍通用质量门——开场命中强开场四原则与 ≥2 个钩子方向？用户视角（"你"）连续缺失 ≤2 段？核心信息倒金字塔前移？兴趣属性有内容支撑？——不满足先重写再交，不把半成品甩给用户。
 
 ---
 
@@ -232,12 +236,12 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 ## state 与路径约定
 
 - `.oracle-state.json` 是**全局唯一** state 文件（项目根下），不建每期 state。所有 shoots / pending_retros / calibration_samples / episodes / tracks 注册都合到这一份。操作前先读全局，验证已有事实，再追加。完整约定：[shared-references/state-management.md](shared-references/state-management.md)
-- 项目根路径由 init 时用户配置，记录在 state 的 `project_root`；skill 包目录 ≠ 用户项目目录，用户数据永远落在项目根
+- 项目根由 init 配置（state.project_root）；skill 包目录 ≠ 用户项目目录，用户数据落项目根
 - state schema：见 DESIGN.md §7.2 与 `migrations/registry.md`
 
 ### 平台坑备查
 
-Windows / Obsidian / 文件锁 / 只读属性等平台特定问题，统一压缩在 `references/platform-notes.md`（写入 Permission denied → 先查 ReadOnly 属性与进程句柄；rename 被锁 → copy+delete fallback；文件夹名避开冒号等）。
+Windows / Obsidian / 文件锁等平台特定问题统一见 `references/platform-notes.md`（rename 被锁 → copy+delete fallback；文件夹名避开冒号等）。
 
 ---
 
@@ -255,7 +259,8 @@ oracle-bone/
 │   ├── oracle-migrate/SKILL.md        # schema 升级迁移
 │   ├── oracle-trends/SKILL.md         # 热点抓取（多 adapter）
 │   ├── oracle-recommend/SKILL.md      # 候选池排序推荐（按 plan 占比过滤）
-│   ├── oracle-seed/SKILL.md           # 对话式选题 + 起 draft（按 track 分流）
+│   ├── oracle-seed/SKILL.md           # 对话式选题（按 track 分流；定题后默认接 voice）
+│   ├── oracle-voice/SKILL.md          # 语音起稿循环（录音→转写→3 候选稿→定稿）
 │   ├── oracle-score/SKILL.md          # 单稿打分（不落盘）
 │   ├── oracle-title/SKILL.md          # 标题候选生成 + 淘汰制终审 + 改名级联
 │   ├── oracle-description/SKILL.md    # 多平台简介
@@ -283,6 +288,7 @@ oracle-bone/
 │   ├── bump-validation-protocol.md    # 原则 #2
 │   ├── observation-lifecycle.md       # 原则 #3
 │   ├── prediction-anatomy.md          # 合格预测的 7 组件
+│   ├── scoring-procedure.md           # 打分规程（score/predict/trends 共用的解析+打分纪律）
 │   ├── candidate-schema.md            # 候选项统一 schema
 │   ├── cadence-protocol.md            # 节奏协议（buffer 警戒 + 拍/发分离）
 │   ├── state-management.md            # state 读写约定
@@ -353,21 +359,15 @@ oracle-bone/
 
 ## Tone & voice
 
-写面向用户的文案（commit message / 复盘小结等）时，匹配项目的**直白克制**风格：
-
-- 直接说出失败：「composite 8.47 但实际只有 16.8w——rubric 高估了 SR」
-- **不要**用模糊措辞软化：「这或许可能在某种程度上暗示...」——别这么写
+写面向用户的文案（commit / 复盘小结）匹配**直白克制**风格——直接说失败（「composite 8.47 但实际 16.8w——rubric 高估了 SR」），不用模糊措辞软化。
 
 ---
 
 ## 给开发者：扩展本 skill
 
-- 新增内容形态 → 加 `starter-rubrics/<form>.md`
-- 新增热点抓取源 → 加 `adapters/trend-sources/<name>.md`，符合 [candidate-schema.md](shared-references/candidate-schema.md) 输出契约
-- 修改原则 → 改 `shared-references/<protocol>.md`，所有引用它的 skill 自动跟进
+- 新内容形态 → `starter-rubrics/<form>.md`；新热点源 → `adapters/trend-sources/<name>.md`（符合 [candidate-schema.md](shared-references/candidate-schema.md) 契约）
+- 改原则 → `shared-references/<protocol>.md`（引用它的 skill 自动跟进）；改路由 → 本文件路由表；改子 skill → 对应 `skills/oracle-*/SKILL.md`
 - 上下文预算 / 协议同步规则 / 发布前检查 → [MAINTENANCE.md](MAINTENANCE.md)（tests/ 有预算棘轮测试）
-- 修改路由 → 改本文件的"路由表"段
-- 子 skill 内部细节 → 直接改对应 `skills/oracle-*/SKILL.md`
-- 用户想参考更多方法论 → 放 `references/`，子 skill 按需引用
+- 更多方法论 → 放 `references/`，子 skill 按需引用
 
 完整设计见 [DESIGN.md](DESIGN.md)。

@@ -1,6 +1,6 @@
 ---
 name: oracle-seed
-description: 跟用户对话讨论选题——**默认一次一个**，用户主动给主题或经历，AI 围绕用户的输入深挖、提炼角度、按轨道写一份 draft。不是 AI 拿三个开放问题追用户，也不是一次 dump 15 个候选。触发词："找选题"/"我想做一条 X"/"最近有个想法"/"seed"/"启动种子"。可选 batch 模式：--batch 5 走 brainstorm N 候选 + 写 N draft。
+description: 跟用户对话讨论选题——**默认一次一个**，用户主动给主题或经历，AI 围绕用户的输入深挖、提炼角度。不是 AI 拿三个开放问题追用户，也不是一次 dump 15 个候选。**选题定稿后默认引导 /oracle-voice 语音起稿**（用户的录音原话才是稿子原料）；AI 直出 draft 降级为显式降级路径（用户点名才走，脚手架警告）。触发词："找选题"/"我想做一条 X"/"最近有个想法"/"seed"/"启动种子"。可选 batch 模式：--batch 5 走 brainstorm N 候选 + 写 N draft（同样默认接 voice）。
 argument-hint: "[— batch: N] [— track: <id>]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
@@ -26,7 +26,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
   ↓
 [Phase 3: 算 candidate id + 落候选池 + 初始化作品目录]
   ↓
-[Phase 4: 写 draft（读 script_patterns 选结构 + 反编造纪律）]
+[Phase 4: 起稿路由 — 默认 voice（录音聊天卡 → /oracle-voice）；AI 直出稿为显式降级]
   ↓
 [Phase 5: 下一步清单 + 询问继续]
 ```
@@ -34,7 +34,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ## Constants
 
 - **MAX_DEEP_DIVE_TURNS = 4** — 收敛阶段最多 4 轮反问
-- **WITH_DRAFT = yes** — 确认角度后立刻写 draft；用户可说"我自己写"
+- **DRAFT_MODE = voice** — 确认角度后默认引导 /oracle-voice 语音起稿（录音原话才是稿子原料）；用户点名"你直接写"才走 AI draft 降级路径；"我自己写" → 交还用户
 - **DRAFT_LENGTH** — 派生自 `typical_duration_seconds`：30s→100-200字 / 90s→250-500字 / 240s→600-1000字 / 450s→1100-2000字 / 900s→2200+字
 - 深挖弹药：`references/xu-zuohao-positioning-distill.md` §5（选题挖掘问卷）+ `references/dbskill-essence-distill.md` §1（定位选题）
 
@@ -48,14 +48,14 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 4. **context 来源 B**：`benchmark.md`（如 imported）——对标账号
 5. 检查入参决定 Mode
 
-**context 优先级**（Claude 判断）：用户数据已能驱动方向（该轨样本 ≥10，或更早——出现 ≥3 个与 benchmark 不一致的强样本）→ A 主导；用户数据少 + benchmark 有货 → B 主导；两者都缺 → 用户输入 + 抓热点，并提示"建议先跑 /oracle-learn-from"。
+**context 优先级**：用户数据能驱动方向（该轨样本 ≥10，或出现 ≥3 个与 benchmark 不一致的强样本）→ A 主导；数据少 + benchmark 有货 → B 主导；都缺 → 用户输入 + 抓热点，提示先跑 /oracle-learn-from。
 
 ### Phase 1: Mode 分流
 
 - **含具体名词 + 情绪/经历词**（"我昨天开会..."）→ **Mode A**
 - **含方向词但无具体内容**（"想做职场方向"）→ **Mode B**："太广。最近哪件具体事让你想做这个方向？a) 真实经历 b) 读到的内容 c) 长期困惑——挑一个开始讲"
 - **显式说没想法** → **Mode C**：先问"最近有没有一件小事让你特别[开心/生气/荒唐/有意思]？一句话也行"（碎片素材优先于纯热点）→ 再抓热点 + 读历史 → **提议 1 个**（不是 5 个）
-- **显式 `--batch N`** → Batch：3 个清单问题 → brainstorm 15 候选 → 用户挑 N → 写 N draft
+- **显式 `--batch N`** → 3 清单问题 → brainstorm 15 候选 → 挑 N → 写 N draft
 - **纯触发无附加内容** → 唯一一次入口问题（"有主题直接说 / 有方向告诉我 / 没想法说'帮我想' / 批量说 batch N"）
 
 ### Phase 1.5: 🔴 轨道分流（init 注册的轨道，必确认——决定 rubric/review 链/校准池归属）
@@ -90,20 +90,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 围绕用户给的内容深挖，**不切到别的 topics**。
 
-**反问类型**（按场景挑，一次只问 1 个，**必须带选项**）：
-- 触发瞬间："最初是哪个瞬间触发你想做的？a) 某句话 b) 某件事 c) 某个数据"
-- 情绪锚点："最让你[生气/荒唐/有意思]的是哪个细节？a) ... b) ... c) ..."
-- 角度选择："你想说 a) 现象批判 b) 自我反思 c) 泛化到普遍？"
-- 受众想象："心里想着说给哪种人听？听完会怎么转发？"
-- 反对意见探测："有人反驳说 X，你会怎么回？"
-- 痛点裂变：大痛点拆 3-5 个小痛点（"是 a) / b) / c) 哪个最痛？"）——每个小痛点可独立成一条内容
-- 立意提炼："如果用一句话简化成受众最容易共情的视角，是什么？"
-- 弹药不足时：从提炼文档 §5 挖掘问卷挑一问（带选项）——"如果给你五分钟跨年演讲，你会说什么？" / "哪几件小事彻底改变了你的轨迹？" / "这十年最大的教训？" / "你最异于常人的品质？"
+**反问类型**（按场景挑，一次只问 1 个，**必须带选项**）：触发瞬间（"最初是哪个瞬间？a 某句话 b 某件事 c 某个数据"）/ 情绪锚点（"最让你[生气/荒唐/有意思]的是哪个细节？"）/ 角度选择（a 现象批判 b 自我反思 c 泛化）/ 受众想象（"说给哪种人听？听完会怎么转发？"）/ 反对意见探测（"有人反驳说 X，你怎么回？"）/ 痛点裂变（大痛点拆 3-5 个小痛点，各自可独立成一条）/ 立意提炼（"一句话简化成最易共情的视角？"）。弹药不足 → 提炼文档 §5 问卷（"五分钟跨年演讲你会说什么？"等）
 
-**反问纪律**：
-- 一次 1 问 + 带选项（用户需要选项锚点决策，不是从零回忆）
-- 最多 MAX_DEEP_DIVE_TURNS 轮，超过主动收敛
-- 用户回答变短/不耐烦 → 立刻收敛
+**反问纪律**：一次 1 问带选项（选项是决策锚点，不是从零回忆）；≤ MAX_DEEP_DIVE_TURNS 轮，超过主动收敛；用户回答变短/不耐烦 → 立刻收敛
 
 ### 三关检验（收敛前强制过）
 
@@ -118,6 +107,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 任何一关不过 → 建议换角度（回深挖）。
 
 ### Phase 2A-2: 钩子设计 + 兴趣属性 + 互动设计
+
+> **AI draft 降级路径专用前置**。voice 默认路径下本节**不在 seed 执行**——钩子/兴趣属性/互动设计由 oracle-voice Phase 5-6 基于**真实转写材料**声明（规则以本节为单一来源）。
 
 **开场原型选型（结构层，先于文案层）**：读 [references/hook-prototypes.md](../../references/hook-prototypes.md)，按选题匹配 1 个主原型（不混用），draft header 的 `开场策略` 字段写明原型名 + 起手证据。原型决定骨架（第一秒放什么），下面的钩子 6 方向决定锐度（观众为什么停下）——两层都要过。
 
@@ -150,9 +141,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 - 收藏触发点（可截图清单+口播提示）+ 转发触发点（转给谁+理由）
 - 情绪触动点要**中段就埋**，不堆结尾 5 秒
 
-**用户视角检查**（写前写后各一次）：开头是用户痛点还是我的自我介绍？产品介绍讲"这帮你做什么"还是"有什么功能"？连续 2 段没有"你"视角 → 标出修正。
+**用户视角检查**（写前写后各一次）：开头是用户痛点还是我的自我介绍？产品介绍讲"这帮你做什么"还是"有什么功能"？连续 2 段没有"你" → 标出修正。
 
-**信息排列检查**（倒金字塔）：删掉最后 30% 内容，观众仍能获得核心价值吗？不能 → 核心信息埋太深，前移。
+**信息排列检查**（倒金字塔）：删掉最后 30% 内容——观众仍能获得核心价值吗？不能 → 核心信息前移。
 
 ### Phase 2B/2C/2D
 
@@ -164,17 +155,35 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 1. 算 id：`sha256("seed-" + 立意 + 触发时间)[:12]`
 2. 写 entry 到 `candidates.md`（[candidate-schema.md](../../shared-references/candidate-schema.md) 格式）：`tier=tier1` + `track=<轨道id>` + `read_status=deep_read`
-3. **初始化作品目录**（[content-folder-schema.md](../../shared-references/content-folder-schema.md)）：`<NNN>_<工作标题>/` + `scripts/` + `predictions/` + `prompt/cover/` + `derivatives/`（NNN 从 state 已登记作品数派生，**先看已有作品目录的实际结构**照着建）
+3. **初始化作品目录**（schema 见 [content-folder-schema.md](../../shared-references/content-folder-schema.md)）：`<NNN>_<工作标题>/`（NNN 从 state 已登记作品数派生，**先看已有作品目录的实际结构**照着建）
 4. 只建必需目录——audience-brief.md 等 review 产物后续流程才建
 
-### Phase 4: 写 draft
+### Phase 4: 起稿路由（🔴 默认 voice，AI 直出稿必须用户点名）
 
-**写前必读 script_patterns.md**（按结构选型 cheat sheet 选结构；还在骨架阶段就用 starter 通用框架）。
+**voice 路径（默认，DRAFT_MODE=voice）**：Phase 3 落候选池 + 建目录完成后，输出「**录音聊天卡**」并引导 /oracle-voice：
+
+```
+🎙️ 录音聊天卡（<NNN>_<工作标题> / 轨：<轨名>）
+
+- 这期讲什么：<一句话立意>
+- 讲给谁听：<该轨核心受众一句话>
+- 希望观众看完做什么：<本轨成功指标对应的动作>
+- 情绪触发点：<深挖出来的那个瞬间/细节>
+
+像跟朋友聊天一样讲 5-15 分钟，情绪先行，不怕跑题不怕停顿。
+说"录音起稿"开始 → /oracle-voice（录音 → 转文字 → 文字轮吃透知识 → 表达轮 → 3 候选稿）
+```
+
+聊天卡四要素来自 Phase 2A 深挖结论，不新造信息。
+
+**AI draft 降级路径（用户明确说"你直接写/AI 起稿"才走）**：
+
+**写前必读 script_patterns.md**（cheat sheet 选结构；骨架阶段用 starter 通用框架）。
 
 **三条反编造铁律**：
 1. **禁止编造数据**——draft 任何段落不得出现用户没提供的具体数字。用户没给数字 → 用机制做钩子（"一天三件事"）或问"有没有真实数字可用"——**绝不自己编**
 2. **禁止编造功能**——不得写产品实际没有的功能/未验证的能力。写前问"你的产品目前有哪些能力？这期演示哪个？"——能力不够支撑故事就商量调故事线
-3. **禁止越界写发布文案**——seed 产物只有 draft 正文 + 互动设计段；简介归 oracle-description，封面归 oracle-cover
+3. **禁止越界写发布文案**——seed 产物只有 draft 正文 + 互动设计段（简介归 description，封面归 cover）
 
 **draft 格式**：
 
@@ -207,16 +216,22 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 ### Phase 5: 下一步清单
 
+**voice 路径**（聊天卡已给）：
+
+```
+✅ 选题已定：<NNN>_<工作标题>/（候选池已登记）
+说"录音起稿" → /oracle-voice；或"状态"看全局。
+下一篇做什么？（直接说 / "今天就这样"）
+```
+
+**AI draft 降级路径**：
+
 ```
 ✅ Draft 写完：<NNN>_<标题>/scripts/<date>_<id>_<short>.md
-
 接下来你可以：
-- 改写 draft（直接原文件改）
-- "给我标题" → oracle-title 出候选
-- 改完跑 "打分这篇 ..." 看 composite
-- [按轨道] "这是拍给谁的 ..." / "自我开源 ..."（review 链）
-- 决定要发 → "启动预测 ..."
-
+- 改写 draft（原文件改）——或"录音起稿"用你的原话重讲（推荐）
+- "给我标题" → oracle-title；改完 "打分这篇 ..." 看 composite
+- [按轨道] "这是拍给谁的 ..." / "自我开源 ..."；要发 → "启动预测 ..."
 下一篇做什么？（直接说 / "今天就这样"）
 ```
 
@@ -235,19 +250,13 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 > 用户输入："我昨天用 AI 一下午写完了以前要一周的投标文件，特别震撼"
 
-- 三关：① 外行检验过（投标慢是所有工程人的共识痛点）② 复述点："AI 一下午 = 我一周"③ 缺口：从"一周手动"到"一下午 AI"的极端落差成立
-- 原型匹配：**同题成本对照**（同一任务，人 vs AI 的时间成本落差自现）——起手证据：那份投标文件的截图/计时
-- 钩子命中：③ 信息缺口（AI 具体怎么做到的？）+ ⑥ 利益承诺（你也可以一下午）
-- 兴趣属性：信息型（可截图的对照清单）
+三关：外行检验过（投标慢是工程人共识痛点）/ 复述点："AI 一下午 = 我一周" / 缺口：一周手动 → 一下午 AI 的极端落差成立。原型：**同题成本对照**（人 vs AI 时间成本落差自现），起手证据 = 投标文件截图/计时。钩子：③ 信息缺口 + ⑥ 利益承诺。兴趣属性：信息型（可截图对照清单）。
 
 ### 例 2：Mode C 热点类
 
 > 用户没想法，当天热点："某平台更新了推荐算法"
 
-- 不直接讲算法新闻（小变化本身不抓人）
-- 原型匹配：**事件公布引出知识冲突**（看似小更新 → 背后是流量分配逻辑的长期争论 → 对创作者意味着什么）
-- 钩子命中：① 预期违背（"这次更新杀死的不是大号，是中号"）+ ② 自我参照（发内容的人都被影响）
-- 反面示范：若套"生活传说追查"就错了——没有"多人同款问题"的证据，硬套是编造
+不直接讲算法新闻（小变化不抓人）。原型：**事件公布引出知识冲突**（小更新 → 流量分配逻辑长期争论 → 对创作者意味着什么）。钩子：① 预期违背（"这次更新杀死的不是大号，是中号"）+ ② 自我参照。反面示范：套"生活传说追查"就错了——没有"多人同款问题"证据，硬套是编造。
 
 ## Refusals
 
@@ -260,5 +269,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ## Integration
 
 - 上游：oracle-init（轨道注册）/ oracle-trends（候选池）
-- 下游：oracle-title → description → cover → no-ai-slop → 按轨道 review → oracle-predict
+- 下游（默认）：oracle-voice（语音起稿循环）→ oracle-title → description → cover → no-ai-slop → 按轨道 review → oracle-predict
+- 下游（降级）：AI draft 直出后同上（跳过 voice）
 - draft header 的 track 字段是 prediction/candidates 链路的轨道 source of truth
+- 录音聊天卡是 seed → voice 的交接物；voice 消费 candidates.md entry 的 track/立意/受众

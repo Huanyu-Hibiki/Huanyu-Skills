@@ -105,7 +105,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 ### Phase 1: 读稿 + 该轨 rubric + state + 派生 confidence
 
 1. 读 scripts 全文；算 `script_hash` = sha256(内容)[:12]
-2. 读 `rubric_notes.md` **该轨节**——不存在则自动从对应 starter 兜底初始化（⚠️ 提示但不阻塞）
+2. 读 `rubric_notes.md` **该轨节**——解析三步与 starter 兜底按 [shared-references/scoring-procedure.md](../../shared-references/scoring-procedure.md) §1（读 v0 公式，不写文件不阻塞）
 3. 读 state：该轨 `calibration_samples`、`baseline_plays`、`typical_duration_seconds`
 4. 按该轨样本数派生 confidence 等级（[state-management.md confidence 表](../../shared-references/state-management.md)）
 5. 询问"这是最终稿吗？还会再改？"——必须是最终稿
@@ -115,7 +115,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ### Phase 2: AI 自己打分（内存里做，不逐段输出）
 
-按该轨 rubric 各维度给 0-5 整数分 + 一行理由（≤30 字，引用稿子具体词/场景）。算 composite。全部阶段都算——confidence 低只影响标注，不影响格式。
+解析 + 打分纪律按 [shared-references/scoring-procedure.md](../../shared-references/scoring-procedure.md) §1-§2（盲打优先 / 0-5 整数 / 理由 ≤30 字），算 composite。全部阶段都算——confidence 低只影响标注，不影响格式。
 
 ### Phase 3: 锚点对比
 

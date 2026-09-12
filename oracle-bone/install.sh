@@ -2,7 +2,7 @@
 #
 # oracle-bone / install.sh
 #
-# Symlinks the 26 sub-skills into your agent's global skills directory.
+# Symlinks the 27 sub-skills into your agent's global skills directory.
 # Default target: ~/.claude/skills/ (read by Claude Code and most skills-compatible
 # runtimes). Other runtimes: pass --target <dir>. Re-runnable safely (existing
 # links/dirs are overwritten).
@@ -32,6 +32,7 @@ SKILLS=(
   oracle-trends
   oracle-recommend
   oracle-seed
+  oracle-voice
   oracle-score
   oracle-title
   oracle-description

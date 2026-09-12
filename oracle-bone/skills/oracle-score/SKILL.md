@@ -36,20 +36,11 @@ allowed-tools: Read, Glob, Grep
 1. 读 state → 不存在提示先跑 /oracle-init
 2. 读 draft → 不存在报错停止
 3. **识别轨道**：draft header 的 Track 字段 → 交叉题标明后两轨各打一次
-4. 读 `rubric_notes.md` **该轨节**——不存在（cold-start 第 1 篇）→ 从对应 starter（`starter-rubrics/opinion-video-zero.md` / `starter-rubrics/conversion-video.md`，相对 oracle-bone 包根）读 v0 等权公式，不写文件不阻塞，控制台加 ⚠️ 提示
+4. 读 `rubric_notes.md` **该轨节**——解析三步与 starter 兜底规则见 [shared-references/scoring-procedure.md](../../shared-references/scoring-procedure.md) §1（不写文件不阻塞）
 
-### Step 2: 识别公式与维度
+### Step 2-3: 解析公式 + 逐维打分
 
-从该轨节解析：rubric_version / 维度列表与权重 / 归一化常数 / 每维 0-5 含义。格式与预期不符（用户手改过结构）→ 询问当前公式是哪一行，**不自己猜**。
-
-### Step 3: AI 自己逐维度打分
-
-对每个维度：读定义 → anchor 到 0/3/5 样本对照 → 给**整数**（0-5，不允许 4.5）→ 一行理由（≤30 字，引用稿子具体词/场景）。
-
-**打分速度纪律**：
-- 每维 ≤30 秒。超过就是在合理化，不是打分
-- **相信第一个整数**
-- **盲打优先**——先打分再对比锚点，避免被实绩锚定
+解析与打分纪律（整数分 / 盲打优先 / 理由 ≤30 字 / 速度纪律）一律按 [shared-references/scoring-procedure.md](../../shared-references/scoring-procedure.md) §1-§2 执行，此处不复制。
 
 输出后用户可挑刺（"AB 给 3 不是 4"），AI 改值重展示。
 
