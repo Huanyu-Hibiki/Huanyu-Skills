@@ -85,6 +85,7 @@ oracle-bone **只管链路产物**：`scripts/` `predictions/` `prompt/` `deriva
 | `script_patterns.md` | 项目根（按轨道分节） |
 | `candidates.md` | 项目根（oracle-trends / oracle-seed 累积） |
 | `benchmark.md` | 项目根（oracle-learn-from 产出） |
+| `voice-lexicon.md` | 项目根（oracle-voice 维护，可选——个人词典与转写纠错规则） |
 
 这些是跨期的元数据，每期作品共享。**作品目录只放本期作品的产物**。
 

@@ -49,7 +49,7 @@ TASK_READLIST = {
     ],
     "recommend": ["candidates.md（tier != skip）", "content-plan.md（占比过滤）"],
     "seed": ["user-profile.md（风格 / 红线）", "content-plan.md（track 分流）", "references/hook-prototypes.md"],
-    "voice": ["candidates.md 该 entry（track / 立意 / 受众）", "seed 录音聊天卡（如刚跑完 seed）", "转写: adapters/script-extraction（.venv 解释器，失败走手动粘贴）"],
+    "voice": ["candidates.md 该 entry（track / 立意 / 受众）", "seed 录音聊天卡（如刚跑完 seed）", "voice-lexicon.md（个人词典，可选）", "转写: App 自带转写粘贴（推荐）或 adapters/script-extraction"],
     "trends": ["adapters/trend-sources/（已启用源）", "shared-references/candidate-schema.md", "shared-references/scoring-procedure.md（粗打分规程）"],
     "title": ["目标作品 scripts/*.md（draft）", "标题候选列表（评审模式；生成模式自产）"],
     "description": ["目标作品 scripts/*.md（定稿，append 发布文案段）", "state.platforms（平台集）"],

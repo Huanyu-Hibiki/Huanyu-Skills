@@ -80,12 +80,16 @@ python -m py_compile tools/context.py        # 语法
 
 ## 5. 来源与致谢
 
-本项目的「上下文预算棘轮」「任务状态摘要出口」「真源层↔运行层同步规则」三项工程纪律，
+本项目的「上下文预算棘轮」「任务摘要出口」「真源层↔运行层同步规则」三项工程纪律，
 在**设计思想**上借鉴了 `template/ip-strategist`（耳总著，CC BY-NC 4.0）的仓库工程实践。
+
+oracle-voice 的「个人词典 + 转写纠错规则」「文字轮润色纪律」（口误自纠 / 专名不猜 / 指令句当内容）
+在**机制思想**上借鉴了 [OpenTypeless](https://github.com/tover0314-w/opentypeless)（MIT）的
+本地词典、correction rules 与润色 prompt 设计。
 
 借鉴边界（clean-room 声明）：
 
-- 只吸收**思想与规则形态**（预算棘轮、任务摘要、同步矩阵），**未复制其任何文本、代码或文档段落**
-- 实现完全按 oracle-bone 自身架构（state 单一来源 / 子 skill Inputs 声明 / migrations 链）原创重写
-- oracle-bone 维持 **MIT** 许可不变，不引入 CC BY-NC 条款；两仓库代码互不混用
+- 只吸收**思想与规则形态**（预算棘轮、任务摘要、同步矩阵、词典纠错、润色纪律），**未复制其任何文本、代码或文档段落**
+- 实现完全按 oracle-bone 自身架构（state 单一来源 / 子 skill Inputs 声明 / migrations 链 / voice-lexicon.md）原创重写
+- oracle-bone 维持 **MIT** 许可不变，不引入 CC BY-NC 条款；各仓库代码互不混用
 - 感谢原作者公开其工程实践——本文件即为署名致谢
