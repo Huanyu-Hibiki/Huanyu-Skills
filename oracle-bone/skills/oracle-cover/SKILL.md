@@ -25,7 +25,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 | 来源 | 内容 |
 |---|---|
-| 已确认标题 | title-pick 或用户确认 |
+| 已确认标题 | oracle-title（终审确认后）或用户确认 |
 | 发布文案 | oracle-description 产出 |
 | `user-profile.md` | 频道名/形象规范/视觉偏好 |
 | `cover-patterns.md`（可选） | 对标视觉配方（oracle-cover-analyze 产出，框架来源 #2） |
@@ -64,7 +64,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 | 如果 | 则 |
 |---|---|
-| 标题未确认（无 title-pick 记录且用户没给） | 🔴 停下问标题——主标题必须原文上封面，拿工作标题顶替 = 封面与发布标题不一致 |
+| 标题未确认（oracle-title 终审未确认且用户没给） | 🔴 停下问标题——主标题必须原文上封面，拿工作标题顶替 = 封面与发布标题不一致 |
 | 作品目录不存在 | 报错，要求正确路径 |
 | 历史 `_base.md` 与 user-profile 视觉规范矛盾 | 列出差异让用户裁决，不擅自选边——框架是长期资产 |
 | draft-path 不存在但标题+文案齐 | 继续正常跑（draft 本就是可选输入） |

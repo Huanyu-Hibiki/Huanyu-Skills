@@ -5,7 +5,7 @@
 ```
 oracle-seed（按轨分流写 draft，含互动设计段）
   ↓
-oracle-title（3-5 候选）→ oracle-title-pick（淘汰制选优 + 三处改名同步）
+oracle-title（3-5 候选 + 淘汰制终审推荐，确认后三处改名同步）
   ↓
 oracle-description（各平台文案 append 到定稿末尾）→ oracle-cover（_base + 平台比例派生）
   ↓

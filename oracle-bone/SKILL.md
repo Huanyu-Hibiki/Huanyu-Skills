@@ -101,7 +101,7 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 **约束**：
 1. `predictions/` `prompt/cover/` `scripts/` = oracle-bone 链路产物；制作管线产物（分镜 / 录屏 / 素材）放作品目录其他子目录，不混入。
 2. 简介直接写脚本末尾 `## 发布文案` 段，**不建独立 description 文件**。
-3. `oracle-title-pick` 选完要改名：`mv` 作品目录 + `mv` 脚本文件 + 同步 prediction header 的 Title / Script Path 字段。
+3. `oracle-title` 选定要改名：`mv` 作品目录 + `mv` 脚本文件 + 同步 prediction header 的 Title / Script Path 字段。
 
 ---
 
@@ -110,7 +110,7 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 ```
 oracle-seed (按 track 分流写 draft)
     ↓
-oracle-title (3-5 候选，不落文件) → oracle-title-pick (选最优 → 改名)
+oracle-title (候选 + 终审推荐 ⭐，确认后改名级联)
     ↓
 oracle-description (简介 append 到脚本末尾) → oracle-cover (封面 prompt 按平台比例派生)
     ↓
@@ -164,8 +164,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 | "拜师" / "拆这条稿" / "学这个博主的表达" / "apprentice" | `/oracle-apprentice` | 手艺层拆稿（钩子/节奏/金句/结构）→ 四步闭环内化；与 learn-from 分工：learn-from=数据信号，apprentice=单条写法 |
 | "找选题" / "我不知道做什么" / "seed" | `/oracle-seed` | 已 init（cold-start 用户专用一次性种子动作） |
 | "打分这篇 [path]" / "score this [path]" | `/oracle-score` | rubric_notes.md 存在（不存在时自动从 starter-rubric 兜底） |
-| "给我标题" / "标题候选" / "诊断标题" | `/oracle-title` | 有 draft |
-| "选标题" / "哪个标题好" / "title-pick" | `/oracle-title-pick` | 有 title 候选 |
+| "给我标题" / "选标题" / "哪个标题好" / "标题候选" / "诊断标题" | `/oracle-title` | 有 draft（生成 + 终审推荐 + 确认后改名级联；自带候选可直评） |
 | "写简介" / "视频描述" / "description" | `/oracle-description` | 有定稿脚本 |
 | "封面" / "cover" / "封面 prompt" | `/oracle-cover` | 有定稿脚本 |
 | "拆封面" / "分析封面" / "对标封面" | `/oracle-cover-analyze` | 已 init + 有参考封面图（三维度对标的视觉维度） |
@@ -258,8 +257,7 @@ oracle-bone/
 │   ├── oracle-recommend/SKILL.md      # 候选池排序推荐（按 plan 占比过滤）
 │   ├── oracle-seed/SKILL.md           # 对话式选题 + 起 draft（按 track 分流）
 │   ├── oracle-score/SKILL.md          # 单稿打分（不落盘）
-│   ├── oracle-title/SKILL.md          # 标题候选生成
-│   ├── oracle-title-pick/SKILL.md     # 淘汰制选标题 + 改名
+│   ├── oracle-title/SKILL.md          # 标题候选生成 + 淘汰制终审 + 改名级联
 │   ├── oracle-description/SKILL.md    # 多平台简介
 │   ├── oracle-cover/SKILL.md          # 封面 prompt（按平台比例派生）
 │   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解（借结构不借元素 → cover-patterns.md）

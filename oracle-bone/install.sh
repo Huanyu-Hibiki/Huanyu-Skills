@@ -34,7 +34,6 @@ SKILLS=(
   oracle-seed
   oracle-score
   oracle-title
-  oracle-title-pick
   oracle-description
   oracle-cover
   oracle-no-ai-slop

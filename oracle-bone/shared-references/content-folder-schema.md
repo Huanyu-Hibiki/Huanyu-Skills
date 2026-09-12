@@ -36,7 +36,7 @@
 
 ### 文件夹名（作品标题）
 - 用**工作标题**（oracle-seed 讨论确定的角度），不要等最终标题再命名
-- oracle-title-pick 选定最终标题后允许改文件夹名追溯发布版标题（Windows 注意：文件夹名避开冒号等非法字符；rename 被进程锁住时用 copy+delete fallback，见 `references/platform-notes.md`）
+- oracle-title 选定最终标题后允许改文件夹名追溯发布版标题（Windows 注意：文件夹名避开冒号等非法字符；rename 被进程锁住时用 copy+delete fallback，见 `references/platform-notes.md`）
 - 例：`003_从龟壳到算法/`（工作版）→ `003_古人占卜我预测/`（发布版）
 
 ### 文件名
@@ -69,7 +69,7 @@ oracle-bone **只管链路产物**：`scripts/` `predictions/` `prompt/` `deriva
 
 制作管线产物（录制素材 / 剪辑工程 / 成片 / 字幕 / 封面图）**不归 oracle-bone 管**，但建议放在同一作品目录下的用户自选子目录（如 `production/` 或 Raw/Rough/Final 等），保持"一期一个文件夹"的完整性。具体结构由用户的制作工具链决定，skill 不做约束、不写入、不移动。
 
-**oracle-title-pick 改名时的连带**：`mv` 作品目录 + `mv` scripts/ 定稿 + 同步 prediction header 的 Title/Script Path 字段——但**不碰**制作管线子目录的内容（只随文件夹整体移动）。
+**oracle-title 改名时的连带**：`mv` 作品目录 + `mv` scripts/ 定稿 + 同步 prediction header 的 Title/Script Path 字段——但**不碰**制作管线子目录的内容（只随文件夹整体移动）。
 
 ## 与全局文件的关系
 

@@ -191,8 +191,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 
 | # | skill | 功能 | 触发词 | 产出 |
 |---|---|---|---|---|
-| 9 | oracle-title | 生成 3-5 个标题候选（多结构类型 + 心理动因） | "给我标题" / "标题候选" | 控制台表格 |
-| 10 | oracle-title-pick | 淘汰制评审选最优标题 → 改标题行 + 改文件夹名 + 触发钩子维度重判 | "选标题" / "哪个标题好" | 更新 draft + 目录改名 |
+| 9 | oracle-title | 生成 3-5 个标题候选（多结构类型 + 心理动因）→ 淘汰制终审标 ⭐推荐 → 确认后改标题行 + 改文件夹名 + 触发钩子维度重判 | "给我标题" / "选标题" / "哪个标题好" | 更新 draft + 目录改名 |
 | 11 | oracle-description | 多平台简介生成（按 init 配置的平台集） | "写简介" / "视频描述" | append 到脚本发布文案段 |
 | 12 | oracle-cover | 封面架构：统一框架 → 图像生成 prompt（按平台比例派生） | "封面" / "cover" | prompt/cover/ 目录 |
 | 27 | oracle-cover-analyze | 对标封面拆解：构图/层级/动线/隐喻 → 结构配方落盘 cover-patterns.md（借结构不借元素；参考程度门：轻度/重度） | "拆封面" / "分析封面" / "对标封面" | cover-patterns.md（append-only） |
@@ -242,7 +241,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 (轻量试分: /oracle-score；随时: /oracle-status)
 
 ━━━ 阶段 2：发布前打磨链（顺序敏感）━━━
-/oracle-title → /oracle-title-pick → /oracle-description → /oracle-cover
+/oracle-title（生成 + 终审 + 改名级联）→ /oracle-description → /oracle-cover
     → /oracle-no-ai-slop（必跑）
     [可选，首建框架/换风格前] /oracle-cover-analyze（拆对标封面 → cover-patterns.md，cover 读配方）
     → [按轨道 review]  流量/共鸣轨: /oracle-who-for（以 init 画像为基线）
@@ -424,7 +423,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 1 | 骨架 | SKILL.md（总协议+路由）+ README + install 脚本 + 目录树 |
 | 2 | 核心协议 | shared-references 12 份（重点新写：content-funnel-protocol / collaboration-contract） |
 | 3 | 主链子 skill | init（五 Phase 增强版）/ predict / shoot / publish / retro / bump / status |
-| 4 | 选题与打磨子 skill | seed / trends / recommend / score / title / title-pick / description / cover |
+| 4 | 选题与打磨子 skill | seed / trends / recommend / score / title / description / cover |
 | 5 | review 与质检子 skill | who-for / open-source / simulate-audience / no-ai-slop / compliance |
 | 6 | 支撑子 skill | learn-from / apprentice / migrate / pinned-comment / derivative / compass-retro |
 | 7 | 模板与 starter | templates/ + starter-rubrics/ + hooks/ + tools/ + adapters/ + references/ 种子 |

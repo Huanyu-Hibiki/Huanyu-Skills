@@ -98,7 +98,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | `pre_shoot` | 默认：写稿后、制作前的初始盲预测 | v1 |
 | `post_review_pre_publish` | who-for / open-source 改稿后重判（定性改稿） | v2 |
 | `post_shoot_pre_publish` | oracle-shoot 检测制作稿改动 ≥30% → 重判（技术性改稿） | v2 |
-| `post_titlepick` | oracle-title-pick 换标题 → 重判（HP 类维度影响） | v2 |
+| `post_titlepick` | oracle-title 终审换标题 → 重判（HP 类维度影响） | v2 |
 
 **多轮改稿合并**：v1 后经历多轮脱钩（review 改稿 → 标题更换 → AI 味修正）→ **只写一个 v2 段**，basis 取主因（定性改稿类优先于单维度触发），Diff 段把各轮改动各列一行。retro 按 basis 区分样本线（拍前 review 改稿 vs 拍后技术性改稿是两种校准信号）。
 

@@ -260,5 +260,5 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ## Integration
 
 - 上游：oracle-init（轨道注册）/ oracle-trends（候选池）
-- 下游：oracle-title → title-pick → description → cover → no-ai-slop → 按轨道 review → oracle-predict
+- 下游：oracle-title → description → cover → no-ai-slop → 按轨道 review → oracle-predict
 - draft header 的 track 字段是 prediction/candidates 链路的轨道 source of truth

@@ -39,7 +39,7 @@ allowed-tools: Read, Edit, Glob
 | 来源 | 内容 |
 |---|---|
 | `<draft-path>` 定稿 | 正文全文——**事实清单一唯一来源** |
-| 已确认标题 | oracle-title-pick 或用户确认 |
+| 已确认标题 | oracle-title（终审确认后）或用户确认 |
 | `user-profile.md` | 频道名/人设/变现方式（决定 CTA 策略） |
 | `content-plan.md` | 该轨定位（流量轨 vs 转化轨的 CTA 差异） |
 | state.platforms | 平台集（每平台一份） |
@@ -141,7 +141,7 @@ allowed-tools: Read, Edit, Glob
 ## Integration
 
 ```
-oracle-title-pick → oracle-description（本 skill）→ oracle-cover
+oracle-title（终审确认）→ oracle-description（本 skill）→ oracle-cover
     → oracle-no-ai-slop（predict 前必跑）→ 按轨道 review → oracle-predict
 ```
 
