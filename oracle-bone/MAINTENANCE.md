@@ -87,6 +87,13 @@ oracle-voice 的「个人词典 + 转写纠错规则」「文字轮润色纪律�
 在**机制思想**上借鉴了 [OpenTypeless](https://github.com/tover0314-w/opentypeless)（MIT）的
 本地词典、correction rules 与润色 prompt 设计。
 
+第十六批的四处补强借鉴了四个参考项目：oracle-apprentice 的三重验证门 / 触发场景 / 反例结构化
+借鉴 [cangjie-skill](https://github.com/kangarooking/cangjie-skill)（MIT）；oracle-recommend 的置信度地板
+与诚实空池、oracle-trends 的 velocity 热度修正与四态信封借鉴
+[last30days-skill](https://github.com/mvanhorn/last30days-skill)（MIT）与
+[union-search-skill](https://github.com/runningZ1/union-search-skill)（README/代码头声明 MIT，仓库无 LICENSE 文件）；
+交互预算三档借鉴 huashu-skills（**该仓库无 License**——仅借鉴机制思想，零文本复制，不引入其任何内容）。
+
 借鉴边界（clean-room 声明）：
 
 - 只吸收**思想与规则形态**（预算棘轮、任务摘要、同步矩阵、词典纠错、润色纪律），**未复制其任何文本、代码或文档段落**

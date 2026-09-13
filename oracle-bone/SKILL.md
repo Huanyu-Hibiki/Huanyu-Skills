@@ -36,8 +36,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 ## 能力边界与已知限制（先知道它不能做什么）
 
-1. **不保证爆款，也不直接产生流量**——本系统是校准器不是放大器：它让预测越来越准，不替内容变好。预测精度上限由校准池样本量决定（confidence 派生表见 state-management.md）。
-2. **cold-start 前 5 篇预测精度 ±50%**——新账号没有锚点，写预测的目的的是**采集校准数据**，不是做发布决策。导入对标账号（learn-from）可显著改善。
+1. **不保证爆款，也不直接产生流量**——本系统是校准器不是放大器：预测越来越准，不替内容变好；精度上限由校准池样本量决定（confidence 表见 state-management.md）。
+2. **cold-start 前 5 篇预测精度 ±50%**——写预测的目的是**采集校准数据**，不是做发布决策；导入对标（learn-from）可显著改善。
 3. **hooks 是 Claude Code 格式**（预测不可变强制 / 会话自动状态报告）——不支持 hooks 的 runtime 降级为 skill 内自检 + 用户 review 软防线，保护强度依赖流程纪律。
 4. **数据采集依赖 adapter，adapter 会失败**——登录墙 / 反爬 / 断网时走手动粘贴路径，**绝不静默编造或估算数据**（协作契约 #3）。
 5. **AI 写的 draft 是脚手架不是成品**——不改写直接拍会拉低 ER 并污染校准数据（seed Refusals 有警告分支）。默认起稿 = **oracle-voice 语音起稿**（从用户录音原话长出来）；AI draft 降级为 seed 显式降级路径。
@@ -93,7 +93,7 @@ init 时暂定（oracle-init Phase 4.5）+ compass-retro 每 2 期回写，存 `
 ```
 <NNN>_<最终标题>/
 ├── predictions/<YYYY-MM-DD>_<id>_<短标题>.md   # oracle-predict 落盘（## 预测 段 immutable）
-├── voice/round-<N>/                             # oracle-voice 转写轮次档案（transcript + organized）
+├── voice/round-<N>/                             # oracle-voice 转写轮次档案
 ├── prompt/cover/                                # oracle-cover 生成（_base.md + 平台比例派生）
 ├── scripts/<最终标题>.md                         # 定稿；简介/置顶评论直接 append 到末尾段
 └── audience-brief.md / open-source-audit.md     # review skill 产出（按轨道二选一）
@@ -193,7 +193,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 ---
 
-**反馈分流协议**：用户指出判断/推荐不准 → 展示拟写入项 → 确认后追加 `meta-retros/product-feedback.md`。只喂 compass-retro Phase 5 候选规则提取，**不进** rubric_notes / 三档案 / 校准池；若同时暴露创作者事实（如"变现方式变了"）→ 拆走档案写入确认协议（契约 #9），不混写。
+**反馈分流协议**：用户指出判断/推荐不准 → 展示拟写入项 → 确认后追加 `meta-retros/product-feedback.md`。只喂 compass-retro Phase 5 候选规则提取，**不进** rubric_notes / 三档案 / 校准池；若同时暴露创作者事实 → 拆走档案写入确认协议（契约 #9），不混写。
 
 **按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——27 个子 skill + 13 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读）。
 
@@ -201,7 +201,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 ## 协作契约（默认对所有用户生效）
 
-从实战教训泛化的 10 条协作纪律，完整版见 [shared-references/collaboration-contract.md](shared-references/collaboration-contract.md)：
+从实战教训泛化的 11 条协作纪律，完整版见 [shared-references/collaboration-contract.md](shared-references/collaboration-contract.md)：
 
 1. **方案菜单**：改稿/修复默认出 2-4 个方案 + 每案特点/成本/风险 + ⭐推荐 + 等用户选；用户明确说「直接做/你就执行」才代选。
 2. **双角度交叉验证**：每次改稿后重跑 score 对比（composite 前后值 + 各维度变化），不涨则回退提示；改稿日志同步贴对比，供 retro 回溯。
@@ -213,6 +213,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 8. **不代答不甩锅**：出选项 + 标推荐 + 等选是默认；既不甩锅式提问，也不未经同意代选。
 9. **档案写入确认**：修改三份档案（user-profile / content-plan / audience-profiles）任何字段前，展示拟改字段 / 旧值→新值 / 依据 → 确认后落盘，并在档案末尾 `## 变更记录` 追加一行（日期/字段/旧值→新值/依据；首次修订时创建该段）。compass-retro Phase 4.5 的规划修订拍板门是本条的结构化实例。
 10. **产出前自检**：seed / voice / title / description / cover 交付前内部过一遍通用质量门——开场命中强开场四原则与 ≥2 个钩子方向？用户视角（"你"）连续缺失 ≤2 段？核心信息倒金字塔前移？兴趣属性有内容支撑？——不满足先重写再交，不把半成品甩给用户。
+11. **交互预算三档**：确认密度按 `state.interaction_level`；full-auto 只守不可逆硬门，三档不豁免，随时切换。
 
 ---
 
@@ -235,7 +236,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 ## state 与路径约定
 
-- `.oracle-state.json` 是**全局唯一** state 文件（项目根下），不建每期 state。所有 shoots / pending_retros / calibration_samples / episodes / tracks 注册都合到这一份。操作前先读全局，验证已有事实，再追加。完整约定：[shared-references/state-management.md](shared-references/state-management.md)
+- `.oracle-state.json` 是**全局唯一** state 文件（项目根下），不建每期 state。所有 shoots / retros / 校准样本 / 轨道注册都合到这一份。操作前先读全局，验证已有事实，再追加。完整约定：[shared-references/state-management.md](shared-references/state-management.md)
 - 项目根由 init 配置（state.project_root）；skill 包目录 ≠ 用户项目目录，用户数据落项目根
 - state schema：见 DESIGN.md §7.2 与 `migrations/registry.md`
 

@@ -33,9 +33,11 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 ## Workflow
 
-### Phase 0: 读启用的 adapters
+### Phase 0: 读启用的 adapters + 运行前预检
 
 `args.sources or state.enabled_trend_sources（默认 ["manual-paste"]）`。为空 → 输出引导（临时跑用 `— sources:`；永久改 state 数组）。
+
+**预检（Phase 0 就做，别等运行时炸）**：逐 enabled adapter 按其文档「依赖」列自检（API key 在不在 / cookie 能否取到 / 网络依赖），输出三态健康表——✅ 可跑 / ⚠️ 能跑但降级（如无 key 用免 key 版）/ ❌ 跳过（skipped-unconfigured，附缺什么 + 一句修法）。❌ 的不进本轮 fetch，汇总里如实声明「本轮没查这些源」，**不许事后把没跑说成"查了没货"**。
 
 **adapter 一览**（文档在 `adapters/trend-sources/`——文档化：依赖/fetch 接口/输出 schema/失败模式/稳定性星级；**未文档化的 adapter 跑前需现场确认端点可用性，失败按优雅降级 skip**）：
 
@@ -54,11 +56,24 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 对每个 adapter 按其文档调 fetch → 输出符合 [candidate-schema.md](../../shared-references/candidate-schema.md) 的 items。
 
-**优雅降级**：单 adapter 失败（key 缺失 / 端点 503 / cookie 失效）→ skip 该 adapter **不抛异常**，汇总里说明（✅ 拉到 N 条 / ⚠️ 跳过+原因 / ❌ 失败+原因）。
+**信封四态（每 adapter 的结果必须归入其一——借鉴 union-search / last30days 的健康语义）**：
 
-### Phase 3: 去重
+| 状态 | 语义 | 汇总里怎么说 |
+|---|---|---|
+| ✅ has_results | 查到货 | "拉到 N 条" |
+| ⚠️ no-results | **查了但确实没货**（唯一允许说"该源今天没热点"的状态） | "该源无新内容（结论有效）" |
+| ❌ failed | 限流 / 掉认证 / 超时 / 解析失败——**覆盖不完全**，不得说"没热点" | "该源故障（<原因>），本轮未覆盖" |
+| ⏭️ skipped-unconfigured | Phase 0 预检就缺依赖 | "未配置，<缺什么>" |
 
-按 candidate-schema 去重协议：算 id → 查 candidates.md / 各作品 predictions / `.oracle-cache/trends-history.jsonl`（rejected 且 6 个月内）→ 命中跳过。统计写汇总。
+单 adapter 失败 skip **不抛异常**；全失败走下方降级协议。
+
+### Phase 3: 去重（归一化键，两道比对）
+
+**先归一化再比对**（借鉴 union-search 的去重键设计）：
+- **链接键**：剥掉 `utm_*` / `gclid` / `fbclid` 等跟踪参数 → scheme/host 小写 → 去尾斜杠 → 再比对；短链先解跳转再归一
+- **标题键**：空白归一 + casefold（"XX发布新模型"和"xx 发布 新模型"算同一条）
+
+然后按 candidate-schema 去重协议：算 id → 查 candidates.md / 各作品 predictions / `.oracle-cache/trends-history.jsonl`（rejected 且 6 个月内）→ 命中跳过。重复统计写汇总（多源重叠率一般 20-30%，属正常）。
 
 ### Phase 4: 粗打分（按轨道）
 
@@ -69,6 +84,13 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 **粗打分 ≠ 正式预测**：基于 snapshot 的"值不值得展开写"粗筛，预测必须基于最终稿重新打。
 
+**热度修正（与 composite 正交，展示 + 排序平手裁决用，不合并进 composite）**：
+
+- `热度 = 互动量 × 1/√(发布距现在小时数 + 1)`；发布 <24h 再 ×1.2（首日加成）
+- 同一事件多源命中（去重前）→ 佐证乘数 ×(1 + 0.15 × (源数 − 1))，汇总标注"多源佐证"
+- 互动量取 adapter 返回的点赞/评论等归一数值（无互动数据的源 → 热度标 N/A，不猜）
+- 用途：composite 相近（±0.3）的热点间按热度 tiebreak；输出附**时效列**——最早帖子 <24h 标「刚起」、<7d 标「上升期」、更早标「常温」。rubric composite 管"内容质量预测"，热度管"话题时效"，两把尺分开亮，防热度绑架质量分。
+
 ### Phase 5: 排序 + 🔴 入池确认（CHECKPOINT——写入 candidates.md 前用户拍板）
 
 ```
@@ -76,9 +98,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 - hackernews: 18 条 / bilibili-popular: 15 条 / ⚠️ douyin-hot 跳过（缺 cookie）
 去重后 27 条新。粗打分后 12 条 ≥6.0：
 
-| # | 标题 | source | 轨道 | composite | rationale |
-|---|---|---|---|---|---|
-| 1 | ... | hackernews | 破圈轨 | 8.4 | ER+QL 双 5，普适 |
+| # | 标题 | source | 轨道 | composite | 热度/时效 | rationale |
+|---|---|---|---|---|---|---|
+| 1 | ... | hackernews | 破圈轨 | 8.4 | 87·刚起 | ER+QL 双 5，普适 |
 ...
 
 哪些入池？全部 "all" / 选几个 "1,3,5" / 都不要 "none"（记 history 防重推）
@@ -108,6 +130,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 4. **粗打分诚实标注**，防与 prediction 精打分混淆
 5. **不进 predictions/**——trends 只产 candidates
 6. **不冒充时效**——旧热点不翻新，全失败转常青
+7. **四态信封**——只有 no-results 才能说"该源没货"；failed/skipped 必须声明"本轮未覆盖该源"（Phase 0 预检 + Phase 1-2 信封）
+8. **热度与质量分正交**——velocity 只做展示与平手裁决，不合并进 composite
 
 ## Refusals
 

@@ -109,7 +109,16 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 > b) 发过 — 可以 import 历史让 baseline 更准（需要提供数据，可跳过）"
 
 - 平台集 → `platforms[]`（多平台同步分发是默认建议；平台选择策略 = 内容形态 × 商业模式 × 用户画像，Phase 2/4 采访后可回来微调）
-- 选 b → 追问"大概多少条？想现在 import 还是先跳过？"（import 流程：用户提供历史数据 → 建 作品目录 + reconstructed prediction，标 NOT FOR CALIBRATION，`baseline_plays` 取中位数回填；不阻塞主流程）
+- 选 b → 追问"大概多少条？想现在 import 还是先跳过？"（import：用户提供历史数据 → 作品目录 + reconstructed prediction，标 NOT FOR CALIBRATION，`baseline_plays` 取中位数回填，不阻塞）
+
+**Q5: 协作档位** → `interaction_level`
+
+> "日常流程你想要哪种确认节奏？
+> a) **全自动多一点**——生成类产出（候选稿/简介/封面/标题候选）直接给 ⭐推荐并落盘，只在不可逆动作（预测落盘/标题改名/发布登记）前停下
+> b) **逐步确认**（默认）——每个产出都停下来等你拍板
+> c) **逐段精修**——候选逐条过、改稿逐段批"
+
+映射：`full-auto` / `guided`（缺省）/ `collaborative`；硬门三档都不豁免（契约 11）。
 
 ### Phase 2: 用户档案采访（8 问）→ user-profile.md
 

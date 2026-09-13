@@ -30,6 +30,7 @@ allowed-tools: Read, Glob, Grep
 - **TOP_N = 5**
 - **STRATEGY = stable+experimental** — 推 ≥2 时 1 稳分 + 1 实验性（[cadence-protocol.md](../../shared-references/cadence-protocol.md)）
 - **REQUIRE_SCORED = true** — 只推已打分的
+- **MIN_COMPOSITE_TO_RECOMMEND = 6.0** — 置信度地板：低于此值只作「弱信号」展示，不进正式推荐位（与 trends MIN_COMPOSITE_TO_SUGGEST 同标尺）
 - **DUPLICATE_CATEGORY_LOOKBACK** = max(3, cadence_days × 3) 天内已发同类目不推
 
 ## Workflow
@@ -85,6 +86,7 @@ candidates.md 不存在或空 → **不报错**，输出引导：
 3. 各池目标数 = round(TOP_N × 该轨 ratio)
 4. **补稀优先**：某轨最近发布占比明显低于 mix_ratio → 该池目标数 +1（从占比高的池借）
 5. 各池按 composite 降序取目标数，合并
+6. **置信度地板过滤**：composite < MIN_COMPOSITE_TO_RECOMMEND 的不进正式推荐位（记入弱信号池）；某轨全低于地板 → 该轨本轮零推荐 + 一句话说明，另一轨照常推
 
 #### 第 1 条（稳分）
 
@@ -97,6 +99,22 @@ composite 降序 + 排除 risky + 排除近 N 天同类目 → top 1。
 #### 锚点
 
 每条找 1-2 个 composite 接近的**已发布**同轨作品（从 predictions 读），优先同时长（±20%）。
+
+### Phase 3.5: 空池诚实协议（nothing-solid——借鉴 last30days，MIT）
+
+过滤后若**没有任何候选过地板**：不硬凑榜单，输出：
+
+```
+🪹 本池没有值得做的候选（地板 composite 6.0 / 池内共 N 条，最高 X.X）
+
+最接近的弱信号：
+- [X.X] "<标题>"（<轨>）— 差距：<哪维度拖后腿，一句话>
+- [X.X] "<标题>"（<轨>）— 差距：...
+
+建议："抓热点" 补新料 / "找选题" 深挖你的经历 / 手动贴选题进 candidates.md 我补打分。
+```
+
+**纪律**：弱信号只是透明度，不是推荐——**绝不把低于地板的候选包装成 Top N**。推弱候选 = 占用产能拍扑街稿 + 污染校准池。池子弱的原因也交代一句（长期没跑 trends / 历史候选已消化完）。
 
 ### Phase 4: 输出
 
@@ -134,12 +152,14 @@ composite 降序 + 排除 risky + 排除近 N 天同类目 → top 1。
 3. **必带锚点 + rationale**
 4. **按占比分池**——混池推荐会让强轨越来越强、弱轨饿死
 5. **去重 published**
+6. **置信度地板**——composite < 6.0 只作弱信号不作推荐；全池不过线 → 诚实说池弱并给建议，不硬凑（Phase 3.5）
 
 ## Refusals
 
 - 「直接给我 composite 最高的，不用解释」 → 拒绝。展示评分+锚点是发现"打错"的唯一机会
 - 「把所有 entry 重新打分」 → 路由 /oracle-score 单条；批量重打是 /oracle-bump 的一部分
 - 「按预测桶排不要按 composite」 → 询问理由（bucket 是 composite 离散化；真要按期望值排需乘平均实绩，那是另一个维度）
+- 「池子里随便推几条总比空着强」 → 拒绝硬凑。推弱候选 = 占用产能拍扑街稿 + 污染校准池；给弱信号清单 + 补池建议（Phase 3.5）
 
 ## Integration
 

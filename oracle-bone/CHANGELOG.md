@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — 参考项目机制补强（2026-09-12，第十六批，借鉴 cangjie-skill / huashu-skills / union-search-skill / last30days-skill）
+
+- **oracle-apprentice 三重验证门**（借鉴 cangjie-skill，MIT）：新增 Phase 3.5——「值得偷」项进卡片前过 V1 跨域（≥2 独立语境）/ V2 预测力（能推演没拆过的场景）/ V3 独特性（抹掉博主名字人人都说的常识不通过），不过留档 analysis.md「未通过验证」节写明卡哪门；知识卡片新增「触发场景」（何时想起用 + 语言信号）与结构化「反例」（失效场景 + 为什么掉进去 + 预警信号三段齐）；术语拆解补 key_distinction（博主个人黑话 vs 常识用法 → 可入 voice-lexicon 专名表）；通过率自检——全过 = V3 失守
+- **oracle-recommend 置信度地板 + 诚实空池**（借鉴 last30days，MIT）：MIN_COMPOSITE_TO_RECOMMEND = 6.0（与 trends 入池同标尺），低于只作弱信号；某轨全不过线该轨零推荐；全池不过线 → Phase 3.5「本池没有值得做的候选」+ 最接近弱信号（差距归因）+ 补池建议——绝不硬凑 Top N（推弱候选 = 产能拍扑街稿 + 污染校准池）
+- **oracle-trends 四处强化**（借鉴 last30days + union-search）：① Phase 0 运行前预检——逐 adapter 依赖三态健康表（✅/⚠️/❌），❌ 的明示"本轮未覆盖该源"② 信封四态语义——✅ 有货 / ⚠️ no-results（唯一可说"该源没货"）/ ❌ failed（覆盖不完全）/ ⏭️ skipped-unconfigured ③ 去重升级归一化键——URL 剥 utm/gclid/fbclid + 解短链 + scheme/host 小写，标题空白归一 + casefold ④ velocity 热度修正——互动 × 1/√(小时龄+1)，<24h ×1.2，多源佐证 ×(1+0.15×(n−1))，与 composite 正交（只做展示与 ±0.3 平手裁决），输出加「热度/时效」列
+- **交互预算三档**（借鉴 huashu-skills 的 Full Auto/Guided/Collaborative——该仓库无 License，仅借鉴机制）：init Phase 1 新增 Q5 采集 state.interaction_level（缺省 guided）；协作契约新增契约 11——full-auto 只守不可逆硬门（生成类直接给 ⭐推荐并落盘 + 修改入口），决策类（选题/标题/发布）三档都拍板，随时切换；快速自检清单补第 10 条
+- **明确不搬**：cover 的"短 prompt 黄金律"（与第十四批封面排版数值设计冲突）；last30days 的 worthiness 评分（oracle-bone 有自校准 rubric，不引入外部打分体系）
+- MAINTENANCE §5 致谢四项目（union-search MIT 声明于 README/代码头但无 LICENSE 文件；huashu-skills 无 License——零文本复制声明）
+
 ### Changed — oracle-voice 语音起稿 + title 合并终审（2026-09-12，第十五批，姜胡说方法论吸收 + 结构简化）
 
 **新增**
