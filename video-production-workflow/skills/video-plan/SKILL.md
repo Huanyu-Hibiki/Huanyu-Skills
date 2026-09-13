@@ -45,13 +45,26 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 - 按语义场景分段，不按 `//` 机械切段；
 - 一镜一功能，避免一句话塞入多个互不相关的视觉命题；
+- **每镜一句话意图**：画面描述以"这镜让观众明白什么"开头；动效/素材条目的每个动作答得出"在配合谁"，答不上就删；
+- **枢轴句归下一镜**："但这次不是 X"式转折/设问句是下一镜的第一拍，切镜点提前到该句起点，旧镜先清场；
+- **主体接力线**：动效条目简报声明"本镜主角是谁、谁让位给谁"，相邻镜的接力线连续——出现无主角节拍或双主角即设计缺陷；
 - 保留用户的 `【画面建议】`，但区分用户意图和最终执行；
 - 主要观点、情绪和可信度优先分配给 A-roll；
 - 真实工具操作、界面和流程优先规划 OBS；
 - 抽象解释、架构、流程、数据再进入 Remotion 或 HyperFrames 候选；
 - Stock 和 AI B-roll 用于环境、视觉桥接和不可拍摄概念，不为了"每句有画面"而添加；
-- 动效时长先按默认假设给初值（标题 4s、概念 4-6s、流程 5-8s），不要一句口播塞多个主动作；
+- 动效时长先按内容推导给初值（缺省假设：标题 4s、概念 4-6s、流程 5-8s），不要一句口播塞多个主动作；
+- **词锚卫生**：文稿里的数字建议用汉字书写（"2026"写"二〇二六"）——词级时间戳按文本逐字锚定，阿拉伯数字串无法与读音对位，会显著拉低自动校对的逐字匹配率；
 - 每个连续覆盖段内布局稳定，不为单条变化重设布局；不规划小于 2s 的无意义 A-only 回切碎片。
+
+## 风格档（G0，先定皮再选动作）
+
+写分镜**之前**先按全稿判定领域（讲什么 / 对谁讲 / 什么口吻），产出 `video scripts/style-profile.md`（结构见 [templates/storyboard.template.md](../../templates/storyboard.template.md) 风格档节）：
+
+1. **领域 → 风格档**：底色策略、唯一强调色、字体气质与字重档、材质卡型、图表语言、素材气质、能量档、"不做的事"——多来源生成素材（AI 拼贴 / 模板动效 / Stock）最容易各带各的默认配色，风格档是装配前统一蒙皮的依据；
+2. **系列级复用**：系列视频从上一期复制 style-profile 再按集扩展（同一强调色 / 字体 / 底色策略 / 常驻件方位 / 片头片尾语法），跨集一致性靠外置配置而不是记忆；
+3. **深底主导必须用户确认**：浅底是默认模式，偏离需写明依据；
+4. 章节卡"同族不同章"：同一套字体版式，每章轮换底色 / 强调色 / 线稿 motif——四张同色同纹样的章节卡读作"又来了"，不是"翻页"。
 
 ## 失败模式与恢复
 
@@ -67,11 +80,14 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 1. `video scripts/storyboard.md`；
 2. `video scripts/storyboard.json`，作为派生文件真相源；**必须包含 `broll_candidates` 数组**（分镜表中所有 B-roll 条目的结构化版本：镜号、旁白原句、视觉命题草稿、路由建议、覆盖模式、输入分类、简报引用、状态），供 `/b-roll-finder` 强制对账——见 [templates/storyboard.template.md](../../templates/storyboard.template.md) 的字段定义；
-3. `video scripts/material_suggestion_doc.md`；
-4. `video scripts/remotion_candidate_list.md`；
-5. `video scripts/music_cue_sheet.json`；
-6. `assets/requests/asset_request_list.md`；
-7. `video scripts/feishu_storyboard_records.json`（如项目需要 n8n 同步）。
+3. `video scripts/style-profile.md`（G0 风格档；系列视频可复用上期版本按集扩展）；
+4. `video scripts/material_suggestion_doc.md`；
+5. `video scripts/remotion_candidate_list.md`；
+6. `video scripts/music_cue_sheet.json`；
+7. `assets/requests/asset_request_list.md`；
+8. `video scripts/feishu_storyboard_records.json`（如项目需要 n8n 同步）。
+
+分镜表文末必须有「未完成 / 未采集清单」节：任何"本片不做 X / 素材还没到位"二选一归档——写进风格档当设计决定（附依据），或写进清单（附阻塞原因和试过的兜底源）。内容允许为"无"，**节不允许缺**；下游 Gate 与 QA 查节在册。
 
 ## 执行说明
 

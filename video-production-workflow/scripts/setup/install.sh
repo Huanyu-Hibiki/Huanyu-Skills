@@ -92,7 +92,7 @@ fi
 # ---------------------------------------------------------------------------
 # 4. Python 虚拟环境
 # ---------------------------------------------------------------------------
-step "创建 Python 虚拟环境并安装依赖（首次约 5-15 分钟，含 PyTorch GPU 版约 3GB）"
+step "创建 Python 虚拟环境并安装依赖（默认精简安装约 0.7GB；备选 whisper 引擎需 uv sync --extra whisper）"
 uv venv .venv --python 3.11
 uv sync
 okmsg "Python 环境就绪: .venv"
@@ -101,8 +101,9 @@ okmsg "Python 环境就绪: .venv"
 # 5. 自检
 # ---------------------------------------------------------------------------
 step "环境自检"
-uv run python -c "import torch; print('    torch', torch.__version__, '| CUDA 可用:', torch.cuda.is_available())"
-okmsg "依赖安装完成"
+# 默认引擎 faster-whisper 走 ctranslate2，不依赖 torch；torch 仅随 whisper 备选 extra 安装
+uv run python -c "import faster_whisper; print('    faster-whisper OK')" || { echo "faster-whisper 导入失败"; exit 1; }
+okmsg "依赖安装完成（备选 whisper 引擎：uv sync --extra whisper）"
 
 # ---------------------------------------------------------------------------
 # 6. AI 模型下载

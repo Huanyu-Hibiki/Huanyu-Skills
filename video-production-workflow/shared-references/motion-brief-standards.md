@@ -26,6 +26,8 @@
 | 主体动作弧 | 尽量给足约 3s，不用高速入场掩盖不可读 |
 | settle/hold（每个主动作收尾） | ≥0.5s |
 
+上表是**无内容时的 fallback**。引擎支持元数据推导时（Remotion `calculateMetadata`），时长由 props 内容驱动（字数/条目数/字幕词数 → 帧数），推导失败才回落默认值，并在 notes.md 记录 `duration=derived|default`。方法与模板选型注册表见 [../references/b-roll-generate/motion-template-catalog.md](../references/b-roll-generate/motion-template-catalog.md)。
+
 画幅与帧率：默认跟随主项目（16:9 → 1920x1080@30fps；竖屏 9:16 按项目规格）；不把 30fps 的时序假设套给 60fps 项目。终态画面要 hold 到可读完（通常占片尾 18-25%）。
 
 ## 3. 时间相位比例（短动效通用节奏）

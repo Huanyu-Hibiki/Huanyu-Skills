@@ -14,15 +14,16 @@
 用户按分镜拍摄 / OBS 录制 → Raw/
   ↓
 /video-rough-cut
-  → Rough/transcripts/*.json + edl.json + preview.mp4
+  → Rough/transcripts/*.json + Rough/analysis/（自动文稿校对：Sub/caption_corrected.srt、对齐报告、口癖候选）
+  → edl.json + preview.mp4
   ↓
-/video-caption-correct
-  → Sub/caption_corrected.srt
+（仅当对齐报告有问题或用户要求）/video-caption-correct
+  → Sub/caption_corrected-vN.srt + 词典更新
   ↓
 /video-jianying-draft
   → Jianying-draft/ + 剪映内部精剪
   ↓
-/video-assets
+/video-assets（分镜确认后即可并行准备）
   → assets/ + media_asset_manifest.json
   ↓
 /video-fine-cut
@@ -50,8 +51,8 @@
 |---|---|---|---|
 | 初始化 | 初始化视频制作管线 | 项目路径 | state、目录、WORKFLOW、STATUS |
 | 分镜规划 | 规划分镜、文稿转分镜 | 终稿 | storyboard、素材请求、动效候选 |
-| A-roll 粗剪 | 粗剪、转录、按文稿剪 | Raw、文稿 | transcript、EDL、粗剪预览 |
-| 字幕校对 | 校对字幕、修 ASR | 初始字幕、文稿 | caption_corrected.srt、speech_errors |
+| A-roll 粗剪 | 粗剪、转录、按文稿剪、自动校对字幕 | Raw、文稿 | transcript、caption_corrected.srt、对齐报告、EDL、粗剪预览 |
+| 字幕复核（条件） | 复核低置信字幕、裁决口误、补词典 | 对齐报告、词级转录 | caption_corrected-vN.srt、speech_errors 裁决、lexicon 更新 |
 | 剪映 Draft | 创建剪映草稿 | EDL、字幕、媒体 | Jianying-draft |
 | 素材获取 | 下载素材、找音乐 | asset_request_list | assets、许可证 manifest |
 | 精剪交接 | `/video-fine-cut` | 剪映 Draft | fine_cut.mp4、master.srt |

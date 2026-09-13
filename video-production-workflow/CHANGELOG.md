@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.8.1 - 2026-09-12
+
+- **吸收 video-talkcraft 第二轮（PolyForm-NC，仅原理自写——全部为自写表述，登记见 external-references）**，按管线阶段落地 19 项未吸收机制中的高价值子集：
+- **分镜问责结构**（storyboard 模板 + video-plan）：每镜一句话意图（动效/素材行每个动作答得出"配合谁"）、素材行落到已登记路径或显式「待采」、动效简报增「主体接力线」（谁让位给谁，不允许无主角/双主角节拍）、**「未完成 / 未采集清单」强制节**（内容可"无"、节不允许缺——拦截"未完成被包装成设计原则"；b-roll-generate Gate 0 与装配 QA 查节在册）、枢轴句归下一镜、文稿数字建议汉字（词锚逐字对位卫生）。
+- **G0 风格档**：video-plan 新增「风格档」节——按全稿判领域产出 `video scripts/style-profile.md`（底色策略/唯一强调色/字体气质/材质卡型/图表语言/素材气质/能量档/"不做的事"），系列视频从上期复制按集扩展（跨集一致性外置配置）；深底主导需用户确认；章节卡"同族不同章"轮换。
+- **蒙皮契约**（b-roll-generate 4c）：模板/库卡/AI 生成画面进成片前按风格档换皮——必换（色 token/字体/材质/图表语/占位图）、不动（时序/缓动/几何/音效 cue）、语义色不换色相、同片同类一套皮、manifest 记蒙皮行。
+- **相机层与运动减法**（b-roll-generate 4a）：每条 B-roll 默认极缓推拉 1.00→1.04~1.06（唯一缓动、末键落段尾外防停死）、禁 x/y 摇移/旋转/脉冲/idle 堆积、一镜一个时间操纵者、细密纹理不进缩放层。
+- **纯文字镜陪衬图形**（b-roll-generate 4b）：素材路由只有"文"的条目必须含线稿图形层（"讲 X 所以画 Y"、基础件词汇表、一镜一图、核心图形 ≥ 屏高 20%、每句口播至少一个可见变化）。
+- **时间线 QA 升级**（b-roll-timing-and-qa）：镜头边界转场处置（禁裸切/一边界一式/黑震全片限一/交叠 12-16 帧两侧同向/100s 片 5-7 强边界/长镜连续运镜替代）、段尾同收（最后退场=段尾，禁底床空转 >0.4s）、状态切换窗 ±0.5s 入抽帧清单（角标↔满幅/字幕带换位等几何过渡）、音效覆盖口径（≈0.4 记/s，"少而准"管单点不叠不砍覆盖）、可听度机检（cue 窗峰值 ≥-45dBFS、混音掩蔽分级、UNMASKED 门槛与气口数对账——不可达早下结论）、渲前静止探针。
+- **排版几何规范**（新增 `shared-references/layout-geometry.md`）：安全边/字幕带/12 栏吸附、间距令牌与"外≥组≥内"层级铁律、字形边缘对齐/包围盒居中/人物对侧半幅、字阶档与字号下限（"先删字→拆行→最后缩字"）、包围盒碰撞三类豁免、九项机检清单——polish QA 引用。
+- **独立评审升级**（video-polish）：评审材料**四件套**（3×4 评审拼图 / 模板对照帧"是同一设计吗" / 词落点定妆帧表 / 音效可听度机器报告）、计划 vs 成片核对（附 storyboard 设计清单与风格档"不做的事"）、执行纪律（增量落盘/结束行才算完成/分片 ≤7 镜/三次无产出标注"未获独立评审"禁自评替代）、**闸先读闸**（FAIL 先读判定口径，输入决定不可修的问题早下结论交用户）。
+- **素材纪律**（video-assets）：英文视觉概念词检索、先视频后图片降级链、分辨率 ≥ 画幅×最大缩放、免署名源优先（CC BY 系先确认署名成本）、关键事实来源页截图存档（只存链接不留证据 = 无法自证）。
+- **字幕/画面文字**（video-caption-correct）：画面文字 ≤12 字提炼不照抄字幕、跟读字幕零动效、关键词弹出全片 ≤3 次、字幕标点策略（保留句读=默认 / 极简无标点）由风格档声明。
+- **元机制入库**（external-references 引用规则第 5 条）：外部借鉴的失效模式必须转化为机制（断言/强制节/机器检查），不允许只写劝诫文档；Agent 做不到的验收必须指定机器替身并写明测量口径与盲区。
+
+## v0.8.0 - 2026-09-12
+
+- **转录-校对合并（用户指定）**：字幕校对不再是必经阶段——`video-rough-cut` 流程新增第 5 步「文稿自动校对」（`align_to_manuscript.py` 默认必跑）：字幕直接采用文稿拼写（ASR 错字/同音词自动消失），ASR↔文稿偏差、口癖候选、低置信句落盘待复核；`video-caption-correct` 重定位为**条件复核闸门**（低置信句/偏差超阈值或用户要求时进入），其独立转录入口 `run_transcribe`、火山云脚本、审核页 FCPXML/PRPROJ 导出标注 legacy 仅离线场景保留；管线强制阶段 10 → 9。
+- **修复 SRT 命名冲突**：`align_to_manuscript.py` 粗剪阶段原把 SRT 误写为 `Sub/master.srt`（与精剪契约撞名，会骗过 status 与 b-roll-finder 的时间真源校验）——默认模式改产出 `Sub/caption_corrected.srt`，`--final-keeps` 兜底模式保留 `master.srt` 语义。
+- **个人词典机制**（吸收 OpenTypeless MIT 机制 + oracle-voice 词典格式，见 external-references 登记）：`transcribe.py --lexicon` 读取专名表做 ASR initial-prompt 偏置；`align_to_manuscript.py` 解析纠错规则标注偏差、移植 auto_filler 保守口癖规则集产出 `speech_errors.json`（advisory，不自动删音频）、新增来源状态语义（`provenance_counts`：manuscript_aligned / low_confidence）与 `asr_substitutions` 偏差清单；新增 `templates/lexicon.template.md`——人工确认的错词回流词典，下期转录自动生效。
+- **默认安装瘦身（.venv 约 5.4GB → 约 0.7GB）**：`openai-whisper` + `torch==2.7.1+cu126` + `torchaudio` 移入可选 extra `whisper`（默认引擎 faster-whisper 走 ctranslate2，不依赖 PyTorch）；`transcribe.py` GPU 探测改用 ctranslate2（不依赖 torch，有卡机器默认安装仍走 CUDA）；install.ps1/install.sh/README/DEPENDENCIES/download_models 同步；需要备选引擎时 `uv sync --extra whisper`（约 +5GB）。
+- **B-roll 动效选型升级**：新增 `references/b-roll-generate/motion-template-catalog.md`——模板注册表查表选型（visualRole/tags/textLength/pairWith）、family-engine × variant × palette 派生、props 约束层（超限拒绝在生成端）、渲前快检层（tsc + 首帧静图 + 三帧 renderStill 脚本化）、时长内容驱动（calculateMetadata 优先、默认值退化为 fallback）、透明通道 × 渲染环境组合规则（云端分块渲染透明 WebM 边界闪烁 → 一律 ProRes 4444）、字幕作动效锚点；b-roll-generate Gate 1/2 之间强制渲前快检；`motion-brief-standards.md` 时长节同步。
+- **剪映 Draft 增强**：`add_audio` 新增 `--fade-in/--fade-out`（秒）；SKILL.md 新增「vendor 深层能力与扩展模式」——关键帧/转场/滤镜/蒙版/段动画 API 登记（枚举从 vendor metadata 查表，绝不猜 ID）、save-time JSON patch 模式（适配剪映新版本字段的逃生通道）、机器可读验收清单；音频混音约定（BGM 与旁白共存默认 volume 0.6 + fade 1s）。
+- **粗剪渲后自评**：自检步骤明确「对成片每个切点 ±1.5s 抽帧+抽波形核对」（video-use 同源手法）；`tighten_pauses` 硬规则补配乐/低音量/多人重叠段的人工确认门（无能量门禁时宁可保留）。
+- **编排与文档全量同步**：主 SKILL.md 端到端流程（03 内含自动校对、03b 条件复核）、阶段路由表、来源映射表（消除「字幕转录」双行歧义）；`handoff-contracts.md`（粗剪新增 caption_corrected/alignment 交接行、转录唯一入口约束）；`video-folder-schema.md`（Rough/analysis/、Sub 产物归属标注）；`state-management.md`（caption_correct 条件阶段语义）；`video-status` 派生检查；`scripts/README.md`；`templates/workflow.template.md`。
+- **许可证登记**：`shared-references/external-references.md` 新增 OpenTypeless（MIT）、OpenChatCut（AGPL-3.0，仅原理）、video-use（MIT）、HyperFrames（Apache-2.0）、remotion-templates（无 LICENSE，仅思路）、remotion-scenes/video-forge/video-skills-toolkit（MIT）七项边界；Remotion Free License 条款明确（个人/≤3 人免费，禁止转售衍生品）。
+
 ## v0.7.1 - 2026-09-02
 
 - **吸收 video-shotcraft（Apache-2.0，署名改编）**：新增 `references/video-jianying-draft/remotion-export.md`——成片反导出为可编辑剪映草稿（分层原则/plate 底片/时间线三表/安装验收/单向转换与隐私警告），`video-jianying-draft` SKILL.md 增「成片导出模式」章节并在主 SKILL.md 路由表登记；新增 `references/video-polish/music-beat-sync.md`——BGM 节拍网格测定（最小二乘拟合/半双倍歧义/鼓 stem 分离）、kick/snare/hihat 三分类、网格四指标验收、拍号时间线、渲后回测 ≤3f 与输出音轨偏移分账、BGM/无 BGM 双版本交付。

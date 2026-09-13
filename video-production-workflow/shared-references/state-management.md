@@ -48,6 +48,8 @@
 }
 ```
 
+> **`caption_correct` 为条件阶段**：`/video-rough-cut` 的自动文稿校对通过时，由 rough-cut 直接将其标为 `completed`（并在 `artifacts` 登记 `Sub/caption_corrected.srt`）；仅当对齐报告出现低置信句/大量偏差或用户要求复核时才进入 `/video-caption-correct` 独立执行。
+
 ## 字段职责
 
 | 字段 | 唯一写入者 | 读取者 | 规则 |

@@ -17,7 +17,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 ## Python 执行约定
 
-本 Skill 根目录的 `.venv` 是唯一 Python 环境。运行 Python 脚本必须使用 `uv run --project <Skill根目录> python ...`；不得调用系统 Python、Anaconda 或其他虚拟环境。初始化和依赖说明见 [DEPENDENCIES.md](DEPENDENCIES.md)。PyTorch 使用 CUDA 12.6 GPU wheel，不使用 CPU wheel。
+本 Skill 根目录的 `.venv` 是唯一 Python 环境。运行 Python 脚本必须使用 `uv run --project <Skill根目录> python ...`；不得调用系统 Python、Anaconda 或其他虚拟环境。初始化和依赖说明见 [DEPENDENCIES.md](DEPENDENCIES.md)。默认安装不包含 PyTorch（默认引擎 faster-whisper 走 ctranslate2，`.venv` 约 0.7GB）；备选引擎 openai-whisper 才需要 `uv sync --extra whisper`（CUDA 12.6 wheel）。
 
 ## 模型调用约定
 
@@ -64,13 +64,14 @@ OBS 不是固定的 A-roll 或 B-roll：人物边操作边讲解时是 A-roll；
   ↓
 用户拍摄 / OBS 录制 —— 素材进入 Raw\
   ↓
-  03 /video-rough-cut —— faster-whisper（备选 Whisper）+ 文稿 + FFmpeg → 粗剪与词级转录
-  ↓
-04 /video-caption-correct —— 根据文稿校对初始字幕和口误
+  03 /video-rough-cut —— faster-whisper（备选 Whisper）+ 文稿 + FFmpeg → 粗剪
+       └ 内含自动文稿校对：字幕按文稿拼写产出 Sub/caption_corrected.srt，
+         ASR↔文稿偏差/口癖候选/低置信句落盘待复核
+  ↓（仅当对齐报告有问题或用户要求时）03b /video-caption-correct —— 词级人工复核
   ↓
 05 /video-jianying-draft —— 根据剪辑决策生成剪映原生 Draft
   ↓
-  06 /video-assets —— 搜索下载 + 合规转码归档
+06 /video-assets —— 搜索下载 + 合规转码归档（分镜确认后即可并行，Draft 需要音频素材）
   ↓
 07 /video-fine-cut —— 剪映内部剪气口、精剪、输出 master.srt
   ↓
@@ -90,9 +91,9 @@ Final\video_final.mp4
 | 初始化、创建视频项目、首次使用 | `/video-init` | 无 | 项目目录、状态文件、`WORKFLOW.md`、`STATUS.md` |
 | 看状态、现在做到哪一步、下一步做什么 | `/video-status` | 可选项目目录 | 只读状态看板和下一步建议 |
 | 规划分镜、文稿转分镜、列素材 | `/video-plan` | 终稿文稿 | `storyboard.md`、`storyboard.json`、素材和动效候选 |
-| 转录、粗剪、剪口播、按文稿剪视频 | `/video-rough-cut` | `Raw\` 原片 | 词级转录、EDL、粗剪预览、粗剪交接文件 |
-| 校对字幕、修正 ASR、根据原稿改字幕 | `/video-caption-correct` | 初始转录/字幕 + 文稿 | 校对文本、口误记录、可用于剪映的字幕输入 |
-| 创建剪映草稿、导入视频和字幕 | `/video-jianying-draft` | EDL/剪辑决策 + 字幕 | 剪映原生草稿和素材副本 |
+| 转录、粗剪、剪口播、按文稿剪视频、自动校对字幕 | `/video-rough-cut` | `Raw\` 原片 + 终稿文稿 | 词级转录、`Sub/caption_corrected.srt`、对齐报告、EDL、粗剪预览 |
+| 复核低置信字幕、裁决口误、沉淀个人词典 | `/video-caption-correct`（条件触发） | `Rough/analysis/alignment_report.json` 显示低置信/偏差，或用户主动要求 | 复核后的 `caption_corrected-vN.srt`、`speech_errors` 裁决、词典更新 |
+| 创建剪映草稿、导入视频和字幕 | `/video-jianying-draft` | EDL/剪辑决策 + 字幕 + 音频等素材 | 剪映原生草稿和素材副本 |
 | 下载素材、找图片、找视频、找音乐、找音效 | `/video-assets` | `asset_request_list.md` 或明确需求 | 素材文件、转码副本、许可证清单 |
 | 剪映内部剪辑、剪气口、导出精剪字幕 | `/video-fine-cut` | 剪映 Draft / Filmora 工程 + 校对字幕 | `Polished/fine_cut.mp4`、`Sub/master.srt` |
 | 分析哪里需要 B-roll、设计 B-roll | `/b-roll-finder` | 剪映精剪后的 SRT | B-roll 机会表、母片段设计、风格建议 |
@@ -135,8 +136,8 @@ not_started -> in_progress -> awaiting_approval -> completed
 | 集成阶段 | 来源 Skill |
 |---|---|
 | 文稿、分镜和交接文档 | `skills/video-plan/SKILL.md` + `templates/`（该阶段为模型生成型，`scripts/video-plan/` 仅存说明） |
-| 转录、粗剪、FFmpeg、精剪合成 | `scripts/video-rough-cut/` |
-| 字幕转录、口误识别和纠错 | `scripts/video-caption-correct/`（Windows 原生入口 `run_transcribe.ps1`） |
+| 转录、文稿自动校对、粗剪、FFmpeg、精剪合成 | `scripts/video-rough-cut/`（`transcribe.py --lexicon` + `align_to_manuscript.py` 自动校对） |
+| 字幕人工复核、审核页、口癖裁决与词典沉淀 | `scripts/video-caption-correct/`（legacy 独立转录入口 `run_transcribe.ps1` 仅离线场景保留） |
 | 剪映原生 Draft 与成片导出 | `scripts/video-jianying-draft/`；成片→剪映草稿导出见 `references/video-jianying-draft/remotion-export.md` |
 | 下载、许可证、转码和归档 | `scripts/video-assets/` |
 | B-roll 机会分析和素材处理 | `scripts/b-roll-finder/` + `skills/b-roll-finder/SKILL.md` |
@@ -182,6 +183,7 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 │   ├── video-folder-schema.md / state-management.md / handoff-contracts.md
 │   ├── a-roll-b-roll-routing.md / b-roll-style-catalog.md
 │   ├── b-roll-timing-and-qa.md / motion-engine-decision.md
+│   ├── layout-geometry.md          # 排版几何（栅格/间距/对齐/字阶/碰撞/九项机检）
 │   ├── motion-brief-standards.md   # 动效导演简报（输入分类/时长/五相位/覆盖模式/风格闸门）
 │   ├── external-references.md      # 外部参考项目登记与许可证边界
 │   ├── b-roll-taste-profile.md / approval-gates.md / skill-optimization.md

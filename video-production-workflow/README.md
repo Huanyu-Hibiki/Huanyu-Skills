@@ -6,7 +6,7 @@
 
 终稿 → 分镜 → 粗剪 → 字幕校对 → 剪映草稿 → 素材 → 精剪 → B-roll 分析与生成 → 装配成片 QA
 
-[![Version](https://img.shields.io/badge/version-0.7.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.1-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-13%20子%20skill-059669)](#-主要子-skill)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-第一次使用)
@@ -129,7 +129,7 @@ bash scripts/setup/install.sh        # 国内网络加 -mirror
 脚本会自动完成：
 
 1. 安装 **uv**（Python 包管理器，自动管理 Python 3.11，无需你装 Python）；
-2. 创建独立虚拟环境 `.venv` 并安装全部 Python 依赖（含 PyTorch GPU 版，首次约 5-15 分钟）；
+2. 创建独立虚拟环境 `.venv` 并安装默认依赖（精简安装约 0.7GB，几分钟完成；备选 whisper 引擎需要 PyTorch CUDA，可另执行 `uv sync --extra whisper` 追加约 5GB）；
 3. 检查 **FFmpeg**（视频处理）和 **Node.js**（Remotion 动效需要，18+），缺失时提示一键安装；
 4. 询问是否下载 **AI 转录模型**（默认只下载 faster-whisper large-v3，约 3GB）。
 
@@ -158,7 +158,7 @@ uv run python scripts\setup\download_models.py --list
 | 模型 | 是否默认 | 用途 |
 |---|---|---|
 | faster-whisper large-v3（约 3GB） | ✅ 默认下载 | 默认转录引擎，Windows 支持好（无显卡也能用 CPU int8） |
-| openai-whisper large-v3（约 2.9GB） | 可选 `--include whisper` | 备选引擎：`transcribe.py --engine whisper` |
+| openai-whisper large-v3（约 2.9GB） | 可选 `--include whisper` | 备选引擎：`transcribe.py --engine whisper`（需先 `uv sync --extra whisper` 装 PyTorch） |
 | Fun-ASR-Nano（约 2GB） | 可选 `--include funasr` | legacy，仅 `funasr_srt.py` 用，需 `uv sync --extra funasr` |
 
 下载中断不要紧：重新运行同一命令会跳过已完成的部分继续。

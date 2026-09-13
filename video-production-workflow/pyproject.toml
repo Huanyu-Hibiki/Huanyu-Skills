@@ -11,11 +11,8 @@ dependencies = [
     "matplotlib",
     "modelscope",
     "numpy",
-    "openai-whisper",
     "pillow",
     "requests",
-    "torch==2.7.1+cu126",
-    "torchaudio==2.7.1+cu126",
     "python-dotenv",
     "websockets",
 ]
@@ -25,6 +22,14 @@ manim = ["manim"]
 # Fun-ASR 已不参与默认转录（默认 faster-whisper，备选 whisper）；
 # 仅需要 legacy funasr_srt.py 时安装：uv sync --extra funasr
 funasr = ["funasr"]
+# openai-whisper 备选引擎及其 PyTorch 依赖移出默认安装：
+# 默认引擎 faster-whisper 走 ctranslate2，不需要 torch（默认 .venv 约 0.7GB，
+# 加 whisper 备选约 5.5GB）。需要 --engine whisper 时：uv sync --extra whisper
+whisper = [
+    "openai-whisper",
+    "torch==2.7.1+cu126",
+    "torchaudio==2.7.1+cu126",
+]
 
 [tool.uv]
 package = false

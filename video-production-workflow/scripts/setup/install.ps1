@@ -133,7 +133,7 @@ if ($hasNode) {
 # ---------------------------------------------------------------------------
 # 4. Python 虚拟环境（uv 自动管理 Python 3.11，无需预先安装 Python）
 # ---------------------------------------------------------------------------
-Write-Step "创建 Python 虚拟环境并安装依赖（首次约 5-15 分钟，含 PyTorch GPU 版约 3GB）"
+Write-Step "创建 Python 虚拟环境并安装依赖（默认精简安装约 1-3 分钟、约 0.7GB；备选 whisper 引擎需另装 whisper extra）"
 
 uv venv .venv --python 3.11
 if ($LASTEXITCODE -ne 0) { Write-Fail "创建虚拟环境失败"; exit 1 }
@@ -151,10 +151,12 @@ Write-Ok "Python 环境就绪: .venv"
 # ---------------------------------------------------------------------------
 Write-Step "环境自检"
 
-uv run python -c "import torch; print('    torch', torch.__version__, '| CUDA 可用:', torch.cuda.is_available())"
-if ($LASTEXITCODE -ne 0) { Write-Fail "torch 导入失败"; exit 1 }
+# 默认引擎 faster-whisper 走 ctranslate2，不依赖 torch；torch 仅随 whisper 备选 extra 安装
+uv run python -c "import faster_whisper; print('    faster-whisper OK')"
+if ($LASTEXITCODE -ne 0) { Write-Fail "faster-whisper 导入失败"; exit 1 }
 
 Write-Ok "依赖安装完成"
+Write-Host "    备选引擎（openai-whisper，含 PyTorch CUDA 约 5GB）：uv sync --extra whisper" -ForegroundColor White
 
 # ---------------------------------------------------------------------------
 # 6. AI 模型下载（本地转录模型，默认下载到 Skill 目录下的 models\）

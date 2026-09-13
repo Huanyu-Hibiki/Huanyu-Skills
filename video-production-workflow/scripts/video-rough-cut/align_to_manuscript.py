@@ -5,11 +5,32 @@ Replaces gen_analysis.js when a manuscript is available. Uses the manuscript
 as ground truth for text content and sentence structure, while keeping
 Whisper timestamps for timing.
 
+This is the transcription stage's AUTO-CORRECTION pass (merged from the old
+standalone /video-caption-correct flow):
+
+- Captions take manuscript spelling (ASR 错字/同音词自动消失);
+- ASR-vs-manuscript diffs are recorded per sentence (错字/专名/口误候选),
+  so the human review queue only contains real disagreements;
+- Conservative filler candidates (呃/嗯/然后…) are detected with the same
+  rule sets as the review page's auto_filler and written to speech_errors.json
+  (advisory — audio deletion stays an edit decision for the EDL stages);
+- Every matched sentence carries provenance (confidence + diff summary) in
+  alignment_report.json, so review pages can prioritize by status.
+
+A project lexicon (`video scripts/lexicon.md` or project-root
+`voice-lexicon.md`) is parsed for 专名表/纠错规则 and used to annotate
+substitutions. Feed the same file to transcribe.py --lexicon so ASR gets
+the terms as initial-prompt bias.
+
+SRT output naming (folder-schema):
+- default mode            → Sub/caption_corrected.srt (粗剪时间线校对字幕)
+- --final-keeps mode      → Sub/master.srt (精剪导出失败时的重映射兜底)
+
 Auto-detects manuscript files in scripts/ directory.
 If multiple files found, asks user to choose.
 
 Usage:
-    python align_to_manuscript.py <video_project_dir> <subtitles_words.json> <output_dir>
+    python align_to_manuscript.py <video_project_dir> <subtitles_words.json> <output_dir> [--final-keeps keeps.json]
 
 Example:
     python align_to_manuscript.py \
@@ -35,8 +56,14 @@ def find_manuscripts(video_dir: Path) -> List[Path]:
         if scripts_dir.is_dir():
             md_files.extend(scripts_dir.glob("*.md"))
     md_files = sorted(set(md_files))
-    # Filter out obvious non-manuscript files (README, templates, etc.)
-    return [f for f in md_files if not f.name.startswith("README") and not f.name.startswith("template")]
+    # Filter out obvious non-manuscript files (README, templates, lexicon, etc.)
+    skip_names = {"lexicon.md", "voice-lexicon.md"}
+    return [
+        f for f in md_files
+        if not f.name.startswith("README")
+        and not f.name.startswith("template")
+        and f.name.lower() not in skip_names
+    ]
 
 
 def ask_user_manuscript(manuscripts: List[Path], choice: int = 0) -> Path:
@@ -143,6 +170,245 @@ def _flush_sentences(sentences: list, text: str, section: str):
                 "section": section,
                 "idx": len(sentences),
             })
+
+
+# ─── Project lexicon（个人词典，格式同 oracle-voice voice-lexicon.md）───
+
+def find_lexicon(video_dir: Path) -> Optional[Path]:
+    """Locate the project lexicon: video scripts/lexicon.md first, then root voice-lexicon.md."""
+    for candidate in (
+        video_dir / "video scripts" / "lexicon.md",
+        video_dir / "lexicon.md",
+        video_dir / "voice-lexicon.md",
+    ):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def parse_lexicon(lexicon_path: Path) -> dict:
+    """Parse 专名表 + 纠错规则 from the lexicon markdown.
+
+    Format (sections by `##` heading, entries as `- ` bullets):
+        ## 专名表（转写一律按此拼写）
+        - 焕羽（人名，频道名）
+        ## 纠错规则（听到左边 → 写右边；按上下文替换，不盲替）
+        - 焕宇 → 焕羽
+    """
+    terms: List[str] = []
+    rules: List[dict] = []
+    in_terms = False
+    for line in lexicon_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("##"):
+            in_terms = "专名" in stripped
+            continue
+        if not stripped.startswith("-"):
+            continue
+        content = stripped[1:].strip()
+        if not content:
+            continue
+        if "→" in content or "->" in content:
+            left, _, right = content.partition("→" if "→" in content else "->")
+            pattern = left.strip()
+            replacement = right.strip()
+            if pattern and replacement:
+                rules.append({"pattern": pattern, "replacement": replacement})
+        elif in_terms:
+            term = content.split("（")[0].strip()
+            if term:
+                terms.append(term)
+    return {"terms": terms, "rules": rules}
+
+
+# ─── Conservative filler candidates（auto_filler.js 规则集的 Python 移植）──
+
+_ALWAYS = {"呃", "嗯", "额", "诶", "欸", "唉", "噢"}
+_EDGE_HEAD = {"啊", "哦", "哎", "呀", "对", "呢"}
+_EDGE_TAIL = {"对", "呢", "啊", "哦"}
+_NA_FOLLOW = {"个", "么", "里", "种", "时", "样", "边", "些", "位", "段", "次", "天", "年", "场"}
+_E_AFTER = {"外", "度", "头"}
+_E_BEFORE = {"金", "余", "差", "份", "配", "名", "限"}
+
+
+def detect_filler_candidates(
+    words: List[dict],
+    sentence_map: List[dict],
+) -> List[int]:
+    """Detect conservative filler candidates; returns subtitle_words idx list.
+
+    Advisory only: candidates are deletion SUGGESTIONS for human review /
+    the review page. Audio deletion itself stays an edit decision (EDL).
+    Uses the same extended window as asr_substitutions — fillers are ASR
+    insertions that fall past the last manuscript-matched char.
+    """
+    delete_idx: set = set()
+
+    for i_seg, seg in enumerate(sentence_map):
+        s0 = seg["startIdx"]
+        hard_end = (sentence_map[i_seg + 1]["startIdx"] - 1) if i_seg + 1 < len(sentence_map) else len(words) - 1
+        end_idx = _sentence_asr_window(words, s0, max(hard_end, s0))
+        seq = []
+        for i in range(s0, min(end_idx, len(words) - 1) + 1):
+            if not words[i].get("isGap"):
+                seq.append({"idx": i, "c": words[i].get("text", "")})
+        if not seq:
+            continue
+
+        to_delete: set = set()
+
+        # 1) 单字语气词（任意位置；"额"按前后字排除真词）
+        for i, item in enumerate(seq):
+            c = item["c"]
+            if c not in _ALWAYS:
+                continue
+            if c == "额":
+                nxt = seq[i + 1]["c"] if i + 1 < len(seq) else None
+                prv = seq[i - 1]["c"] if i > 0 else None
+                if nxt in _E_AFTER or prv in _E_BEFORE:
+                    continue
+            to_delete.add(i)
+
+        def remain_len() -> int:
+            return len(seq) - len(to_delete)
+
+        def first_real() -> int:
+            f = 0
+            while f < len(seq) and f in to_delete:
+                f += 1
+            return f
+
+        # 2) 句首过渡词（迭代推进，保证剩余长度）
+        changed = True
+        while changed:
+            changed = False
+            f = first_real()
+            if f >= len(seq):
+                break
+            c = seq[f]["c"]
+            c2 = seq[f + 1]["c"] if f + 1 < len(seq) else None
+            if remain_len() > 4:
+                if (c == "然" and c2 == "后") or (c == "那" and c2 == "么") or (c == "好" and c2 == "的"):
+                    to_delete.add(f)
+                    to_delete.add(f + 1)
+                    changed = True
+                    continue
+            if remain_len() > 3:
+                if c in _EDGE_HEAD:
+                    to_delete.add(f)
+                    changed = True
+                    continue
+                if c == "那" and c2 not in _NA_FOLLOW:
+                    to_delete.add(f)
+                    changed = True
+                    continue
+
+        # 3) 任意位置的"然后"（用户偏好：全删）
+        for i in range(len(seq) - 1):
+            if i in to_delete or (i + 1) in to_delete:
+                continue
+            if seq[i]["c"] == "然" and seq[i + 1]["c"] == "后":
+                to_delete.add(i)
+                to_delete.add(i + 1)
+
+        # 4) 句尾废词（迭代回退）
+        changed = True
+        while changed:
+            changed = False
+            l = len(seq) - 1
+            while l >= 0 and l in to_delete:
+                l -= 1
+            if l < 0 or remain_len() <= 3:
+                break
+            if seq[l]["c"] in _EDGE_TAIL:
+                to_delete.add(l)
+                changed = True
+
+        for i in to_delete:
+            delete_idx.add(seq[i]["idx"])
+
+    return sorted(delete_idx)
+
+
+# ─── ASR↔manuscript diff（错字/专名偏差候选）──────────────────────────
+
+def _sentence_asr_window(words: List[dict], start_idx: int, hard_end: int) -> int:
+    """Extend a sentence's word window past its last matched char.
+
+    endIdx stops at the last char the manuscript matched, so the ASR's
+    replaced/wrong trailing chars (羽→宇 case) fall outside. Extend to the
+    next significant silence gap (≥0.2s, same threshold as gen_analysis)
+    or the next sentence's start, whichever comes first.
+    """
+    end = start_idx
+    for i in range(start_idx, hard_end + 1):
+        if i >= len(words):
+            break
+        w = words[i]
+        if w.get("isGap"):
+            if (w.get("end", 0) - w.get("start", 0)) >= 0.2:
+                break
+            continue
+        end = i
+    return end
+
+
+def asr_substitutions(
+    matched_sentences: List[dict],
+    words: List[dict],
+    lexicon: Optional[dict] = None,
+    max_entries: int = 200,
+) -> List[dict]:
+    """For each matched sentence, diff ASR text against manuscript text.
+
+    Character-level 'replace' ops are the interesting material: ASR 错字、
+    同音词、专名偏差。Lexicon rules that explain a substitution get flagged.
+    """
+    rules = (lexicon or {}).get("rules", [])
+    entries: List[dict] = []
+    for i, sent in enumerate(matched_sentences):
+        s0 = sent["startIdx"]
+        if s0 < 0:
+            continue
+        hard_end = (matched_sentences[i + 1]["startIdx"] - 1) if i + 1 < len(matched_sentences) else len(words) - 1
+        s1 = _sentence_asr_window(words, s0, max(hard_end, s0))
+        asr_text = "".join(
+            words[j].get("text", "")
+            for j in range(s0, min(s1 + 1, len(words)))
+            if not words[j].get("isGap")
+        )
+        if not asr_text.strip():
+            continue
+        ms_text = sent["text"]
+        # 词典命中按句级上下文判断（替换块可能只含错字单字，模式含上下文）
+        hit_rules = [
+            rule for rule in rules
+            if rule["pattern"] in asr_text and rule["replacement"] in ms_text
+        ]
+        matcher = difflib.SequenceMatcher(None, asr_text, ms_text, autojunk=False)
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag != "replace":
+                continue
+            asr_chunk = asr_text[i1:i2].strip()
+            ms_chunk = ms_text[j1:j2].strip()
+            if not asr_chunk or not ms_chunk:
+                continue
+            entry = {
+                "sentence_idx": sent["idx"],
+                "section": sent.get("section", ""),
+                "asr": asr_chunk,
+                "manuscript": ms_chunk,
+                "time": sent.get("start_time", 0),
+            }
+            if hit_rules:
+                entry["lexicon_rule"] = "、".join(
+                    f"{r['pattern']} → {r['replacement']}" for r in hit_rules
+                )
+            entries.append(entry)
+            if len(entries) >= max_entries:
+                print(f"  ⚠ ASR 偏差条目达到上限 {max_entries}，截断")
+                return entries
+    return entries
 
 
 # ─── Cut-timeline remapping ───────────────────────────────────────────
@@ -342,47 +608,72 @@ def generate_outputs(
     words: List[dict],
     output_dir: Path,
     video_dir: Path = None,
+    lexicon: Optional[dict] = None,
+    srt_name: str = "caption_corrected.srt",
 ):
-    """Generate analysis.txt, sentence_map.json, auto_selected.json, SRT."""
+    """Generate analysis.txt, sentence_map.json, auto_selected.json, speech_errors.json, SRT."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Filter to matched sentences only
     matched = [s for s in aligned_sentences if s.get("matched")]
     unmatched = [s for s in aligned_sentences if not s.get("matched")]
-    
+
+    # Per-sentence provenance（来源状态：机审通过 / 低置信待复核）
+    for s in matched:
+        s["source"] = "low_confidence" if s["confidence"] < 0.5 else "manuscript_aligned"
+
     # analysis.txt: manuscript text (corrected)
     lines = []
     for i, sent in enumerate(matched):
         lines.append(f"{i}: {sent['text']}")
     (output_dir / "analysis.txt").write_text("\n".join(lines), encoding="utf-8")
-    
+
     # sentence_map.json: word index ranges
     sentence_map = [{"startIdx": s["startIdx"], "endIdx": s["endIdx"]} for s in matched]
     (output_dir / "sentence_map.json").write_text(
         json.dumps(sentence_map, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    
+
     # auto_selected.json: silence gap indices (same as gen_analysis.js)
     gap_indices = [i for i, w in enumerate(words) if w.get("isGap") and (w.get("end", 0) - w.get("start", 0)) >= 0.2]
     (output_dir / "auto_selected.json").write_text(
         json.dumps(gap_indices, indent=2), encoding="utf-8"
     )
-    
+
+    # speech_errors.json: conservative filler candidates (advisory)
+    filler_idx = detect_filler_candidates(words, sentence_map)
+    speech_errors = {
+        "source": "align_to_manuscript auto pass",
+        "note": "delete_idx 为口癖删除候选，仅供人工/审核页确认；音频删除是剪辑决策，走粗剪 EDL",
+        "delete_sentences": [],
+        "delete_idx": filler_idx,
+    }
+    (output_dir / "speech_errors.json").write_text(
+        json.dumps(speech_errors, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
     # SRT subtitle file — output to Sub/ directory
     if video_dir:
         sub_dir = video_dir / "Sub"
         sub_dir.mkdir(parents=True, exist_ok=True)
-        srt_path = sub_dir / "master.srt"
+        srt_path = sub_dir / srt_name
         srt_content = _generate_srt(matched)
         srt_path.write_text(srt_content, encoding="utf-8")
         print(f"  SRT: {srt_path} ({len(matched)} entries)")
-    
+
+    # ASR↔manuscript diffs（错字/专名/口误候选，人工复核材料）
+    substitutions = asr_substitutions(matched, words, lexicon)
+
     # alignment_report.json: detailed alignment info
     report = {
         "total_manuscript_sentences": len(aligned_sentences),
         "matched": len(matched),
         "unmatched": len(unmatched),
         "avg_confidence": round(sum(s["confidence"] for s in matched) / len(matched), 3) if matched else 0,
+        "provenance_counts": {
+            "manuscript_aligned": sum(1 for s in matched if s.get("source") == "manuscript_aligned"),
+            "low_confidence": sum(1 for s in matched if s.get("source") == "low_confidence"),
+        },
         "unmatched_sentences": [
             {"text": s["text"][:80], "section": s["section"]}
             for s in unmatched
@@ -397,11 +688,13 @@ def generate_outputs(
             }
             for s in matched if s["confidence"] < 0.5
         ],
+        "asr_substitutions": substitutions,
+        "filler_candidate_count": len(filler_idx),
     }
     (output_dir / "alignment_report.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    
+
     return report
 
 
@@ -458,16 +751,27 @@ def main():
                 final_keeps = json.loads(keeps_path.read_text(encoding="utf-8"))
                 print(f"✂ 粗剪后模式: {len(final_keeps)} 个保留段")
             break
-    
+
     # 1. Find manuscript
     manuscripts = find_manuscripts(video_dir)
     if not manuscripts:
         print("⚠ 未找到文稿文件，回退到静音分句（gen_analysis.js）")
         sys.exit(1)
-    
+
     manuscript = ask_user_manuscript(manuscripts, manuscript_choice)
     print(f"📖 使用文稿: {manuscript.name}")
-    
+
+    # 1.5 Project lexicon（个人词典；SRT 以文稿拼写为准，词典主要服务
+    #     transcribe.py --lexicon 偏置与 ASR 偏差标注）
+    lexicon = None
+    lexicon_path = find_lexicon(video_dir)
+    if lexicon_path:
+        lexicon = parse_lexicon(lexicon_path)
+        print(
+            f"📕 个人词典: {lexicon_path.name}"
+            f"（专名 {len(lexicon['terms'])} 条，纠错规则 {len(lexicon['rules'])} 条）"
+        )
+
     # 2. Parse manuscript
     sentences = parse_manuscript(manuscript)
     print(f"📝 文稿句子: {len(sentences)}")
@@ -504,13 +808,19 @@ def main():
     avg_conf = sum(s["confidence"] for s in matched) / len(matched) if matched else 0
     print(f"  📊 平均置信度: {avg_conf:.1%}")
     
-    # 5. Generate outputs (analysis + SRT)
-    report = generate_outputs(aligned, words, output_dir, video_dir)
+    # 5. Generate outputs (analysis + SRT + speech_errors + report)
+    #    默认产出 Sub/caption_corrected.srt（粗剪时间线校对字幕）；
+    #    --final-keeps 兜底模式产出 Sub/master.srt（精剪导出失败时的重映射）
+    srt_name = "master.srt" if final_keeps else "caption_corrected.srt"
+    report = generate_outputs(aligned, words, output_dir, video_dir, lexicon=lexicon, srt_name=srt_name)
     print(f"\n📁 分析输出: {output_dir}")
     print(f"  analysis.txt ({len(matched)} 句)")
     print(f"  sentence_map.json ({len(matched)} 段)")
+    print(f"  speech_errors.json（口癖候选 {report['filler_candidate_count']} 个，待人工确认）")
+    if report.get("asr_substitutions"):
+        print(f"  ASR↔文稿偏差 {len(report['asr_substitutions'])} 处（详见 alignment_report.json）")
     if video_dir:
-        print(f"  Sub/master.srt → {video_dir / 'Sub' / 'master.srt'}")
+        print(f"  Sub/{srt_name} → {video_dir / 'Sub' / srt_name}")
     
     # Show unmatched
     if unmatched:

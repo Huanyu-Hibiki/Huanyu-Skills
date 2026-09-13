@@ -27,6 +27,8 @@ bash scripts/setup/install.sh        # 国内网络加 -mirror
 ```powershell
 uv venv .venv --python 3.11
 uv sync
+# 可选：备选转录引擎 openai-whisper（含 PyTorch CUDA wheel，约 5GB）：
+uv sync --extra whisper
 ```
 
 之后所有 Python 入口统一使用：
@@ -64,7 +66,7 @@ uv run python scripts/setup/download_models.py --list
 | 模型 | 默认 | 说明 |
 |---|---|---|
 | faster-whisper large-v3 | 自动下载 | 默认转录引擎，Windows 友好（CPU int8 / CUDA） |
-| openai-whisper large-v3 (.pt) | `--include whisper` | 备选引擎：`transcribe.py --engine whisper` |
+| openai-whisper large-v3 (.pt) | `--include whisper` | 备选引擎：`transcribe.py --engine whisper`，需 `uv sync --extra whisper` |
 | Fun-ASR-Nano | `--include funasr` | legacy；仅 `funasr_srt.py` 使用，需 `uv sync --extra funasr` |
 
 ## 全局命令
@@ -77,10 +79,10 @@ uv run python scripts/setup/download_models.py --list
 
 ## Python
 
-- 根 `pyproject.toml`：faster-whisper、openai-whisper、Torch CUDA 12.6、Librosa、Pillow、Gemini 等依赖
-- 本地转录默认引擎是 `faster-whisper`（Windows 支持好）；`openai-whisper` 保留为备选引擎（`--engine whisper` 或环境变量 `ASR_ENGINE`）
+- 根 `pyproject.toml`：默认依赖为 faster-whisper、Librosa、Pillow、Gemini 等——**默认引擎 faster-whisper 走 ctranslate2，不依赖 PyTorch，默认 `.venv` 约 0.7GB**
+- 本地转录默认引擎是 `faster-whisper`（Windows 支持好）；`openai-whisper` 保留为备选引擎（`--engine whisper` 或环境变量 `ASR_ENGINE`），随可选 extra 安装：`uv sync --extra whisper`（含 `torch==2.7.1+cu126` CUDA wheel，约 +5GB）
 - Fun-ASR 已移出默认依赖（可选安装 `uv sync --extra funasr`），仅供 legacy `funasr_srt.py` 使用
-- PyTorch 固定为 CUDA 12.6 wheel：`torch==2.7.1+cu126`、`torchaudio==2.7.1+cu126`；无 NVIDIA 显卡的机器会正常安装但转录走 CPU
+- 无 NVIDIA 显卡的机器同样可用：faster-whisper 自动走 CPU int8（无需任何 CUDA 组件）
 - `video-assets/media_cli.py`：`requests`
 - `b-roll-finder/zoom_still.py`：`Pillow`
 - `b-roll-finder/cdp_capture.py`：`websockets`
@@ -129,7 +131,9 @@ Python、Shell 和 Node 的实现入口都会从该根 `.env` 读取；已导出
 uv run python -m compileall -q -f scripts
 uv run python scripts/video-init/init_project.py --help
 uv run python scripts/video-polish/compose_broll.py --help
-uv run python -c "import torch; assert torch.version.cuda and torch.cuda.is_available(); print(torch.__version__, torch.version.cuda)"
+# 默认安装（faster-whisper 精简线）：
 uv run python -c "import faster_whisper; print('faster-whisper OK')"
 uv run python scripts/setup/download_models.py --list
+# 仅 whisper 备选 extra（uv sync --extra whisper 后）：
+uv run python -c "import torch; assert torch.version.cuda; print(torch.__version__, torch.version.cuda)"
 ```

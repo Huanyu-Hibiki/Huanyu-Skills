@@ -24,8 +24,9 @@
 ├── STATUS.md                        # 状态看板，由 video-status 维护
 ├── video scripts/                   # 文稿、分镜和制作交接文件
 │   ├── manuscript.md                # 终稿副本或上游终稿引用
-│   ├── storyboard.md                # 给人读的分镜表
+│   ├── storyboard.md                # 给人读的分镜表（含风格档引用与未完成清单）
 │   ├── storyboard.json              # 机器消费的分镜真相源
+│   ├── style-profile.md             # G0 风格档（领域定皮；系列视频跨集复用）
 │   ├── material_suggestion_doc.md   # 素材建议
 │   ├── remotion_candidate_list.md   # 拍前候选，不是执行令
 │   ├── music_cue_sheet.json         # 音乐/音效情绪和时长需求
@@ -36,7 +37,8 @@
 │   └── motion_request_list.md       # 已确认的动效执行令
 ├── Raw/                             # 用户原始实拍/OBS，严格只读
 ├── Rough/                           # 转录、粗剪、EDL 和调试文件
-│   ├── transcripts/                 # 缓存的词级 ASR JSON
+│   ├── transcripts/                 # 缓存的词级 ASR JSON（转录唯一入口：video-rough-cut）
+│   ├── analysis/                    # 文稿自动校对产物（align_to_manuscript.py）
 │   ├── clips_graded/                # 粗剪分段副本
 │   ├── animations/                  # 粗剪阶段临时动效 slot
 │   ├── verify/                      # 时间线截图、波形和 QA 图
@@ -46,9 +48,9 @@
 │   ├── missing_materials.md
 │   └── preview.mp4
 ├── Sub/                             # 字幕各版本
-│   ├── draft.srt                    # 粗剪初始字幕
-│   ├── caption_corrected.srt        # 文稿校对后字幕
-│   └── master.srt                   # 剪映精剪后最终时间轴字幕
+│   ├── draft.srt                    # 可选：无文稿时 ASR 直出字幕（正常流程不产生）
+│   ├── caption_corrected.srt        # video-rough-cut 自动校对字幕（文稿拼写 + 录制时间线）
+│   └── master.srt                   # 剪映精剪后最终时间轴字幕（align --final-keeps 仅作导不出 SRT 的兜底）
 ├── Jianying-draft/                  # 剪映原生草稿实际归档目录
 ├── Polished/                        # 精剪和 B-roll 装配中间产物
 │   ├── fine_cut.mp4

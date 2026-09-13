@@ -25,11 +25,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 1. 优先读取 `assets/requests/asset_request_list.md`；没有则询问素材类型、用途、时长、画幅、情绪、许可证和项目路径。
 2. 按来源聚类需求，先做 metadata search，再下载确认项，避免逐条反复抓取。
-3. 每项第三方素材记录来源网站、页面 URL、下载 URL、标题、作者、许可证、商用许可、署名要求、下载日期和风险。
-4. 许可证不清楚时标记 blocked，不放进消费者目录。
-5. 用 FFmpeg 标准化音乐、音效、Stock 视频和用户提供的需要处理的副本。
-6. 更新 `assets/licenses/media_asset_manifest.json` 和 `assets/logs/ffmpeg_commands.md`。
-7. 输出素材摘要和未解决风险，等待用户确认高风险或付费来源。
+3. **检索与降级链**：检索词用英文视觉概念词（从中文分镜翻译 2-3 个，不直译名词）；同一镜头**先搜视频、搜不到再降级搜图片**（同源同 key），图片也找不到才登记进 `missing_materials`——图片撑镜头必须靠相机动，是次选不是并列项。
+4. **分辨率下限**：素材分辨率 ≥ 画幅 × 最大预期缩放（1080p 画幅 + 1.15 缓推 → 宽 ≥2208px；1.8× 放大 → ≥3456px）。低于下限的素材登记风险，放大会糊。
+5. **授权偏好**：优先免署名源（Pexels/Pixabay/Mixkit 类）；要求署名的来源（CC BY 系）先向用户确认署名成本再下载，不默默接进清单。
+6. 每项第三方素材记录来源网站、页面 URL、下载 URL、标题、作者、许可证、商用许可、署名要求、下载日期和风险。
+7. **证据截图存档**：承载关键事实的来源页（数据、引用、授权条款页）逐一截图存 `assets/licenses/evidence/`——只存链接不留证据，源站改版后就无法自证。
+8. 许可证不清楚时标记 blocked，不放进消费者目录。
+9. 用 FFmpeg 标准化音乐、音效、Stock 视频和用户提供的需要处理的副本。
+10. 更新 `assets/licenses/media_asset_manifest.json` 和 `assets/logs/ffmpeg_commands.md`。
+11. 输出素材摘要和未解决风险，等待用户确认高风险或付费来源。
 
 ## CLI 示例
 

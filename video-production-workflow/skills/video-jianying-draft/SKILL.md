@@ -31,6 +31,7 @@ create_draft
 
 - `Rough/.jianying_cache/` 是当前草稿状态唯一载体，命令间不能更换；
 - `--output` 用剪映「全局设置→草稿位置」的真实路径；缺省只接受含真草稿子目录的候选探测，探不到报错等显式路径（首次展示结果请用户确认）；
+- **音频混音约定**：BGM 与旁白共存时 BGM 默认 `--volume 0.6` 且带 `--fade-in 1 --fade-out 1`（可覆盖，不传不设）；SFX 不加 fade；
 - **字幕断行**：`add_subtitle` 默认把超长字幕条拆成 ≤18 显示单位（汉字 1、ASCII 0.5）的短条——拆分点优先标点、时间轴连续无缝隙，落盘为 `<原名>.split.srt` 供核对；需要原样导入时加 `--no-split`，需要其他长度用 `--max-chars`；
 - **同名素材防错链**：不同目录的同名文件（含大小写）自动 `-2` 后缀；同一文件共享素材；
 - **重叠音频分道**：同轨音频不可重叠，`add_audio` 默认贪心溢出 `BGM-2` 等新轨（输出 `track` 即实际）；严格模式 `--no-lane-split`；
@@ -142,6 +143,25 @@ Rough/
 
 如需使用其他 `pyJianYingDraft` 或剪映模板，可设置 `CAPCUT_MCP_DIR` 覆盖默认 vendor（失效路径自动回退内置）。
 
+## vendor 深层能力与扩展模式
+
+CLI 只暴露高频命令；vendor（`scripts/video-jianying-draft/vendor/pyJianYingDraft/`）已内置以下能力，需要时**优先扩展 `jianying.py` 子命令**而不是绕过 CLI 直接改草稿 JSON：
+
+| 能力 | vendor API | 典型用途 |
+|---|---|---|
+| 关键帧动画 | `segment.add_keyframe(Keyframe_property.*, t_us, value)`；属性含 `position_x/y`、`uniform_scale`、`alpha`、`brightness/contrast/saturation`、音频 `volume` | Ken Burns 微动、画中画运镜、视频淡入淡出（alpha 关键帧，vendor 的 `Video_segment` 无 `add_fade`） |
+| 转场 | `Video_segment.add_transition(Transition_type, duration=)` | 两段之间硬切改软转场 |
+| 段动画 | `Video_segment.add_animation(Intro_type/Outro_type/Group_animation_type, ...)` | 片头/片尾/组合动画 |
+| 滤镜/蒙版 | `add_filter(Filter_type, intensity)`、`add_mask(Mask_type, ...)` | 调色滤镜、形状遮罩 |
+| 音频淡入淡出 | `Audio_segment.add_fade(in_us, out_us)`（CLI `add_audio --fade-in/--fade-out` 已暴露） | BGM 进出、SFX 边界 |
+| 变速 | `Video_segment/Audio_segment(speed=)`（CLI `--speed` 已暴露） | 时间的变速重排 |
+
+**转场/动画/滤镜的枚举值绝不凭记忆猜**——从 vendor 的 `metadata/` 目录（transitions/filters/animations 枚举表）查准确名字；枚举对不上剪映版本时宁可放弃该效果，不写非法 ID 损坏草稿。
+
+**save-time JSON patch 模式**（适配剪映新版本未知字段的通用逃生通道）：vendor 写不动的字段（如 `enable_adjust` 亮度调节 bundle、云端素材 `music_id` 回写），统一走「`save_draft` 落盘后 → 重读 `draft_info.json`/`draft_content.json` → 打补丁 → 原子写回」；补丁必须在剪映未运行时执行，且每次补丁在 `jianying_draft_manifest.md` 记录补丁字段清单。
+
+**机器可读验收**（每次 `save_draft` 后自检，结果写入 manifest）：视频轨非空且段数 = EDL 段数；音频轨有 BGM（如计划含 BGM）；字幕轨条数 = `caption_corrected.srt`（split 后）条数；同一素材同起点重复出现 >5 次告警（防错链）；`media_copied`/`missing_media` 与 manifest 一致。CLI 输出统一为 JSON（`success`/`draft_id`/`track` 等字段），失败非零退出，供 Agent 结构化读取自纠。
+
 ## CLI 示例
 
 ```bash
@@ -158,6 +178,9 @@ for /f "delims=" %i in ('uv run --project "<合集根>" python "<合集根>/scri
 
 # 字幕：默认拆 ≤18 显示单位短条（另存 .split.srt 核对）
 ... add_subtitle --draft-id <id> --cache-dir "%CACHE%" --srt "<项目>/Sub/caption_corrected.srt"
+
+# BGM：与旁白共存默认音量 0.6 + 淡入淡出 1s
+... add_audio --draft-id <id> --cache-dir "%CACHE%" --file <bgm> --track-name BGM --volume 0.6 --fade-in 1 --fade-out 1
 
 # 调整单条长度 / 原样导入
 ... add_subtitle --srt <srt> --max-chars 15      # 更短更碎

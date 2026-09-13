@@ -48,7 +48,7 @@ uv run --project "<合集根>" python "<合集根>/scripts/video-status/status.p
 |---|---|
 | 分镜是否完成 | `storyboard.md` + `storyboard.json` 均存在且同版本 |
 | 粗剪是否完成 | `Rough/edl.json`、`rough_cut_manifest.md` 和预览存在 |
-| 字幕是否可交接 | `Sub/caption_corrected.srt` 或 `Sub/master.srt` 存在 |
+| 字幕是否可交接 | `Sub/caption_corrected.srt`（粗剪自动校对产物）或 `Sub/master.srt`（精剪后）存在；粗剪完成但两者皆缺 = 字幕环节 blocked |
 | 素材是否合规 | manifest 存在，未解决许可证风险为 0 |
 | B-roll 是否可生成 | 机会表、母片段设计表和审批状态满足要求 |
 | B-roll 是否可装配 | manifest 中通过 QA 的文件与实际文件一致 |

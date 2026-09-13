@@ -414,6 +414,9 @@ def cmd_add_audio(a):
     tn = a.track_name or "audio_main"
     seg = dy.Audio_segment(mat, _tr(ts, ts + (end - start) / a.speed),
                            source_timerange=_tr(start, end), volume=a.volume)
+    if a.fade_in or a.fade_out:
+        # add_fade 接受微秒 int；CLI 以秒传入换算
+        seg.add_fade(int(a.fade_in * 1_000_000), int(a.fade_out * 1_000_000))
     if a.no_lane_split:
         # 严格模式：同轨重叠直接抛 SegmentOverlap（旧行为）
         sc.add_track(dy.Track_type.audio, tn)
@@ -423,7 +426,8 @@ def cmd_add_audio(a):
         tn = _audio_lane(sc, tn, seg)
         sc.add_segment(seg, tn)
     _save(a.cache_dir, a.draft_id, sc)
-    print(json.dumps({"success": True, "file": os.path.basename(a.file), "track": tn}))
+    print(json.dumps({"success": True, "file": os.path.basename(a.file), "track": tn,
+                      "fade_in": a.fade_in, "fade_out": a.fade_out}))
 
 def cmd_add_text(a):
     sc = _load(a.cache_dir, a.draft_id)
@@ -579,7 +583,7 @@ def main():
 
     p = sub.add_parser('create_draft'); p.add_argument('--width', type=int, default=1920); p.add_argument('--height', type=int, default=1080); p.add_argument('--cache-dir', required=True); p.set_defaults(fn=cmd_create_draft)
     p = sub.add_parser('add_video'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_video)
-    p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--no-lane-split', action='store_true', dest='no_lane_split', help='disable greedy lane split; overlapping audio raises SegmentOverlap'); p.set_defaults(fn=cmd_add_audio)
+    p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--fade-in', type=float, default=0.0, dest='fade_in', help='audio fade-in seconds'); p.add_argument('--fade-out', type=float, default=0.0, dest='fade_out', help='audio fade-out seconds'); p.add_argument('--no-lane-split', action='store_true', dest='no_lane_split', help='disable greedy lane split; overlapping audio raises SegmentOverlap'); p.set_defaults(fn=cmd_add_audio)
     p = sub.add_parser('add_text'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--text', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--font-size', type=float); p.add_argument('--font-color'); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_text)
     p = sub.add_parser('add_subtitle'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--srt', required=True); p.add_argument('--time-offset', type=float); p.add_argument('--font-size', type=float, default=5.0); p.add_argument('--font-color', default='#FFFFFF'); p.add_argument('--track-name'); p.add_argument('--max-chars', type=float, default=18, dest='max_chars', help='max display units per cue (CJK=1, ASCII=0.5)'); p.add_argument('--min-chars', type=float, default=6, dest='min_chars'); p.add_argument('--no-split', action='store_true', dest='no_split', help='import the SRT as-is without splitting'); p.set_defaults(fn=cmd_add_subtitle)
     p = sub.add_parser('add_image'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--width', type=int); p.add_argument('--height', type=int); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_image)

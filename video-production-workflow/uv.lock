@@ -2925,12 +2925,9 @@ dependencies = [
     { name = "modelscope" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "openai-whisper" },
     { name = "pillow" },
     { name = "python-dotenv" },
     { name = "requests" },
-    { name = "torch" },
-    { name = "torchaudio" },
     { name = "websockets" },
 ]
 
@@ -2940,6 +2937,11 @@ funasr = [
 ]
 manim = [
     { name = "manim" },
+]
+whisper = [
+    { name = "openai-whisper" },
+    { name = "torch" },
+    { name = "torchaudio" },
 ]
 
 [package.metadata]
@@ -2953,15 +2955,15 @@ requires-dist = [
     { name = "matplotlib" },
     { name = "modelscope" },
     { name = "numpy" },
-    { name = "openai-whisper" },
+    { name = "openai-whisper", marker = "extra == 'whisper'" },
     { name = "pillow" },
     { name = "python-dotenv" },
     { name = "requests" },
-    { name = "torch", specifier = "==2.7.1+cu126", index = "https://download.pytorch.org/whl/cu126" },
-    { name = "torchaudio", specifier = "==2.7.1+cu126", index = "https://download.pytorch.org/whl/cu126" },
+    { name = "torch", marker = "extra == 'whisper'", specifier = "==2.7.1+cu126", index = "https://download.pytorch.org/whl/cu126" },
+    { name = "torchaudio", marker = "extra == 'whisper'", specifier = "==2.7.1+cu126", index = "https://download.pytorch.org/whl/cu126" },
     { name = "websockets" },
 ]
-provides-extras = ["manim", "funasr"]
+provides-extras = ["manim", "funasr", "whisper"]
 
 [[package]]
 name = "watchdog"

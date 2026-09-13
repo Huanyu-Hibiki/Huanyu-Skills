@@ -5,7 +5,8 @@ CPU int8 / CUDA both work out of the box).
 
 Optional extras:
   --include whisper   also download the openai-whisper large-v3 .pt file
-                     (keep this engine with --engine whisper)
+                     (keep this engine with --engine whisper; needs
+                     `uv sync --extra whisper` — torch is no longer a default dep)
   --include funasr   also download Fun-ASR-Nano (legacy; needs
                      `uv sync --extra funasr` to be usable)
 

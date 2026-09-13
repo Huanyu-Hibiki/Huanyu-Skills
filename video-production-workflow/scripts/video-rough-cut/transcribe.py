@@ -13,6 +13,7 @@ Usage:
     python scripts/video-rough-cut/transcribe.py <video_path> --engine whisper
     python scripts/video-rough-cut/transcribe.py <video_path> --language zh
     python scripts/video-rough-cut/transcribe.py <video_path> --model large-v3
+    python scripts/video-rough-cut/transcribe.py <video_path> --lexicon "<项目>/video scripts/lexicon.md"
 """
 
 from __future__ import annotations
@@ -46,14 +47,38 @@ def default_engine() -> str:
 
 
 def default_device() -> str:
+    # torch 是可选依赖（仅 whisper 备选 extra 安装），GPU 探测改用
+    # ctranslate2 自带计数，默认精简环境下 faster-whisper 仍能上 CUDA。
     try:
-        import torch
+        import ctranslate2
 
-        if torch.cuda.is_available():
+        if ctranslate2.get_cuda_device_count() > 0:
             return "cuda:0"
     except Exception:
         pass
     return "cpu"
+
+
+def load_lexicon_terms(path: Path) -> list:
+    """Parse 专名表 terms from a voice-lexicon style markdown file.
+
+    Format (entries as `- ` bullets under a `## …专名…` heading; annotation
+    in （…） is stripped). Other sections are ignored here — 纠错规则 is
+    consumed by align_to_manuscript.py / the review flow instead.
+    """
+    terms = []
+    in_terms = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("##"):
+            in_terms = "专名" in stripped
+            continue
+        if not in_terms or not stripped.startswith("-"):
+            continue
+        term = stripped[1:].strip().split("（")[0].strip()
+        if term:
+            terms.append(term)
+    return terms
 
 
 def extract_audio(video_path: Path, dest: Path) -> None:
@@ -262,6 +287,13 @@ def main() -> None:
         "(e.g. product names, jargon) to bias recognition.",
     )
     ap.add_argument(
+        "--lexicon",
+        type=Path,
+        default=None,
+        help="个人词典 markdown（如 <项目>/video scripts/lexicon.md）；"
+        "专名表条目追加为 initial-prompt 偏置，与 --initial-prompt 叠加",
+    )
+    ap.add_argument(
         "--model",
         "--whisper-model",
         dest="model",
@@ -283,6 +315,17 @@ def main() -> None:
 
     edit_dir = (args.edit_dir or (video.parent / "Rough")).resolve()
 
+    initial_prompt = args.initial_prompt
+    if args.lexicon:
+        if args.lexicon.exists():
+            terms = load_lexicon_terms(args.lexicon)
+            if terms:
+                lex_prompt = "以下为专有名词，请严格按这些拼写识别：" + "、".join(terms)
+                initial_prompt = (initial_prompt + "\n" + lex_prompt) if initial_prompt else lex_prompt
+                print(f"  lexicon bias: {len(terms)} terms from {args.lexicon.name}")
+        else:
+            print(f"  lexicon not found, skipped: {args.lexicon}")
+
     transcribe_one(
         video=video,
         edit_dir=edit_dir,
@@ -290,7 +333,7 @@ def main() -> None:
         engine=args.engine,
         language=args.language,
         device=args.device,
-        initial_prompt=args.initial_prompt,
+        initial_prompt=initial_prompt,
     )
 
 

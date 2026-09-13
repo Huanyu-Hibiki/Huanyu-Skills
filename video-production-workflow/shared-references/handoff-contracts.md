@@ -13,10 +13,11 @@
 | `video-plan` | `assets/requests/asset_request_list.md` | `video-assets` | 每个外部素材有用途、时长、情绪、比例和许可证要求 |
 | 用户拍摄 / OBS | `Raw/*` | `video-rough-cut` | 原始文件可读取；文件名或 `capture_manifest.md` 能映射镜号 |
 | `video-rough-cut` | `Rough/takes_decision.json`、`finalKeeps_<source>.json`、`keeps_tightened_<source>.json` | `video-jianying-draft`、`video-caption-correct` | 每句只有一个被选中的 take；EDL 片段必须来自这些 keep 段，不得引用被淘汰 take |
-| `video-rough-cut` | `Rough/transcripts/*.json` | `video-caption-correct`、`b-roll-finder` | 词级、verbatim、带 start/end；不可只有 SRT |
+| `video-rough-cut` | `Rough/transcripts/*.json` | `video-caption-correct`（复核）、`b-roll-finder` | 词级、verbatim、带 start/end；不可只有 SRT；**转录唯一入口，下游不得重新转录** |
+| `video-rough-cut` | `Sub/caption_corrected.srt`、`Rough/analysis/alignment_report.json`、`Rough/analysis/speech_errors.json` | `video-jianying-draft`、`video-caption-correct`（复核） | 字幕文本来自文稿拼写（自动校对）；低置信句、ASR↔文稿偏差、口癖候选逐条可追踪；`speech_errors.delete_idx` 是建议不是剪辑决策 |
 | `video-rough-cut` | `Rough/edl.json` | `video-jianying-draft`、剪映 | 每段 source、start、end、target-start、reason；切点不在词内 |
 | `video-rough-cut` | `Rough/rough_cut_manifest.md`、`missing_materials.md` | `video-status`、后续精剪 | 记录实际粗剪时间码、已解决项和缺口 |
-| `video-caption-correct` | `Sub/caption_corrected.srt`、`Rough/speech_errors.json` | `video-jianying-draft`、剪映 | 字幕时间码来自粗剪时间线；错误修改可追踪；不静默删口播；单条 ≤32 字，进入 Draft 时由 `subtitle_split.py` 拆为 ≤18 显示单位短条 |
+| `video-caption-correct`（条件复核） | `Sub/caption_corrected-vN.srt`、词典更新（`video scripts/lexicon.md`） | `video-jianying-draft`、剪映 | 仅在粗剪对齐报告有问题或用户要求时进入；字幕时间码来自粗剪时间线；错误修改可追踪；不静默删口播；单条 ≤32 字，进入 Draft 时由 `subtitle_split.py` 拆为 ≤18 显示单位短条 |
 | `video-jianying-draft` | `Jianying-draft/`、`Rough/jianying_draft_manifest.md` | 剪映内部精剪 | Draft 可被剪映识别；媒体路径和缓存一致 |
 | `video-assets` | `assets/licenses/media_asset_manifest.json` | 所有素材消费者 | 每项第三方素材都有具体来源、许可证和商用判断 |
 | 剪映内部精剪 | `Polished/fine_cut.mp4`、`Sub/master.srt` | `b-roll-finder` | SRT 已是精剪输出时间轴；包含完整字幕文本 |

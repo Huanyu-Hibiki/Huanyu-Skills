@@ -52,6 +52,7 @@ B-roll request 是一个独立的可复用素材单元，不把多个条目偷�
 | `../../references/b-roll-generate/remotion-scenes/` | 201+ 场景的类别索引、共享颜色/缓动/字体和准确 TSX 源码 |
 | `../../references/b-roll-generate/remotion-templates/README.md` | 81 个独立 Remotion 模板的分类和用途 |
 | `../../references/b-roll-generate/remotion-templates/templates/` | 具体模板源码；必须读准确文件，不能只凭文件名重写 |
+| `../../references/b-roll-generate/motion-template-catalog.md` | 模板注册表选型方法论（family-engine×variant×palette、props 约束层、渲前快检、透明通道×渲染环境、字幕锚点）与许可证边界 |
 | `../../shared-references/a-roll-b-roll-routing.md` | Receipts / Entity / Concept 路由 |
 | `../../shared-references/b-roll-timing-and-qa.md` | 时间锚点、音频和 manifest QA 规则 |
 | `../../references/video-prompt-writer/` | AI 视频 prompt 的 H3 结构（三字段/运镜词表/关键帧模式）和 6 种风格基因库；**写任何 AI 视频 prompt 前必读** |
@@ -264,6 +265,35 @@ AI 路线的**受控**生成有两种模式（纯文生视频不在此列——�
 - 要表现真实产品页面时用真实截图；非复刻的解释图才允许手搓组件；
 - 禁止 `Date.now()`、`new Date()`、`Math.random()`；需要随机时使用固定 seed 的 Remotion `random`
   或项目内固定 PRNG，使每次渲染逐帧一致。
+
+### 4a. 相机层与运动减法（防"入场即死"的 PPT 感）
+
+画面要有"活的相机"，元素动效做减法：
+
+- **每条 B-roll 默认叠一条极缓推拉**：scale 1.00 → 1.04~1.06（或反向拉），唯一缓动，**末键落在段尾之外**——终点速度为零的缓动最后 0.8s 会慢到停死，静止检查会误报；
+- 相机层**禁止** x/y 摇移、旋转、模糊、脉冲和 idle 呼吸装饰——元素静置后画面的"活"由相机承担，不靠加微动补偿；
+- **一镜一个时间操纵者**：要在 B-roll 画面里指认一处（放大/划线/停点），该镜只能有一个操纵画面的机制，与相机运镜不同时进行；
+- **段尾同收**：最后一个退场元素结束 = 段尾，禁止文字退场后底床空转 >0.4s（详见 [../../shared-references/b-roll-timing-and-qa.md](../../shared-references/b-roll-timing-and-qa.md)）；
+- 细密纹理（特征 ≤2px、间距 ≤24px）不进相机缩放层——亚像素爬行读作抖动，放大到点径 ≥2.5px 或挪到屏幕空间静态层。
+
+### 4b. 纯文字镜的陪衬图形（无素材时的画面责任）
+
+素材路由只有"文"（无视频/图/截图，章节卡除外）的条目，层规划必须含一层**线稿陪衬图形**：
+
+- 每层写一句"讲 X 所以画 Y"的关系句——说不出关系就删掉这个图形；
+- 词汇表限基础件：一笔画路径、图标描画、贝塞尔连接线（线先到、箭头后长）、节点（被连线点亮后才出现）、圆角板、叉与勾手势、标签（≥36px 才算信息，以下算装饰）；
+- 语义图形代替素材：文档=折角页、模型=核心环+卫星线、对比=弯路灰虚线 vs 直路强调色、流程=胶囊+箭头横排、否定=图标+红叉；
+- 一镜一张主图；错峰入场 1-2 帧；核心图形 ≥ 屏高 20%（太小在手机宽下不可见）；
+- 每句口播至少一个可见变化（画线/点亮/打叉），这是"文字镜不变成幻灯片"的底线。
+
+### 4c. 蒙皮契约（模板/库卡进成片前必换皮）
+
+任何来自模板库、参考库或 AI 生成的画面，进入成片前按 `video scripts/style-profile.md`（G0 风格档，见 `/video-plan`）换皮：
+
+- **必换**：颜色全部换到风格档 token、字体栈与字重、圆角/描边/投影材质、图表坐标轴/网格/标记画法、占位图形换真实素材；
+- **不动**：时序、缓动、三段式、几何比例、运动方向层级、音效 cue——改皮改的是"皮"，重写运动等于换了张卡；
+- **语义色不换色相**：警示红、涨跌红绿、荧光强调只调饱和度；产品界面截图不蒙皮（皮即内容）；同片同类元素一套皮；
+- 每条 B-roll 的 manifest/notes 记一行蒙皮说明（卡名 → 改了什么）。
 
 
 在 `Polished/B-roll/<id>_<slug>/implementation_plan.md` 写入：
@@ -497,6 +527,10 @@ npx remotion render <COMPOSITION_ID> ../out/<name>.mov \
   --image-format=png --pixel-format=yuva444p10le \
   --codec=prores --prores-profile=4444
 ```
+
+**透明素材 + 云端/分块渲染的组合规则**：透明通道在分块渲染（Lambda 等）下透明 WebM 会在 chunk 边界闪烁（alpha 编码依赖前帧）——上云一律 ProRes 4444（`yuva444p10le`），WebM 仅限本地单趟渲染；详见 [../../references/b-roll-generate/motion-template-catalog.md](../../references/b-roll-generate/motion-template-catalog.md) 第 5 节。
+
+**渲前快检（Gate 1/2 之间强制）**：类型检查（`tsc --noEmit`）→ 首帧静图（`npx remotion still --frame=0 --scale=0.5`）确认非黑屏、无布局溢出，再进入样片渲染；三帧静图 gate 用 `renderStill` 脚本化出图，人工只确认风格。
 
 如果项目的 Remotion CLI 需要 entrypoint，按该项目 `package.json` 的 script 补上
 `src/index.ts`，不要改成运行外部 showcase。
