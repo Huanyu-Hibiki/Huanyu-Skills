@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-09-12
+
+本版主线：**语音起稿循环（oracle-voice）+ 语音转写体系**（App 转写优先 / SenseVoice 中文快线 / whisper 多语种）+ **标题链路合并**（oracle-title 吸收 title-pick）+ **参考项目机制补强**（验证门 / 置信度地板 / 四态信封 / 交互预算三档）。
 
 ### Changed — 参考项目机制补强（2026-09-12，第十六批，借鉴 cangjie-skill / huashu-skills / union-search-skill / last30days-skill）
 
