@@ -4,7 +4,7 @@
 > 3000 年前的贞人就在跑校准循环——这套 skill 把它还给内容创作者。
 >
 > 前身：cheat-on-content（网红作弊器，源自抖音蜗牛学长，经焕羽实战大幅扩展）。
-> 本版定位：**通用内容校准器**——剥离个人定制，保留完整方法论与全部 27 个子 skill 流程。
+> 本版定位：**通用内容校准器**——剥离个人定制，保留完整方法论与全部 28 个子 skill 流程。
 > 命名约定：**只改 skill 名（oracle-\* 前缀），术语全部保留功能词**（预测/复盘/rubric/AI 味/违禁词），不引入占卜意象术语。
 
 ---
@@ -21,7 +21,7 @@
 
 ### 1.1 完整继承（流程不变）
 
-- 五阶段闭环 + 27 个子 skill 全部功能与衔接顺序
+- 五阶段闭环 + 28 个子 skill 全部功能与衔接顺序
 - 三条不可妥协原则（盲预测 / 全量重打 / 工作台非博物馆）及其 hooks 强制
 - 冷启动（cold-start）与校准（calibration）双模式
 - starter-rubrics 体系（opinion-video 已拟合版 + zero 等权版 + 扩展位）
@@ -165,7 +165,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 
 ---
 
-## 5. 27 个子 skill 完整清单
+## 5. 28 个子 skill 完整清单
 
 统一前缀 `oracle-`，功能词与原版一致。
 
@@ -208,23 +208,24 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | # | skill | 功能 | 触发词 | 产出 |
 |---|---|---|---|---|
 | 20 | oracle-shoot | 登记拍摄（buffer +1）；成稿与预测稿 diff 超阈值 → 触发 predict v2 | "拍了" / "shot" / "录完了" | state.shoots 队列 |
-| 21 | oracle-publish | 发布登记（URL/平台/时间 → 预测 header + state，buffer -1）+ 发布前合规 gate | "已发布" / "I shipped it" / "发布链接是 X" | 更新预测 header + state |
-| 22 | oracle-pinned-comment | 发布后黄金窗口生成各平台置顶评论（按轨道策略） | "置顶评论" / "引导评论" | append 到脚本置顶评论段 |
-| 23 | oracle-derivative | T+1 衍生内容：从主作品裂变图文/短文 | "衍生内容" / "图文" | 衍生稿（作品目录内） |
+| 21 | oracle-edit-plan | 剪辑计划 + 成片验收（节奏定调/剪切点带理由/转场收敛/声音设计；验收逐条指位带修法）——制作质量进链路记录 | "剪辑计划" / "成片回来了" / "验收成片" | edits/edit-plan.md + edits/acceptance.md |
+| 22 | oracle-publish | 发布登记（URL/平台/时间 → 预测 header + state，buffer -1）+ 发布前合规 gate | "已发布" / "I shipped it" / "发布链接是 X" | 更新预测 header + state |
+| 23 | oracle-pinned-comment | 发布后黄金窗口生成各平台置顶评论（按轨道策略） | "置顶评论" / "引导评论" | append 到脚本置顶评论段 |
+| 24 | oracle-derivative | T+1 衍生内容：从主作品裂变图文/短文 | "衍生内容" / "图文" | 衍生稿（作品目录内） |
 
 ### 阶段 4 · 数据回流
 
 | # | skill | 功能 | 触发词 | 产出 |
 |---|---|---|---|---|
-| 24 | **oracle-retro** | T+N 数据回收 + 复盘（窗口按轨道配置），验证/推翻假设，提炼观察 | "复盘" / "retro this" / "T+3d 数据来了" | `## 复盘` 段 + report + rubric 观察 |
-| 25 | oracle-compass-retro | 每 2 期账号级罗盘复盘：五维数据闸门 + 问题分类 + 阶段诊断 + **内容规划修订建议** | "罗盘复盘" / "账号诊断" | 诊断报告（只写候选不改 rubric/plan） |
+| 25 | **oracle-retro** | T+N 数据回收 + 复盘（窗口按轨道配置），验证/推翻假设，提炼观察 | "复盘" / "retro this" / "T+3d 数据来了" | `## 复盘` 段 + report + rubric 观察 |
+| 26 | oracle-compass-retro | 每 2 期账号级罗盘复盘：五维数据闸门 + 问题分类 + 阶段诊断 + **内容规划修订建议** | "罗盘复盘" / "账号诊断" | 诊断报告（只写候选不改 rubric/plan） |
 
 ### 阶段 5 · 进化 + 辅助
 
 | # | skill | 功能 | 触发词 | 产出 |
 |---|---|---|---|---|
-| 26 | oracle-bump | rubric 升级（全量重打 + 排序一致性 ≥0.8 + 跨模型审核；按轨道独立）或 bucket 轻量重校 | "升级 rubric" / "bump" / "调整权重" | 新版 rubric_notes.md |
-| 27 | oracle-status | 状态看板：buffer 颜色 / 各轨校准进度 / 待复盘 / 建议触发器 | "状态" / "看板" / "status" | 控制台看板 |
+| 27 | oracle-bump | rubric 升级（全量重打 + 排序一致性 ≥0.8 + 跨模型审核；按轨道独立）或 bucket 轻量重校 | "升级 rubric" / "bump" / "调整权重" | 新版 rubric_notes.md |
+| 28 | oracle-status | 状态看板：buffer 颜色 / 各轨校准进度 / 待复盘 / 建议触发器 | "状态" / "看板" / "status" | 控制台看板 |
 
 ---
 
@@ -254,6 +255,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 ━━━ 阶段 3：拍摄 → 发布 → 衍生 ━━━
 实际制作（AI 不可见，等用户回来）
     → /oracle-shoot（buffer+1；diff 超阈值 → predict v2）
+    → /oracle-edit-plan（剪辑计划 → 用户剪辑 → 成片验收，可选）
     → 实际发布到平台
     → /oracle-publish（合规 gate → 登记 URL，buffer-1）
     → /oracle-pinned-comment（发布后即时）
@@ -363,7 +365,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 文件 | 内容 |
 |---|---|
 | xu-zuohao-positioning-distill.md | 《做号》定位与画像方法论提炼（版权安全版）：定位第一性推导链 + 专业IP vs 网红四大区别 + 画像三法（商业模式反推/对标验证/账号回流验证）+ 人设三原则 + 平台策略 + **init Phase 2-4 采访问卷**（原创设计） |
-| dbskill-essence-distill.md | dbskill 知识库精华提炼（dontbesilent，版权安全版）：定位选题 / 标题封面钩子 / 脚本写作 / 平台特性速查 / 对标五重过滤 / 转化心理双引擎 / 语言审查（AI味/爹味/模糊词）/ 发布运营 / 复盘诊断 九大模块 + **oracle 全流程接线表**（§10：27 个子 skill 逐个标注消费哪段） |
+| dbskill-essence-distill.md | dbskill 知识库精华提炼（dontbesilent，版权安全版）：定位选题 / 标题封面钩子 / 脚本写作 / 平台特性速查 / 对标五重过滤 / 转化心理双引擎 / 语言审查（AI味/爹味/模糊词）/ 发布运营 / 复盘诊断 九大模块 + **oracle 全流程接线表**（§10：28 个子 skill 逐个标注消费哪段） |
 | content-funnel-theory.md | 徐沪生内容漏斗理论通用版摘要：三层漏斗（破圈/认知/转化）+ 蟑螂药案例 + 破小圈不破大圈 + 既要又要还要 + 高频阅读低频购买 + 三种人设——init Phase 3 的采访依据 |
 | conversion-track-playbook.md | 转化类轨道手册（从 B 轨 13 条第一性原理 + 选题 6 问 + 4 步心理闭环评分泛化） |
 | platform-notes.md | Windows/Obsidian/文件锁等平台特定坑（压缩备查） |
@@ -397,7 +399,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 ├── CHANGELOG.md / LICENSE / .gitignore
 ├── install.sh / uninstall.sh
 ├── skills/                     # 27 个 oracle-*/SKILL.md
-├── shared-references/          # §7.3 所列 12 份协议
+├── shared-references/          # 13 份协议（§7.3 + scoring-procedure）
 ├── starter-rubrics/
 │   ├── opinion-video.md        # 观点视频（继承已拟合版，默认）
 │   ├── opinion-video-zero.md   # v0 等权占位
@@ -422,8 +424,8 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 批次 | 内容 | 产物 |
 |---|---|---|
 | 1 | 骨架 | SKILL.md（总协议+路由）+ README + install 脚本 + 目录树 |
-| 2 | 核心协议 | shared-references 12 份（重点新写：content-funnel-protocol / collaboration-contract） |
-| 3 | 主链子 skill | init（五 Phase 增强版）/ predict / shoot / publish / retro / bump / status |
+| 2 | 核心协议 | shared-references 13 份（重点新写：content-funnel-protocol / collaboration-contract） |
+| 3 | 主链子 skill | init（五 Phase 增强版）/ predict / shoot / edit-plan / publish / retro / bump / status |
 | 4 | 选题与打磨子 skill | seed / voice / trends / recommend / score / title / description / cover |
 | 5 | review 与质检子 skill | who-for / open-source / simulate-audience / no-ai-slop / compliance |
 | 6 | 支撑子 skill | learn-from / apprentice / migrate / pinned-comment / derivative / compass-retro |
@@ -434,7 +436,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 1. ✅ 命名：oracle-bone；子 skill 统一 oracle-* 前缀 + 功能词；**术语保持功能词，不用占卜意象词**
 2. ✅ init 增强：用户档案 + 内容规划（单一/双轨/三轨）+ 用户画像；后续流程按规划执行
 3. ✅ init 采访依据：《做号》方法论提炼（`references/xu-zuohao-positioning-distill.md`，版权安全版，落 template shared-references + oracle-bone/references 双份；原书转录不随 skill 分发）
-4. ✅ dbskill 知识库精华提炼（`references/dbskill-essence-distill.md`，版权安全版，双份落盘）：九大模块 + 27 子 skill 接线表；重点消费方 = no-ai-slop（语言审查）/ learn-from（五重过滤+显式参数法）/ init 画像（付费者共性反共识）
+4. ✅ dbskill 知识库精华提炼（`references/dbskill-essence-distill.md`，版权安全版，双份落盘）：九大模块 + 28 子 skill 接线表；重点消费方 = no-ai-slop（语言审查）/ learn-from（五重过滤+显式参数法）/ init 画像（付费者共性反共识）
 5. ✅ oracle-simulate-audience 以 init 用户画像为根基
 6. ✅ references/ 开放给用户自由添加参考资料（默认种子 5 份）
 7. ✅ 内容形态：视频优先（opinion-video 为默认 starter）

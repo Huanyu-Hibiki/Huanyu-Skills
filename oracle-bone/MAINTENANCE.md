@@ -7,7 +7,7 @@
 
 ## 1. 上下文预算（棘轮）
 
-oracle-bone 是 27 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
+oracle-bone 是 28 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
 token 双输。以下数字由 [tests/test_context_budget.py](tests/test_context_budget.py) 机械执行：
 
 | 对象 | 预算（bytes） | 基线说明 |
@@ -93,6 +93,10 @@ oracle-voice 的「个人词典 + 转写纠错规则」「文字轮润色纪律�
 [last30days-skill](https://github.com/mvanhorn/last30days-skill)（MIT）与
 [union-search-skill](https://github.com/runningZ1/union-search-skill)（README/代码头声明 MIT，仓库无 LICENSE 文件）；
 交互预算三档借鉴 huashu-skills（**该仓库无 License**——仅借鉴机制思想，零文本复制，不引入其任何内容）。
+
+oracle-edit-plan 的「剪辑计划工件 + 成片分层验收 + 审稿三轴」在**方法论原理**上参考了
+OpenMontage（本地参考项目，**AGPLv3**）的剪辑决策与成片质检门设计——**仅学习原理，
+未复制其任何代码或文本**（AGPL 传染性约束下必须如此），实现全部原创、oracle-bone 维持 MIT。
 
 借鉴边界（clean-room 声明）：
 

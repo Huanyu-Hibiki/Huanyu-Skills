@@ -4,7 +4,7 @@
 
 **凭感觉发是"猜"，这套让你"算"——打分 → 盲预测 → 发布 → 复盘 → 进化你的爆款公式**
 
-27 个子 skill · 商王烧龟壳式的 3000 年校准循环，还给内容创作者
+28 个子 skill · 商王烧龟壳式的 3000 年校准循环，还给内容创作者
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -91,7 +91,7 @@ git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
 | OpenCode | 项目或全局 `.opencode/skills/` |
 | Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
 
-### 第 2 步：运行安装脚本（一键链接 27 个子 skill）
+### 第 2 步：运行安装脚本（一键链接 28 个子 skill）
 
 **macOS / Linux（终端）：**
 
@@ -127,7 +127,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 | 问题 | 解决 |
 |---|---|
 | `install.sh` 报权限错误 | 运行 `chmod +x install.sh` 后重试 |
-| Agent 没识别到 skill | 确认 27 个子 skill 目录已正确链接/复制到 skills 目录，重启 Agent |
+| Agent 没识别到 skill | 确认 28 个子 skill 目录已正确链接/复制到 skills 目录，重启 Agent |
 | 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
 | Windows 没有 bash | 用 `install.ps1` 或直接复制文件夹 |
 | 想卸载 | `bash uninstall.sh` 或 `powershell -ExecutionPolicy Bypass -File uninstall.ps1`（不动内容数据） |
@@ -156,6 +156,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 去 AI 味 / 模拟评论 / 合规检查    → 发布前质检
 启动预测 scripts/<...>.md         → 盲预测 + 决策日志
 拍了 scripts/<...>.md            → buffer +1
+剪辑计划 / 验收成片              → 制作质量进链路
 已发布 https://...                → buffer -1
 置顶评论 / 衍生内容               → 发布后动作
 复盘 / 罗盘复盘                   → T+N 数据回收

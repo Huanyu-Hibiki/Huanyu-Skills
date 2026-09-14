@@ -60,6 +60,7 @@ TASK_READLIST = {
     "simulate-audience": ["audience-profiles.md（核心受众 / 一般关注两类）"],
     "compliance": ["目标作品 scripts/*.md（发布前 gate）"],
     "shoot": ["对应 prediction 文件（diff ≥30% → predict v2）"],
+    "edit-plan": ["目标作品 scripts/<id>_final.md（shoot 定稿快照）", "draft header（调性/开场策略）", "edits/edit-plan.md（accept 模式的基线）"],
     "publish": ["对应 prediction 文件（登记 URL）", "oracle-compliance gate 先过"],
     "pinned-comment": ["已发布作品 scripts/*.md（置顶评论段 append）"],
     "derivative": ["已发布作品 scripts/*.md（T+1 裂变）"],

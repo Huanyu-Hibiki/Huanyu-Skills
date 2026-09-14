@@ -3,7 +3,7 @@
     oracle-bone 一键安装脚本（Windows PowerShell）。
 
 .DESCRIPTION
-    将 27 个 oracle-* 子 skill 链接或复制到目标 skills 目录。
+    将 28 个 oracle-* 子 skill 链接或复制到目标 skills 目录。
     默认使用 Junction（目录联接）方式，仓库更新自动生效。
 
 .PARAMETER Target

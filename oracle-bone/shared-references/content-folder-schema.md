@@ -24,6 +24,7 @@
 │   ├── _README.md             # prompt 管理规范
 │   └── [video|audio|animation]/  # 可选扩展位：AI 视频/音频/动画 prompt
 ├── derivatives/               # 衍生内容（oracle-derivative 输出：图文/短文/切片稿）
+├── edits/                     # 剪辑计划与成片验收（oracle-edit-plan 输出：edit-plan.md + acceptance.md）
 └── [制作管线目录]              # 可选：用户自己的制作产物（见下方"制作管线边界"）
 ```
 
@@ -64,6 +65,8 @@
 | 发布文案 | `scripts/<定稿>.md` 末尾 `## 发布文案` 段（**不建独立文件**） |
 | 置顶评论 | `scripts/<定稿>.md` 末尾 `## 置顶评论` 段 |
 | 衍生内容 | `derivatives/<形式>_<短名>.md` |
+| 剪辑计划 | `edits/edit-plan.md`（oracle-edit-plan plan 模式） |
+| 成片验收 | `edits/acceptance.md`（oracle-edit-plan accept 模式） |
 
 ## 制作管线边界
 

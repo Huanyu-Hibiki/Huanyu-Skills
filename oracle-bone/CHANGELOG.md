@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added — oracle-edit-plan 剪辑计划与成片验收（2026-09-12，第十七批，方法论原理参考 OpenMontage）
+
+- **新子 skill oracle-edit-plan（28 号，plan/accept 双模式）**：把链路里"实际制作（AI 不可见）"变成可计划、可验收——plan 模式（shoot 后）：素材探测（ffprobe 逐文件或口头三问，**禁止按文件名脑补**）→ 规划含义（覆盖率/混拍/缺口）→ 剪辑计划工件落 `edits/edit-plan.md`（节奏定调：调性→镜头时长区间+前 5 秒钩子剪辑密度；剪切点清单**每刀必带理由**；转场词汇表全片 ≤4 + 社媒模板腔禁用清单；声音设计：口播为主轴/声音比画面提前滑入焊住硬切/全片唯一一处静音留白；邻接多样性：相邻两镜不同景别不同主体；B-roll 覆盖核对；字幕计划）→ 🔴 CHECKPOINT 用户确认；accept 模式（成片回来）：ffprobe 机械核查（时长 ±10%/前 5 秒钩子在位/转场在词汇表内/断句完整性/静音 ≤1）+ 幻灯片感六项自查（同画面久留/装饰性空镜/动态不足/意图不明镜头/文字堆砌/口说无凭的电影感）→ 每条指位 + 带修法
+- **协作契约 12：审稿三轴**——所有审查类输出（no-ai-slop / who-for / open-source / edit-plan 验收 / retro 诊断）逐条过：准确（finding 指到具体位置，禁幻觉批评）/ 完整（发现同类扫全文）/ 建设性（critical 必带修法，提不出的标「待查」不阻塞）；往返最多 2 轮后带警告放行，卡点交给数据复盘
+- **oracle-shoot**：Phase 5 输出加 edit-plan 下游可选指路
+- content-folder-schema 新增 `edits/` 子目录（edit-plan.md + acceptance.md）；retro 可读 acceptance 区分"内容偏差 vs 制作偏差"
+- 全链路同步：根 SKILL.md（链路/路由/目录树/契约 12 条/计数 28）/ DESIGN §5 §6 §10 / README / MAINTENANCE / install/uninstall / context.py / workflow.template；行为用例 24
+- **License 边界**：OpenMontage 为 AGPLv3——仅学习原理，未复制任何代码或文本（MAINTENANCE §5 署名），oracle-bone 维持 MIT
+
 ## [1.1.0] - 2026-09-12
 
 本版主线：**语音起稿循环（oracle-voice）+ 语音转写体系**（App 转写优先 / SenseVoice 中文快线 / whisper 多语种）+ **标题链路合并**（oracle-title 吸收 title-pick）+ **参考项目机制补强**（验证门 / 置信度地板 / 四态信封 / 交互预算三档）。
