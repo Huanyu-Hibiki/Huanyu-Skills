@@ -31,6 +31,8 @@
 | `dimension_scores` | object | 各维度的整数分，键名对齐当前 rubric 的维度（如 `{"ER": 5, "HP": 4, ...}`） |
 | `scored_under_rubric_version` | string | 打分时用的 rubric 版本号 |
 | `predicted_bucket` | string | 粗预测桶（如 `30-100w`），**注意：不是正式预测**——选题阶段的粗略估计，与 `predictions/*.md` 的 immutable 预测完全独立 |
+| `source_tier` | enum (A-E) | **信源层级**（与 `tier` 优先级字段无关）：A 官方一手（公告/文档/监管备案/仓库 release）/ B 权威半官方（当事人实名账号/大会演讲/官方路线图/应用商店）/ C 专业媒体与研究机构 / D 社区讨论（HN/Reddit/评论区/社媒热帖——线索或弱证据）/ E 聚合号与 SEO 摘要（只可溯源，永不单独支撑选题）。由 adapter 文档标注默认值，热点类候选必填 |
+| `event_at` | ISO 8601 / null | **事件发生时间**（不是发布时间）——旧事件新发稿时两者差异巨大；null = 无法确立（时效评估按发布口径降档并标注） |
 | `predicted_reason` | string | 一句话理由 |
 | `note` | string | 自由文本备注，例如"等节点再发"、"待重读"、"风险议题" |
 | `rejected_at` / `rejected_reason` | ISO 8601 / string | 用户主动跳过此候选时记录 |

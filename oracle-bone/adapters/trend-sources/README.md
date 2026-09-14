@@ -1,5 +1,17 @@
 # trend-sources — 热点抓取源
 
+## 信源层级（source_tier，候选可选字段，语义见 candidate-schema）
+
+| 层级 | 定义 | 本目录 adapter 默认值 | 入池规则 |
+|---|---|---|---|
+| A | 官方一手（公告/文档/监管备案/仓库 release） | — | 可单独入池 |
+| B | 权威半官方（当事人实名/大会演讲/官方路线图/应用商店） | — | 可单独入池 |
+| C | 专业媒体与研究机构 | hackernews ★C、bilibili-popular ★C-D 混合 | 可单独入池 |
+| D | 社区讨论/社媒热帖（线索或弱证据） | manual-paste ★用户自判或默认 D、audience-feedback ★D | 可入池，recommend 稳分位降档 |
+| E | 聚合号/SEO 摘要（只可溯源） | — | **单源不入池**，只做线索找 A-D 佐证 |
+
+新写 adapter 文档时标注自己默认落在哪层；用户粘贴内容层级不明 → 按 D 处理，trends 打分时按 snapshot 内容可上调。
+
 | Adapter | 依赖 | 稳定性 | 说明 |
 |---|---|---|---|
 | [manual-paste.md](manual-paste.md) | 无 | ★★★★★ | 永远可用的兜底：用户粘 URL/标题列表 |

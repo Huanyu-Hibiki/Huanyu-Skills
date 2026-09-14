@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — 选题情报判定纪律（2026-09-12，第十八批，方法论原理参考 market-intelligence-radar）
+
+- **信源层级 source_tier（A-E）进候选 schema**：A 官方一手 / B 权威半官方 / C 专业媒体 / D 社区讨论（弱证据）/ E 聚合号与 SEO 摘要（只可溯源）；trend-sources adapter 文档标注默认层级；**E 层单源不入池**——只做线索找 A-D 佐证；**recommend 稳分位证据门**：E 层或无佐证 D 层候选不进稳分位（顺位递补，可进实验位/弱信号）——防营销号带节奏混进"今日必拍"
+- **旧闻回流检测（第五态 recirculation）**：归一化键未命中但同实体同事件类型的跨站新稿 = 旧热点二次发酵——计 trends-history 台账不进新候选数，池内原条目附注"二次发酵中"（REVISION 式持续热度信号）；拿不准标"疑似旧闻回流"
+- **event_at 计龄口径**：velocity 计龄优先事件发生时间（旧事件新发稿按发布时间算会虚高）；无 event_at 标注"按发布口径"；都不立 → 新鲜度 unknown、热度 N/A 不猜、入池降档展示；candidate-schema 新增 `source_tier` / `event_at` 可选字段
+- **覆盖账本**：trends 汇总先出"源 × 信封状态 × 最新验证变化/none × 缺口"表再出候选表——"今天没料"变得可审计，不注水凑条数
+- MAINTENANCE §5 署名（market-intelligence-radar，MIT，仅借鉴原理实现全原创）；行为用例 25
+
 ### Added — oracle-edit-plan 剪辑计划与成片验收（2026-09-12，第十七批，方法论原理参考 OpenMontage）
 
 - **新子 skill oracle-edit-plan（28 号，plan/accept 双模式）**：把链路里"实际制作（AI 不可见）"变成可计划、可验收——plan 模式（shoot 后）：素材探测（ffprobe 逐文件或口头三问，**禁止按文件名脑补**）→ 规划含义（覆盖率/混拍/缺口）→ 剪辑计划工件落 `edits/edit-plan.md`（节奏定调：调性→镜头时长区间+前 5 秒钩子剪辑密度；剪切点清单**每刀必带理由**；转场词汇表全片 ≤4 + 社媒模板腔禁用清单；声音设计：口播为主轴/声音比画面提前滑入焊住硬切/全片唯一一处静音留白；邻接多样性：相邻两镜不同景别不同主体；B-roll 覆盖核对；字幕计划）→ 🔴 CHECKPOINT 用户确认；accept 模式（成片回来）：ffprobe 机械核查（时长 ±10%/前 5 秒钩子在位/转场在词汇表内/断句完整性/静音 ≤1）+ 幻灯片感六项自查（同画面久留/装饰性空镜/动态不足/意图不明镜头/文字堆砌/口说无凭的电影感）→ 每条指位 + 带修法
