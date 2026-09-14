@@ -78,6 +78,16 @@ Polished/B-roll/MOTION-001_<slug>/     # 每条动效独立工作区
 - **素材依赖**：动效引用的图片/截图/字体在分镜阶段登记进 `asset_request_list`，执行阶段全部本地化到工作区；
 - **透明通道**：字幕强调、UI 浮层、叠加类动效默认规划为透明输出（ProRes 4444 / WebM alpha）；全屏解释片默认 MP4 insert。
 
+## 交付承诺（delivery_promise）
+
+> 声明这条片的运动量承诺，写入 `storyboard.json` 顶层 `delivery_promise` 字段；装配前由 `scripts/video-polish/check_delivery_promise.py` 机械核对，低于承诺必须用户显式批准降级（记入决策日志 `promise_change`），不许静默出片。
+
+```text
+mode: hybrid                # motion_led（动效主导，≥0.7）/ source_led（真实素材主导，≥0.3）/ hybrid（默认，≥0.2）/ still_led（静帧主导，须写依据）
+min_motion_ratio: 0.2       # 运动单元占比下限（底片口播算运动；文字卡/静帧不算）
+依据: <为什么是这个档位>
+```
+
 ## 风格档（G0）
 
 > 开工先定皮、再选动作。由 `video-plan` 按全稿判定领域后写成本节，并落盘 `video scripts/style-profile.md`（系列视频从上一期复制后按集扩展，保持跨集一致）。深底主导属于偏离默认的选择，必须写明依据并经用户确认。
@@ -91,7 +101,10 @@ Polished/B-roll/MOTION-001_<slug>/     # 每条动效独立工作区
 图表语言：<坐标轴、网格、标记的统一画法>
 素材气质：<实拍 / 截图 / 线稿陪衬图 / AI 图的配比与统一处理>
 能量档：<安静叙述 / 均衡 / 高密度>
-不做的事：<本片明确不出现的风格元素清单>
+三拨盘：<motion_intensity 运动强度 1-10 / visual_variance 视觉差异 1-10 / information_density 信息密度 1-10——本片允许多大动静的量化承诺，联动规则：高运动+低信息=短促节拍不堆图表；低运动+高信息=稳定帧+长保持>
+反默认清单：<本片明确不出现的风格元素（AI 紫渐变、同转场集邮、文字卡轰炸……）3-5 条；检验语：把标题遮住，这条片还能属于任何题材吗>
+不做的事：<其余明确不做的视觉决定>
+偏离预算：≤20% 场景可有意偏离风格档，每处必须写 per-scene 理由（装配 QA 查偏离清单）
 ```
 
 ## 未完成 / 未采集清单（强制节，不允许缺）

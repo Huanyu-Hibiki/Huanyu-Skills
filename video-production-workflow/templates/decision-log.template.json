@@ -1,0 +1,18 @@
+{
+  "$comment": "决策日志（append-only 审计轨迹）。复制到 <项目根>/decision_log.json。规则见 shared-references/decision-log.md：每条必须列被考虑过的选项；改决策只能追加同 (category, subject) 的新条目，不许改写。",
+  "project": "EP001_标题",
+  "entries": [
+    {
+      "id": "D-001",
+      "category": "take_selection | broll_concept | subtitle_lexicon | render_param | promise_change | approval_policy",
+      "subject": "S03-002 最佳 take 选择",
+      "options_considered": [
+        { "option": "take-1（第一遍，语速稳）", "score": 0.8, "reason": "停顿最少，尾音完整" },
+        { "option": "take-2（第二遍，情绪足）", "score": 0.5, "reason": "后半句气口两处", "rejected_because": "tighten 后仍剩 0.6s 死停顿" }
+      ],
+      "decision": "采用 take-1 进 EDL",
+      "decided_by": "agent | user",
+      "timestamp": "2026-09-14T10:00:00+08:00"
+    }
+  ]
+}

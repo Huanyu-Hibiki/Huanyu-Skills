@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.8.2 - 2026-09-14
+
+- **吸收 OpenMontage 治理层（AGPL-3.0，仅原理——全部为本合集原生实现，登记见 external-references）**：把"会不会像 PPT / 会不会违约 / 为什么这么选"变成带数值的门，五个新脚本全部零依赖（Python 标准库 + ffprobe/ffmpeg），输入输出对齐既有产物（storyboard.md/json、edl.json、broll-compose.json、master.srt）：
+- **幻灯片风险闸**（新 `scripts/video-plan/slideshow_risk.py`）：分镜审批前必跑——意图缺失/文字卡过载/节奏盲区/同类连排/泛化词/B-roll 极端六维打分（0-10，越高越像 PPT），pass/warn/reject 三档，reject 打回重排不得进审批闸；报告落 `video scripts/slideshow_risk_report.json`。
+- **交付承诺**：`storyboard.json` 顶层 `delivery_promise`（mode + min_motion_ratio，口播+剪映默认 hybrid/0.2）；新 `scripts/video-polish/check_delivery_promise.py` 装配前核对——已批准条目缺失 = fail 禁止装配，静帧兜底致运动比低于承诺 = degraded 必须用户显式批准降级并记决策日志，不静默出片。
+- **跨阶段决策日志**（新 `shared-references/decision-log.md` + `templates/decision-log.template.json`，项目根 `decision_log.json`）：append-only，每条 ≥2 个被考虑选项（score+reason+rejected_because），改决策只追加同 (category, subject) 新条目；写入时机挂进 video-plan（交付承诺）/rough-cut（take 裁决）/b-roll-finder（风格决策）/caption-correct（词典增改）/polish（降级与预授权）。
+- **旁白-画面对齐断言**（新 `scripts/video-polish/check_cue_alignment.py`）：master.srt 句级 cue × EDL 切点 + B-roll 起点事件，±1.0s 窗口无画面事件的句子超 15% 列 P1 finding——"说到时画面上没东西"由机械检查回答。
+- **成片技术探针**（新 `scripts/video-polish/final_probe.py`）：发布前最低完备性机检——时长 vs 预期 ±5%、音轨存在、峰值电平（>-0.5dBFS 判逼近削波）、10/35/65/90% 四点抽帧自动落盘；探针 JSON 存档进 QA 报告。
+- **素材技术准入探针**（新 `scripts/video-assets/probe_source.py`）：下载后即测实测分辨率（640×360 假高清）/时长/关键帧最大间隔（>5s 给重编码命令），不达标不进渲染队列，走未完成清单或升级链。
+- **QA 完备性下限与评审产出规则**（video-polish）：抽帧 ≥4/时长 ±5%/峰值门槛等可判定最低标准（缺数据本身记 finding）；finding 必须指到镜号/时间码/文件，P0/P1 必附修复动作否则降级 investigation；发现 critical 必扫同类；阶段评审 ≤2 轮后无新增 critical 不再开轮；P2 同质化检验语"把标题遮住还认得出这条片吗"。
+- **风格档量化承诺**（storyboard 风格档节 + video-plan）：运动强度/视觉差异/信息密度三拨盘（1-10）+ 反默认清单 3-5 条 + 偏离预算 ≤20% 场景须写 per-scene 理由。
+- **字幕格式化前置检查**（video-caption-correct）：显示时长 ≥ max(1s, 字数÷5)、>7 字/秒拆条、cue 尾延后 ~200ms、安全区——与词典纠错解耦。
+- **断点续跑纪律**（state-management）：转录缓存/B-roll 工作区/剪映 cache 即持久检查点，被取代产物版本递增保留（history 语义）。
+
 ## v0.8.1 - 2026-09-12
 
 - **吸收 video-talkcraft 第二轮（PolyForm-NC，仅原理自写——全部为自写表述，登记见 external-references）**，按管线阶段落地 19 项未吸收机制中的高价值子集：

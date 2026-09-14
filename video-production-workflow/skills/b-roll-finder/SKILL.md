@@ -86,6 +86,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 将推荐风格、用户逐条选择、生成引擎、颜色、节奏、成本和禁止项写入 `video scripts/broll-style-decision.md`。等待用户确认后，才把 `b-roll` 状态推进到 `b-roll-generate`。
 
+风格决策同步追加一条 `decision_log.json`（category=`broll_concept`，含 ≥2 个被考虑选项与落选原因）——跨阶段审计轨迹见 [../../shared-references/decision-log.md](../../shared-references/decision-log.md)。
+
 ## 失败模式与恢复
 
 | 触发条件 | 一线修复 | 仍失败兜底 |

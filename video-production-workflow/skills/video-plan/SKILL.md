@@ -64,7 +64,24 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 1. **领域 → 风格档**：底色策略、唯一强调色、字体气质与字重档、材质卡型、图表语言、素材气质、能量档、"不做的事"——多来源生成素材（AI 拼贴 / 模板动效 / Stock）最容易各带各的默认配色，风格档是装配前统一蒙皮的依据；
 2. **系列级复用**：系列视频从上一期复制 style-profile 再按集扩展（同一强调色 / 字体 / 底色策略 / 常驻件方位 / 片头片尾语法），跨集一致性靠外置配置而不是记忆；
 3. **深底主导必须用户确认**：浅底是默认模式，偏离需写明依据；
-4. 章节卡"同族不同章"：同一套字体版式，每章轮换底色 / 强调色 / 线稿 motif——四张同色同纹样的章节卡读作"又来了"，不是"翻页"。
+4. 章节卡"同族不同章"：同一套字体版式，每章轮换底色 / 强调色 / 线稿 motif——四张同色同纹样的章节卡读作"又来了"，不是"翻页"；
+5. **三拨盘量化承诺**：风格档写明运动强度 / 视觉差异 / 信息密度三个 1-10 拨盘 + 反默认清单 3-5 条；偏离预算 ≤20% 场景、每处写 per-scene 理由——装配 QA 按此核"计划允许多大动静 vs 成片实际多大胆"。
+
+## 幻灯片风险闸（分镜确认前必跑）
+
+分镜表写完、进入结束状态（用户审批）**之前**，运行 [../../scripts/video-plan/slideshow_risk.py](../../scripts/video-plan/slideshow_risk.py) 给主表打"PPT 感"分数：
+
+- 检查维度：意图缺失（画面列没想清楚）/ 文字卡过载（生成类条目里文字卡 >40% 重罚）/ 节奏盲区（剪辑/声音列空白）/ 同类连排（连续 ≥3 镜同形式同覆盖）/ 泛化词（震撼、惊艳、未来感…没法翻译成动作）/ B-roll 极端（全无 = 干讲，过半 = 堆积）；
+- 判定：`pass` 进入审批；`warn` 带 findings 整改后可进；`reject` **打回重排，不得进入审批闸**；
+- 报告落 `video scripts/slideshow_risk_report.json`，作为分镜审批材料一部分。
+
+## 交付承诺
+
+分镜确认时在 `storyboard.json` 顶层写入 `delivery_promise`（`mode` + `min_motion_ratio`，字段见 [templates/storyboard.template.md](../../templates/storyboard.template.md) 交付承诺节）。口播 + 剪映管线默认 `hybrid / 0.2`。装配前由 `/video-polish` 机械核对——这是"这条片承诺了多少画面量"的显式契约，防止 B-roll 生成失败后静默降级成文字卡出片。
+
+## 决策日志
+
+分镜确认时创建项目根 `decision_log.json`（从 [templates/decision-log.template.json](../../templates/decision-log.template.json) 复制），先写入第一条 `promise_change` 条目（交付承诺的 mode/ratio 与依据）。规则见 [shared-references/decision-log.md](../../shared-references/decision-log.md)：append-only、每条 ≥2 个被考虑选项、改决策只追加不覆写。
 
 ## 失败模式与恢复
 
@@ -79,13 +96,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 ## 必须生成的交接
 
 1. `video scripts/storyboard.md`；
-2. `video scripts/storyboard.json`，作为派生文件真相源；**必须包含 `broll_candidates` 数组**（分镜表中所有 B-roll 条目的结构化版本：镜号、旁白原句、视觉命题草稿、路由建议、覆盖模式、输入分类、简报引用、状态），供 `/b-roll-finder` 强制对账——见 [templates/storyboard.template.md](../../templates/storyboard.template.md) 的字段定义；
+2. `video scripts/storyboard.json`，作为派生文件真相源；**必须包含 `broll_candidates` 数组**（分镜表中所有 B-roll 条目的结构化版本：镜号、旁白原句、视觉命题草稿、路由建议、覆盖模式、输入分类、简报引用、状态）**和顶层 `delivery_promise`**（交付承诺），供 `/b-roll-finder` 强制对账与 `/video-polish` 承诺核对——见 [templates/storyboard.template.md](../../templates/storyboard.template.md) 的字段定义；
 3. `video scripts/style-profile.md`（G0 风格档；系列视频可复用上期版本按集扩展）；
-4. `video scripts/material_suggestion_doc.md`；
-5. `video scripts/remotion_candidate_list.md`；
-6. `video scripts/music_cue_sheet.json`；
-7. `assets/requests/asset_request_list.md`；
-8. `video scripts/feishu_storyboard_records.json`（如项目需要 n8n 同步）。
+4. `video scripts/slideshow_risk_report.json`（幻灯片风险闸报告，warn 以上附整改说明）；
+5. `video scripts/material_suggestion_doc.md`；
+6. `video scripts/remotion_candidate_list.md`；
+7. `video scripts/music_cue_sheet.json`；
+8. `assets/requests/asset_request_list.md`；
+9. `decision_log.json`（项目根，决策日志建档 + 首条交付承诺条目）；
+10. `video scripts/feishu_storyboard_records.json`（如项目需要 n8n 同步）。
 
 分镜表文末必须有「未完成 / 未采集清单」节：任何"本片不做 X / 素材还没到位"二选一归档——写进风格档当设计决定（附依据），或写进清单（附阻塞原因和试过的兜底源）。内容允许为"无"，**节不允许缺**；下游 Gate 与 QA 查节在册。
 

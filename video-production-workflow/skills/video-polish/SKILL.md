@@ -19,14 +19,17 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 ## 流程
 
 1. 读取 manifest，确认所有已批准的 B-roll 都存在；
-2. 按 `master.srt` 和词级锚点定位 B-roll，默认落在关键词后 `0.2-0.5s`；
-3. 对全屏 B-roll 使用 cover-crop；透明素材保留 alpha；静态图使用项目确认的静止或微动策略；
-4. 处理 B-roll 源音、音效和背景音乐音量，不让辅助音频盖住口播；
-5. 字幕放在最终 overlay/filter chain 最后，确保不被 B-roll 遮挡；
-6. 输出 `Polished/preview.mp4`，抽取每个 B-roll 中点、入点、出点和接缝检查图；
-7. 修复问题后再输出 `Final/video_final.mp4`；
-8. 生成 `Polished/final_timeline_manifest.md` 和 `Final/qa-report.md`；
-9. 将 `polish`、`delivery` 标记为 `completed`，等待用户进入发布流程。
+2. **交付承诺核对（装配前必跑）**：运行 `check_delivery_promise.py`——已批准条目文件缺失 = fail 禁止装配（回 `/b-roll-generate` 重做）；静帧兜底导致运动比低于 `delivery_promise` 承诺 = degraded，**必须用户显式批准降级并记入 `decision_log.json`（category=promise_change），不许静默出片**；
+3. 按 `master.srt` 和词级锚点定位 B-roll，默认落在关键词后 `0.2-0.5s`；
+4. 对全屏 B-roll 使用 cover-crop；透明素材保留 alpha；静态图使用项目确认的静止或微动策略；
+5. 处理 B-roll 源音、音效和背景音乐音量，不让辅助音频盖住口播；
+6. 字幕放在最终 overlay/filter chain 最后，确保不被 B-roll 遮挡；
+7. 输出 `Polished/preview.mp4`，抽取每个 B-roll 中点、入点、出点和接缝检查图；
+8. **旁白-画面对齐断言**：运行 `check_cue_alignment.py`——每句字幕 ±1.0s 窗口内必须有画面事件（切点/B-roll 起点），未覆盖句超 15% 时逐句列为 P1 finding（"说到时画面上没东西"）；
+9. 修复问题后再输出 `Final/video_final.mp4`；
+10. **成片技术探针**：对 `Final/video_final.mp4` 运行 `final_probe.py`（时长核对/音轨/峰值电平/四点抽帧），探针 JSON 存档进 QA 报告；
+11. 生成 `Polished/final_timeline_manifest.md` 和 `Final/qa-report.md`；
+12. 将 `polish`、`delivery` 标记为 `completed`，等待用户进入发布流程。
 
 ## QA 清单
 
@@ -50,6 +53,24 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 | **P0** | 观众必然察觉且伤害理解：事实/文字错误、不可读、声画错位、元素相撞遮正文、标注指错目标 | 必须修复才可交付 |
 | **P1** | 违反硬规则或明显走样：错峰残影、词锚落点偏差 >0.3s、整镜头音效缺席、动效明显不符简报 | 必须修复才可交付 |
 | **P2** | 质感瑕疵：密度/留白/样式 | 记录不挡验收 |
+
+### 完备性下限（可判定的最低标准）
+
+QA 报告缺任何一项数据本身记为 finding——机检数字写不死，评审深浅就会各次不一：
+
+- 抽帧 ≥4（10% / 35% / 65% / 90% 四点，`final_probe.py` 自动落盘）；
+- 时长与装配目标差 ≤5%；
+- 音轨存在 + 峰值电平 max_volume ≤ -0.5dBFS（逼近削波回查混音）；
+- 字幕逐条存在性核对（master.srt 条数 = 装配链字幕条数）；
+- 交付承诺运动比、cue 对齐未覆盖率两个数字必须出现在 QA 报告里。
+
+### 评审 finding 产出规则（防不可执行意见）
+
+- **每条 finding 必须指到具体对象**：镜号 / B-roll ID / 时间码 / 文件——指不出来的意见是猜测，不收录；
+- **P0/P1 必须附修复动作**（改成什么文案、哪个参数、哪个落点）——给不出修复动作的降级为 `investigation`（调查项），不阻塞交付；
+- **发现一个 critical 必须扫同类**（同类转场、同类字幕条全查一遍），不只报眼前这一处；
+- **每阶段评审轮次 ≤2**，超轮的遗留项记 warning 放行（配合既有"最多 3 轮"上限：3 轮是硬停，第 2 轮后无新增 critical 就不该再开第 3 轮）；
+- P2 检验语：**把标题遮住，这条片和上一条还有区别吗**——同质化即记 P2；同时核风格档偏离清单（超 20% 偏离预算或有偏离无理由 = P1）。
 
 ### 独立评审与返修纪律
 
@@ -118,6 +139,16 @@ uv run --project "<合集根>" python "<合集根>/scripts/video-polish/compose_
   "<项目>/Polished/broll-compose.json" \
   --output "<项目>/Polished/preview.mp4" \
   --width 1920 --height 1080 --fps 30
+
+# 交付承诺核对（装配前；degraded 需用户批准降级并记决策日志）
+uv run --project "<合集根>" python "<合集根>/scripts/video-polish/check_delivery_promise.py" "<项目>"
+
+# 旁白-画面对齐断言（装配后；未覆盖句 >15% 列 P1）
+uv run --project "<合集根>" python "<合集根>/scripts/video-polish/check_cue_alignment.py" "<项目>"
+
+# 成片技术探针（Final 输出后；探针 JSON 进 QA 报告）
+uv run --project "<合集根>" python "<合集根>/scripts/video-polish/final_probe.py" \
+  "<项目>/Final/video_final.mp4" --expect-duration <装配目标时长秒>
 ```
 
 `broll-compose.json` 格式：

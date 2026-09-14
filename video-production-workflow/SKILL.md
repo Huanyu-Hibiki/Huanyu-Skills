@@ -90,7 +90,7 @@ Final\video_final.mp4
 |---|---|---|---|
 | 初始化、创建视频项目、首次使用 | `/video-init` | 无 | 项目目录、状态文件、`WORKFLOW.md`、`STATUS.md` |
 | 看状态、现在做到哪一步、下一步做什么 | `/video-status` | 可选项目目录 | 只读状态看板和下一步建议 |
-| 规划分镜、文稿转分镜、列素材 | `/video-plan` | 终稿文稿 | `storyboard.md`、`storyboard.json`、素材和动效候选 |
+| 规划分镜、文稿转分镜、列素材 | `/video-plan` | 终稿文稿 | `storyboard.md`、`storyboard.json`（含交付承诺）、素材和动效候选、风格档、幻灯片风险闸报告 |
 | 转录、粗剪、剪口播、按文稿剪视频、自动校对字幕 | `/video-rough-cut` | `Raw\` 原片 + 终稿文稿 | 词级转录、`Sub/caption_corrected.srt`、对齐报告、EDL、粗剪预览 |
 | 复核低置信字幕、裁决口误、沉淀个人词典 | `/video-caption-correct`（条件触发） | `Rough/analysis/alignment_report.json` 显示低置信/偏差，或用户主动要求 | 复核后的 `caption_corrected-vN.srt`、`speech_errors` 裁决、词典更新 |
 | 创建剪映草稿、导入视频和字幕 | `/video-jianying-draft` | EDL/剪辑决策 + 字幕 + 音频等素材 | 剪映原生草稿和素材副本 |
@@ -145,6 +145,8 @@ not_started -> in_progress -> awaiting_approval -> completed
 | Remotion / HyperFrames 技术规则 | `references/b-roll-generate/remotion-best-practices/`、`references/b-roll-generate/hyperframes/` |
 | BGM 卡点装配 | `references/video-polish/music-beat-sync.md`（`video-polish` 装配时读取） |
 | 任务证据、候选 Skill 和验证闸门 | `scripts/video-skill-optimize/` + `skills/video-skill-optimize/SKILL.md` |
+| 风险闸与机检（幻灯片风险评分 / 交付承诺核对 / cue 对齐断言 / 成片探针 / 素材技术准入） | `scripts/video-plan/slideshow_risk.py`、`scripts/video-polish/check_delivery_promise.py`、`check_cue_alignment.py`、`final_probe.py`、`scripts/video-assets/probe_source.py` |
+| 跨阶段决策审计 | `shared-references/decision-log.md` + `templates/decision-log.template.json`（项目根 `decision_log.json`） |
 | 外部参考项目与许可证 | `shared-references/external-references.md` |
 
 注：`video-fine-cut` 的执行主体是用户在剪映/Filmora 内的人工精剪，`scripts/video-fine-cut/` 仅存说明文档；其合成与 QA 脚本位于 `scripts/video-polish/`。
@@ -187,6 +189,7 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 │   ├── motion-brief-standards.md   # 动效导演简报（输入分类/时长/五相位/覆盖模式/风格闸门）
 │   ├── external-references.md      # 外部参考项目登记与许可证边界
 │   ├── b-roll-taste-profile.md / approval-gates.md / skill-optimization.md
+│   ├── decision-log.md             # 跨阶段决策审计（append-only，项目根 decision_log.json）
 ├── references/                     # 深度参考资料（按消费者分目录）
 │   ├── video-caption-correct/ ├── video-assets/ ├── video-plan/
 │   ├── video-jianying-draft/       # 含 remotion-export.md（成片→剪映草稿导出）

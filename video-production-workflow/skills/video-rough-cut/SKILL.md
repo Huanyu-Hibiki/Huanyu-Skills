@@ -27,7 +27,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 4. 默认使用 faster-whisper 输出**词级、verbatim** transcript（备选 `--engine whisper`）；不能只生成 phrase/SRT。
 5. **文稿自动校对（默认必跑）**：运行 `align_to_manuscript.py`，把文稿作为文本真相源对齐词级时间戳——字幕直接采用文稿拼写（ASR 错字/同音词自动消失），ASR↔文稿偏差、低置信句和口癖候选落盘待复核，产出 `Sub/caption_corrected.srt`、`alignment_report.json`、`speech_errors.json`。
 6. 打包为 `Rough/takes_packed.md`，供编辑判断。
-7. **Take 挑选（多遍重读必跑）**：运行 `select_takes.py`，找出每句文稿的所有 take 并按匹配度/完整度/停顿/语速打分选最佳，产出 `takes_decision.md` 给用户过目；未匹配句子必须逐条确认（没读 or ASR 太差）。
+7. **Take 挑选（多遍重读必跑）**：运行 `select_takes.py`，找出每句文稿的所有 take 并按匹配度/完整度/停顿/语速打分选最佳，产出 `takes_decision.md` 给用户过目；未匹配句子必须逐条确认（没读 or ASR 太差）。用户裁决有歧义的 take（补读/改文稿/保留最长）后，把裁决追加进项目根 `decision_log.json`（category=`take_selection`）。
 8. **停顿收紧（默认开启）**：运行 `tighten_pauses.py`，把保留段内 ≥0.35s 的句中停顿收紧到约 0.25s，产出 `keeps_tightened_<source>.json` 和 `pauses_report.md`；⚠️ 配乐/低音量/多人重叠段先关收紧或人工过一遍，能量门禁缺位时宁可保留。
 9. 基于 `takes_decision` + `keeps_tightened` 提出 EDL；**EDL 只能使用被选中的 take，重复 take 和被淘汰 take 不得进入草稿**；不在词中间切断。
 10. 先做分段提取、音频淡入淡出和无损 concat，再按需要加入覆盖层。

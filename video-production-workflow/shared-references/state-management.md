@@ -103,3 +103,16 @@
 ```
 
 用户确认后清空 `approval_pending`，并把对应阶段置为 `in_progress`。用户只确认部分条目时，只推进通过条目，其余保持 `awaiting_approval`。
+
+## 断点续跑纪律
+
+阶段可重入的前提是**每个长单元都有自己的持久检查点**，中断后从缓存继续而不是整段重跑：
+
+- 转录缓存：`Rough/transcripts/<source>.json` 存在且源 hash 未变 → 跳过（`transcribe.py` 已实现，勿绕过）；
+- B-roll 逐条工作区：`Polished/B-roll/<id>/` 内 qa/out 产物在 → 该条不重做，只补缺失条；
+- 草稿状态：`Rough/.jianying_cache/` 是剪映草稿唯一载体（命令间不得更换）；
+- 交接产物一律版本递增（`caption_corrected-v2.srt`、`preview-vN.mp4`），被取代版本保留可回退——这是"history"语义，不是垃圾。
+
+## 决策日志
+
+项目根 `decision_log.json` 是跨阶段决策的 append-only 审计轨迹（"为什么这么选"），与 state 文件（"做到哪了"）互补。规则与写入时机见 [decision-log.md](decision-log.md)；精剪与复盘阶段是它的第一读者。
