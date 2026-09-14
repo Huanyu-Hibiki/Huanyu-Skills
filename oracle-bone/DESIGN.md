@@ -4,7 +4,7 @@
 > 3000 年前的贞人就在跑校准循环——这套 skill 把它还给内容创作者。
 >
 > 前身：cheat-on-content（网红作弊器，源自抖音蜗牛学长，经焕羽实战大幅扩展）。
-> 本版定位：**通用内容校准器**——剥离个人定制，保留完整方法论与全部 28 个子 skill 流程。
+> 本版定位：**通用内容校准器**——剥离个人定制，保留完整方法论与全部 29 个子 skill 流程。
 > 命名约定：**只改 skill 名（oracle-\* 前缀），术语全部保留功能词**（预测/复盘/rubric/AI 味/违禁词），不引入占卜意象术语。
 
 ---
@@ -21,7 +21,7 @@
 
 ### 1.1 完整继承（流程不变）
 
-- 五阶段闭环 + 28 个子 skill 全部功能与衔接顺序
+- 五阶段闭环 + 29 个子 skill 全部功能与衔接顺序
 - 三条不可妥协原则（盲预测 / 全量重打 / 工作台非博物馆）及其 hooks 强制
 - 冷启动（cold-start）与校准（calibration）双模式
 - starter-rubrics 体系（opinion-video 已拟合版 + zero 等权版 + 扩展位）
@@ -165,7 +165,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 
 ---
 
-## 5. 28 个子 skill 完整清单
+## 5. 29 个子 skill 完整清单
 
 统一前缀 `oracle-`，功能词与原版一致。
 
@@ -226,6 +226,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 |---|---|---|---|---|
 | 27 | oracle-bump | rubric 升级（全量重打 + 排序一致性 ≥0.8 + 跨模型审核；按轨道独立）或 bucket 轻量重校 | "升级 rubric" / "bump" / "调整权重" | 新版 rubric_notes.md |
 | 28 | oracle-status | 状态看板：buffer 颜色 / 各轨校准进度 / 待复盘 / 建议触发器 | "状态" / "看板" / "status" | 控制台看板 |
+| 29 | oracle-feishu | 飞书多维表格只读镜像同步（作品/候选/校准/热点/快照五表；本地唯一事实源绝不回写；CLI 用户自配） | "同步飞书" / "飞书看板" | `.oracle-cache/feishu-export/*.json` → 用户 CLI 推送 |
 
 ---
 
@@ -365,7 +366,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 文件 | 内容 |
 |---|---|
 | xu-zuohao-positioning-distill.md | 《做号》定位与画像方法论提炼（版权安全版）：定位第一性推导链 + 专业IP vs 网红四大区别 + 画像三法（商业模式反推/对标验证/账号回流验证）+ 人设三原则 + 平台策略 + **init Phase 2-4 采访问卷**（原创设计） |
-| dbskill-essence-distill.md | dbskill 知识库精华提炼（dontbesilent，版权安全版）：定位选题 / 标题封面钩子 / 脚本写作 / 平台特性速查 / 对标五重过滤 / 转化心理双引擎 / 语言审查（AI味/爹味/模糊词）/ 发布运营 / 复盘诊断 九大模块 + **oracle 全流程接线表**（§10：28 个子 skill 逐个标注消费哪段） |
+| dbskill-essence-distill.md | dbskill 知识库精华提炼（dontbesilent，版权安全版）：定位选题 / 标题封面钩子 / 脚本写作 / 平台特性速查 / 对标五重过滤 / 转化心理双引擎 / 语言审查（AI味/爹味/模糊词）/ 发布运营 / 复盘诊断 九大模块 + **oracle 全流程接线表**（§10：29 个子 skill 逐个标注消费哪段） |
 | content-funnel-theory.md | 徐沪生内容漏斗理论通用版摘要：三层漏斗（破圈/认知/转化）+ 蟑螂药案例 + 破小圈不破大圈 + 既要又要还要 + 高频阅读低频购买 + 三种人设——init Phase 3 的采访依据 |
 | conversion-track-playbook.md | 转化类轨道手册（从 B 轨 13 条第一性原理 + 选题 6 问 + 4 步心理闭环评分泛化） |
 | platform-notes.md | Windows/Obsidian/文件锁等平台特定坑（压缩备查） |
@@ -428,7 +429,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 | 3 | 主链子 skill | init（五 Phase 增强版）/ predict / shoot / edit-plan / publish / retro / bump / status |
 | 4 | 选题与打磨子 skill | seed / voice / trends / recommend / score / title / description / cover |
 | 5 | review 与质检子 skill | who-for / open-source / simulate-audience / no-ai-slop / compliance |
-| 6 | 支撑子 skill | learn-from / apprentice / migrate / pinned-comment / derivative / compass-retro |
+| 6 | 支撑子 skill | learn-from / apprentice / migrate / pinned-comment / derivative / compass-retro / feishu |
 | 7 | 模板与 starter | templates/ + starter-rubrics/ + hooks/ + tools/ + adapters/ + references/ 种子 |
 
 ## 12. 已拍板决策记录
@@ -436,7 +437,7 @@ state 文件 + rubric_notes（从 starter 兜底）+ predictions/ / scripts/ / c
 1. ✅ 命名：oracle-bone；子 skill 统一 oracle-* 前缀 + 功能词；**术语保持功能词，不用占卜意象词**
 2. ✅ init 增强：用户档案 + 内容规划（单一/双轨/三轨）+ 用户画像；后续流程按规划执行
 3. ✅ init 采访依据：《做号》方法论提炼（`references/xu-zuohao-positioning-distill.md`，版权安全版，落 template shared-references + oracle-bone/references 双份；原书转录不随 skill 分发）
-4. ✅ dbskill 知识库精华提炼（`references/dbskill-essence-distill.md`，版权安全版，双份落盘）：九大模块 + 28 子 skill 接线表；重点消费方 = no-ai-slop（语言审查）/ learn-from（五重过滤+显式参数法）/ init 画像（付费者共性反共识）
+4. ✅ dbskill 知识库精华提炼（`references/dbskill-essence-distill.md`，版权安全版，双份落盘）：九大模块 + 29 子 skill 接线表；重点消费方 = no-ai-slop（语言审查）/ learn-from（五重过滤+显式参数法）/ init 画像（付费者共性反共识）
 5. ✅ oracle-simulate-audience 以 init 用户画像为根基
 6. ✅ references/ 开放给用户自由添加参考资料（默认种子 5 份）
 7. ✅ 内容形态：视频优先（opinion-video 为默认 starter）

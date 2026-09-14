@@ -1,6 +1,6 @@
 ---
 name: oracle-bone
-description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"录音起稿"/"语音起稿"/"剪辑计划"/"验收成片"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"采集数据"/"拉数据"/"迁移"。**首次使用必须先跑 /oracle-init。**
+description: 给所有想把"感觉"变成可校准预测的内容创作者。**方法论通用**——打分 → 盲预测 → T+N 复盘 → 进化 rubric 的循环适用任何能被量化（播放 / 阅读 / 收听 / 点击 / 转化）的内容。初始化会通过采访为用户建立完整档案（用户画像 + 内容规划单一/双轨/三轨 + 受众画像），后续所有流程按规划执行。**强烈建议导入对标账号**作为初始信号源。触发词："初始化"/"打分这篇"/"启动预测"/"拍了"/"已发布"/"复盘"/"升级 rubric"/"推荐选题"/"抓热点"/"录音起稿"/"语音起稿"/"剪辑计划"/"验收成片"/"同步飞书"/"状态"/"找对标"/"learn from"/"拜师"/"给我标题"/"选标题"/"写简介"/"封面"/"AI 味"/"这是拍给谁的"/"自我开源"/"模拟评论"/"合规检查"/"置顶评论"/"衍生内容"/"罗盘复盘"/"采集数据"/"拉数据"/"迁移"。**首次使用必须先跑 /oracle-init。**
 argument-hint: "[draft-path] [— mode: cold-start|calibration]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 ---
@@ -183,6 +183,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 | "启动预测" / "start prediction" / "给这稿子打分并预测" | `/oracle-predict` | 已 init + 有最终稿 |
 | "拍了 X" / "shot it" / "录完了" | `/oracle-shoot` | 对应预测已写（buffer +1） |
 | "剪辑计划" / "成片回来了" / "验收成片" | `/oracle-edit-plan` | 已 shoot（plan 出剪辑计划 / accept 成片验收；可选步骤） |
+| "同步飞书" / "飞书看板" | `/oracle-feishu` | 已 init + 用户已配飞书 CLI 与 `.oracle-secrets.json`（单向只读镜像） |
 | "已发布" / "I shipped it" / "发布链接是 X" | `/oracle-publish` | 对应预测文件存在（buffer -1） |
 | "置顶评论" / "引导评论" | `/oracle-pinned-comment` | 已发布（黄金窗口内） |
 | "衍生内容" / "图文" / "切片" | `/oracle-derivative` | 已发布（T+1） |
@@ -199,7 +200,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 **反馈分流协议**：用户指出判断/推荐不准 → 展示拟写入项 → 确认后追加 `meta-retros/product-feedback.md`。只喂 compass-retro Phase 5 候选规则提取，**不进** rubric_notes / 三档案 / 校准池；若同时暴露创作者事实 → 拆走档案写入确认协议（契约 #9），不混写。
 
-**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——28 个子 skill + 13 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读）。
+**按需读取纪律**：每次只读当前流程真正需要的文件，不默认加载全部方法论 / references / 模板——29 个子 skill + 13 份协议全量进上下文既浪费 token 也稀释注意力。各子 skill 的 Workflow 已声明自己要读什么，照声明读，不扩读。体积预算（棘轮，只许收紧）与跨文件同步规则见 [MAINTENANCE.md](MAINTENANCE.md)；要全局口径时用 `python tools/context.py <项目根> --task <子skill后缀>` 取 ≤6KB 摘要（只读）。
 
 ---
 
@@ -258,35 +259,36 @@ oracle-bone/
 ├── SKILL.md                           # 本文件（总协议 + 路由）
 ├── README.md                          # 门面
 ├── DESIGN.md                          # 设计文档（完整流程梳理）
-├── skills/                            # 28 个子 skill
-│   ├── oracle-init/SKILL.md           # 入口：五 Phase onboarding（档案+规划+画像+脚手架）
-│   ├── oracle-learn-from/SKILL.md     # 对标账号导入（拆 pattern + 派生 rubric 信号）
-│   ├── oracle-apprentice/SKILL.md     # 拜师拆稿（单条写法拆解 + 四步闭环内化）
-│   ├── oracle-migrate/SKILL.md        # schema 升级迁移
-│   ├── oracle-trends/SKILL.md         # 热点抓取（多 adapter）
-│   ├── oracle-recommend/SKILL.md      # 候选池排序推荐（按 plan 占比过滤）
-│   ├── oracle-seed/SKILL.md           # 对话式选题（按 track 分流；定题后默认接 voice）
-│   ├── oracle-voice/SKILL.md          # 语音起稿循环（录音→转写→3 候选稿→定稿）
+├── skills/                            # 29 个子 skill
+│   ├── oracle-init/SKILL.md           # 入口：五 Phase onboarding（三档案+脚手架）
+│   ├── oracle-learn-from/SKILL.md     # 对标导入（数据信号）
+│   ├── oracle-apprentice/SKILL.md     # 拜师拆稿（四步闭环 + 三重验证门）
+│   ├── oracle-migrate/SKILL.md        # schema 迁移
+│   ├── oracle-trends/SKILL.md         # 热点抓取（信源分层）
+│   ├── oracle-recommend/SKILL.md      # 候选池排序推荐（按占比过滤）
+│   ├── oracle-seed/SKILL.md           # 对话式选题（默认接 voice 起稿）
+│   ├── oracle-voice/SKILL.md          # 语音起稿循环（转写→3 候选稿→定稿）
 │   ├── oracle-score/SKILL.md          # 单稿打分（不落盘）
 │   ├── oracle-title/SKILL.md          # 标题候选生成 + 淘汰制终审 + 改名级联
 │   ├── oracle-description/SKILL.md    # 多平台简介
 │   ├── oracle-cover/SKILL.md          # 封面 prompt（按平台比例派生）
-│   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解（借结构不借元素 → cover-patterns.md）
-│   ├── oracle-no-ai-slop/SKILL.md     # AI 味检测与修正（预测前必跑）
-│   ├── oracle-who-for/SKILL.md        # 受众价值采访（流量/共鸣轨）
-│   ├── oracle-open-source/SKILL.md    # 自我开源度审查（转化轨）
-│   ├── oracle-simulate-audience/SKILL.md  # 评论区预演（基于 init 画像）
+│   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解 → cover-patterns.md
+│   ├── oracle-no-ai-slop/SKILL.md     # AI 味检测修正（预测前必跑）
+│   ├── oracle-who-for/SKILL.md        # 受众价值采访（流量轨）
+│   ├── oracle-open-source/SKILL.md    # 开源度审查（转化轨）
+│   ├── oracle-simulate-audience/SKILL.md  # 评论区预演
 │   ├── oracle-compliance/SKILL.md     # 平台合规审查
 │   ├── oracle-predict/SKILL.md        # 盲预测 + immutable 日志（核心）
 │   ├── oracle-shoot/SKILL.md          # 登记拍摄（buffer +1）
 │   ├── oracle-edit-plan/SKILL.md      # 剪辑计划 + 成片验收（制作质量进链路记录）
-│   ├── oracle-publish/SKILL.md        # 发布登记（buffer -1）+ 合规 gate
-│   ├── oracle-pinned-comment/SKILL.md # 置顶评论生成
-│   ├── oracle-derivative/SKILL.md     # T+1 衍生内容
+│   ├── oracle-publish/SKILL.md        # 发布登记（buffer -1，合规 gate）
+│   ├── oracle-pinned-comment/SKILL.md # 置顶评论
+│   ├── oracle-derivative/SKILL.md     # 衍生内容
 │   ├── oracle-retro/SKILL.md          # 数据回收 + 复盘
-│   ├── oracle-compass-retro/SKILL.md  # 账号级罗盘复盘（规划修订候选）
+│   ├── oracle-compass-retro/SKILL.md  # 账号级罗盘复盘
 │   ├── oracle-bump/SKILL.md           # rubric 升级（全量重打 + 跨模型审）
-│   └── oracle-status/SKILL.md         # 状态看板（分轨 + buffer 警戒）
+│   ├── oracle-status/SKILL.md         # 状态看板（分轨 + buffer 警戒）
+│   └── oracle-feishu/SKILL.md         # 飞书多维表格同步（只读镜像，用户自配 CLI）
 ├── migrations/                        # schema 演进单一来源
 │   ├── registry.md                    # LATEST_SCHEMA + 版本链表
 │   └── <from>-to-<to>.md              # 每步迁移 WHAT/WHY/HOW
@@ -295,7 +297,7 @@ oracle-bone/
 │   ├── bump-validation-protocol.md    # 原则 #2
 │   ├── observation-lifecycle.md       # 原则 #3
 │   ├── prediction-anatomy.md          # 合格预测的 7 组件
-│   ├── scoring-procedure.md           # 打分规程（score/predict/trends 共用的解析+打分纪律）
+│   ├── scoring-procedure.md           # 打分规程（score/predict/trends 共用）
 │   ├── candidate-schema.md            # 候选项统一 schema
 │   ├── cadence-protocol.md            # 节奏协议（buffer 警戒 + 拍/发分离）
 │   ├── state-management.md            # state 读写约定

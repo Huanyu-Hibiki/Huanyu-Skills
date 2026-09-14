@@ -7,7 +7,7 @@
 
 ## 1. 上下文预算（棘轮）
 
-oracle-bone 是 28 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
+oracle-bone 是 29 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
 token 双输。以下数字由 [tests/test_context_budget.py](tests/test_context_budget.py) 机械执行：
 
 | 对象 | 预算（bytes） | 基线说明 |

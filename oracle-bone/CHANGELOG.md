@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — oracle-feishu 飞书多维表格同步（2026-09-12，第十九批）
+
+- **新子 skill oracle-feishu（29 号）**：把链路结构化数据同步到飞书多维表格做可视化与监测——**五张表全部从本地文件确定性推导**：episodes 作品总表（预测 vs 实际/偏差/状态，源 = predictions + state.shoots）/ candidates 候选池（含 source_tier/回流标记，源 = candidates.md + history）/ calibration 校准样本（bucket 命中率，源 = 已复盘 predictions）/ trends 热点台账（信源贡献度）/ snapshots 状态快照（buffer/待复盘/confidence 时间序列）
+- **单向只读镜像铁律**：本地文件是唯一事实源，绝不从飞书回写；幂等 upsert（按稳定 id / 快照按日期覆盖）
+- **前置用户自配**（本 skill 不代配凭据）：用户在 Agent 配好飞书 CLI + `.oracle-secrets.json`（已 gitignore）写 feishu 块——`cli_cmd` 命令模板（{app_token}/{table_id}/{file} 三占位符，不绑定具体 CLI 实现）+ app_token + 表 id；表结构用户在飞书侧按字段清单自建
+- 预检四态（state/secrets/CLI/auth）；首次同步数据出境 🔴 CHECKPOINT（full-auto 档不豁免）；`—dry-run` 只推导不推送；字段缺失推空值不猜；数据最小化（正文不出境）
+- 全链路同步：计数 29（root/README/DESIGN §5 §10/install/uninstall/ps1/MAINTENANCE）+ 路由表 + context.py readlist + workflow.template 触发词；行为用例 26
+
 ### Changed — 选题情报判定纪律（2026-09-12，第十八批，方法论原理参考 market-intelligence-radar）
 
 - **信源层级 source_tier（A-E）进候选 schema**：A 官方一手 / B 权威半官方 / C 专业媒体 / D 社区讨论（弱证据）/ E 聚合号与 SEO 摘要（只可溯源）；trend-sources adapter 文档标注默认层级；**E 层单源不入池**——只做线索找 A-D 佐证；**recommend 稳分位证据门**：E 层或无佐证 D 层候选不进稳分位（顺位递补，可进实验位/弱信号）——防营销号带节奏混进"今日必拍"

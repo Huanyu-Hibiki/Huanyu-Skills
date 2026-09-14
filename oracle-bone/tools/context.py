@@ -68,6 +68,7 @@ TASK_READLIST = {
     "apprentice": ["study/<博主>/（拆解档案）"],
     "status": ["本摘要即基线；可选 tools/score-curve.py --json / tools/dashboard.py"],
     "migrate": ["migrations/registry.md（版本链单一来源）"],
+    "feishu": [".oracle-secrets.json feishu 块（cli_cmd/app_token/tables，用户自配）", "state + candidates.md + predictions + trends-history（行推导源）"],
 }
 
 
