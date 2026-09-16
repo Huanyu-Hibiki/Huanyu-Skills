@@ -88,6 +88,20 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 风格决策同步追加一条 `decision_log.json`（category=`broll_concept`，含 ≥2 个被考虑选项与落选原因）——跨阶段审计轨迹见 [../../shared-references/decision-log.md](../../shared-references/decision-log.md)。
 
+## 素材落位匹配（多段录屏/实拍自动配位）
+
+手里已有多段素材（OBS 录屏、实拍片段）时，本阶段可以把"素材 → 时间轴位置"的配对机械化。⚠️ **先过 A/B 边界**：带人声讲解的录屏是 A-roll（走 `/video-rough-cut` 转录挑 take），只有无声覆盖素材（纯界面/流程/产品证据）才进本匹配；且必须在精剪完成后运行（`Sub/master.srt` 是唯一时间真源）。
+
+运行 `scripts/b-roll-finder/match_footage.py`，三条策略：
+
+1. **镜号映射（机械）**：文件名含镜号（目录规范命名 `实拍【EP001-S01-001到S04-001】.mp4`，取 S 后序号为分镜镜号）→ 对上 `storyboard.json` 的 `broll_candidates.shot_id` → 在 master.srt 找该条旁白原句 → beat 落点 = 句起点 +0.3s，区间 = min(素材时长, 句长+2s, 8s)；
+2. **语义候选（只出材料不下结论）**：文件名无镜号的素材列出清单 + 未占用时段，交给 Agent/用户做语义配对——Agent 可读素材内容（截图/描述/自身转录）辅助判断，配对结果仍走确认闸；
+3. **时长对齐与防冲突（机械）**：素材 <2s 给 warning；beat 重叠自动顺延；素材时长是硬上限（裁掉内容先问用户）。
+
+产出 `Polished/broll-compose.draft.json` + `match_report.md`。
+
+🔴 **CHECKPOINT：匹配表必须用户逐条确认后才可改名为正式 `broll-compose.json` 进入装配**——脚本配对是建议，语义配对权在人。镜号对上但 master.srt 找不到对应句的素材（精剪时删了该句）单独列出，路由回用户裁决：换落点 / 放弃该素材 / 回精剪。
+
 ## 失败模式与恢复
 
 | 触发条件 | 一线修复 | 仍失败兜底 |
@@ -120,6 +134,11 @@ uv run --project "<合集根>" python "<合集根>/scripts/b-roll-finder/zoom_st
 # 截取网页证据图（需要 Chrome/CDP）
 uv run --project "<合集根>" python "<合集根>/scripts/b-roll-finder/cdp_capture.py" \
   "<URL>" "<项目>/Polished/B-roll/BROLL-001/source/receipt.png"
+
+# 素材落位匹配（精剪后；多段录屏/实拍自动配到旁白句位置）
+uv run --project "<合集根>" python "<合集根>/scripts/b-roll-finder/match_footage.py" \
+  "<项目>" --footage "<项目>/Raw/录屏" "<项目>/assets/raw/video"
+# 产出 Polished/broll-compose.draft.json + match_report.md（确认闸：用户确认后才转正）
 ```
 
 全屏 B-roll 的 beat 渲染入口已归入 `/video-polish`，位于 `<合集根>/scripts/video-polish/render_cutaways.py`；本阶段只负责机会分析、素材处理候选和放置设计。

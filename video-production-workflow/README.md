@@ -6,7 +6,7 @@
 
 终稿 → 分镜 → 粗剪 → 字幕校对 → 剪映草稿 → 素材 → 精剪 → B-roll 分析与生成 → 装配成片 QA
 
-[![Version](https://img.shields.io/badge/version-0.8.2-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.5-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-13%20子%20skill-059669)](#-主要子-skill)
 [![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-第一次使用)

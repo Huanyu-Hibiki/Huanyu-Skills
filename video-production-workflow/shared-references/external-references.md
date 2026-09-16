@@ -17,6 +17,7 @@
 | [HyperFrames](https://github.com/HeyGen/hyperframes)（本地参考副本） | **Apache-2.0** | ✅ 可分析原理、可借鉴 | 渲染前 lint/check/doctor 快检层、HTML 直渲染路线的定位（标题卡/关键词强调）、talking-head-recut 的"字幕驱动覆盖层"思路——吸收进 `references/b-roll-generate/motion-template-catalog.md` |
 | remotion-templates（1000 模板库，本地参考副本） | **无 LICENSE 声明** | ⚠️ **仅限分析思路与机制**——许可未声明即默认保留所有权利，禁止复制其代码、模板或资产进本仓库 | 仅吸收方法论：family-engine × variant × palette 派生、机器可读注册表（visualRole/tags/textLength/pairWith）、机械验收 gate——`references/b-roll-generate/motion-template-catalog.md` |
 | remotion-scenes / video-forge / video-skills-toolkit（本地参考副本） | **MIT** | ✅ 可参考/复制（保留版权声明并登记） | video-skills-toolkit 的"逐字稿→字幕驱动一切动画→低清 proof→高清出片"心法、video-forge 的 props 元数据（textLength/durationRange/pairWith）——`references/b-roll-generate/motion-template-catalog.md` |
+| [jianying-editor-skill](https://github.com/luoluoluo22/jianying-editor-skill)（本地参考副本） | **MIT**（内置 vendor pyJianYingDraft 为 Apache-2.0） | ✅ 可分析原理、可借鉴（保留版权声明并登记） | v0.8.2：vendor 深层能力登记、save-time JSON patch 模式、机器可读验收清单（`video-jianying-draft` SKILL）。v0.8.5：转场/关键帧/滤镜的 CLI 暴露思路（枚举查表选型替代猜 ID、片段寻址 inspector、错误给相近建议的结构化契约）——`jianying.py` 的 `list_enums`/`list_segments`/`add_transition`/`add_animation`/`add_filter`/`add_keyframe` 为本合集原生实现，未复制其代码；其素材 CSV 索引、TTS、UI 自动化导出未采纳 |
 
 ## 引用规则
 

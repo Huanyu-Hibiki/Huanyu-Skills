@@ -51,12 +51,12 @@
 |---|---|---|---|
 | 初始化 | 初始化视频制作管线 | 项目路径 | state、目录、WORKFLOW、STATUS |
 | 分镜规划 | 规划分镜、文稿转分镜 | 终稿 | storyboard、素材请求、动效候选 |
-| A-roll 粗剪 | 粗剪、转录、按文稿剪、自动校对字幕 | Raw、文稿 | transcript、caption_corrected.srt、对齐报告、EDL、粗剪预览 |
+| A-roll 粗剪 | 粗剪、转录、按文稿剪、自动校对字幕、剪除卡顿重复 | Raw、文稿 | transcript、caption_corrected.srt、对齐报告、重复报告、EDL、粗剪预览 |
 | 字幕复核（条件） | 复核低置信字幕、裁决口误、补词典 | 对齐报告、词级转录 | caption_corrected-vN.srt、speech_errors 裁决、lexicon 更新 |
 | 剪映 Draft | 创建剪映草稿 | EDL、字幕、媒体 | Jianying-draft |
 | 素材获取 | 下载素材、找音乐 | asset_request_list | assets、许可证 manifest |
 | 精剪交接 | `/video-fine-cut` | 剪映 Draft | fine_cut.mp4、master.srt |
-| B-roll 策划 | 分析 B-roll | master.srt | 机会表、母片段表、风格决定 |
+| B-roll 策划 | 分析 B-roll、素材落位 | master.srt + 手头素材 | 机会表、母片段表、风格决定、落位骨架（确认后进装配） |
 | B-roll 生成 | 生成 B-roll | 已确认计划 | B-roll 成片、manifest、QA |
 | 成片合成 | 合成、输出预览 | fine cut、B-roll、master.srt | preview、Final、QA |
 

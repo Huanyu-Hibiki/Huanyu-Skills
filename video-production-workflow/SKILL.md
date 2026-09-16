@@ -67,6 +67,8 @@ OBS 不是固定的 A-roll 或 B-roll：人物边操作边讲解时是 A-roll；
   03 /video-rough-cut —— faster-whisper（备选 Whisper）+ 文稿 + FFmpeg → 粗剪
        └ 内含自动文稿校对：字幕按文稿拼写产出 Sub/caption_corrected.srt，
          ASR↔文稿偏差/口癖候选/低置信句落盘待复核
+       └ 内含卡顿/重复剪除：词级结巴与"说一半重说"的首次尝试自动从时间线剪除
+         （相似重说/整句重读只列 repeats_report 待人工裁决）
   ↓（仅当对齐报告有问题或用户要求时）03b /video-caption-correct —— 词级人工复核
   ↓
 05 /video-jianying-draft —— 根据剪辑决策生成剪映原生 Draft
@@ -96,7 +98,7 @@ Final\video_final.mp4
 | 创建剪映草稿、导入视频和字幕 | `/video-jianying-draft` | EDL/剪辑决策 + 字幕 + 音频等素材 | 剪映原生草稿和素材副本 |
 | 下载素材、找图片、找视频、找音乐、找音效 | `/video-assets` | `asset_request_list.md` 或明确需求 | 素材文件、转码副本、许可证清单 |
 | 剪映内部剪辑、剪气口、导出精剪字幕 | `/video-fine-cut` | 剪映 Draft / Filmora 工程 + 校对字幕 | `Polished/fine_cut.mp4`、`Sub/master.srt` |
-| 分析哪里需要 B-roll、设计 B-roll | `/b-roll-finder` | 剪映精剪后的 SRT | B-roll 机会表、母片段设计、风格建议 |
+| B-roll 机会分析、素材落位匹配、设计 B-roll | `/b-roll-finder` | 剪映精剪后的 SRT + 手头素材 | B-roll 机会表、母片段设计、风格建议、素材落位骨架（确认闸后进装配） |
 | 生成 B-roll、做 Remotion/HyperFrames/拼贴动画 | `/b-roll-generate` | 已确认的 B-roll 设计 | B-roll 视频、透明素材、静帧和提示词 |
 | 调整 B-roll 位置、合成音效、输出成片 | `/video-polish` | 精剪视频 + B-roll + SRT | `Polished\`、`Final\video_final.mp4`、QA 记录 |
 | 把成片导出为可编辑剪映工程（改字幕/变速/换音频） | `/video-jianying-draft`（成片导出模式） | 成片 + manifest + 字幕/SFX 钉帧表 | 可编辑剪映草稿（底片切段 + 原生字幕/音频轨） |
@@ -140,7 +142,7 @@ not_started -> in_progress -> awaiting_approval -> completed
 | 字幕人工复核、审核页、口癖裁决与词典沉淀 | `scripts/video-caption-correct/`（legacy 独立转录入口 `run_transcribe.ps1` 仅离线场景保留） |
 | 剪映原生 Draft 与成片导出 | `scripts/video-jianying-draft/`；成片→剪映草稿导出见 `references/video-jianying-draft/remotion-export.md` |
 | 下载、许可证、转码和归档 | `scripts/video-assets/` |
-| B-roll 机会分析和素材处理 | `scripts/b-roll-finder/` + `skills/b-roll-finder/SKILL.md` |
+| B-roll 机会分析和素材处理 | `scripts/b-roll-finder/` + `skills/b-roll-finder/SKILL.md`（素材落位匹配见 `scripts/b-roll-finder/match_footage.py`） |
 | 半调纸拼贴 AI B-roll、HyperFrames 检查 | `scripts/b-roll-generate/` |
 | Remotion / HyperFrames 技术规则 | `references/b-roll-generate/remotion-best-practices/`、`references/b-roll-generate/hyperframes/` |
 | BGM 卡点装配 | `references/video-polish/music-beat-sync.md`（`video-polish` 装配时读取） |

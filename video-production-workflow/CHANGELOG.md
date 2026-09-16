@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.8.5 - 2026-09-16
+
+- **剪映 CLI 补全转场/关键帧/滤镜（借鉴 jianying-editor-skill MIT 实现方案，原生实现，登记见 external-references）**：`jianying.py` 新增 6 个子命令 + `add_video` 视频淡入淡出：
+  - `list_enums --kind transition|filter|intro|outro|group|mask [--search 关键词]`——枚举查表（vendor 内置转场 362 / 滤镜 468 / 动画 290 个，中文名即枚举名），落实「绝不猜 ID」纪律；
+  - `list_segments [--track T]`——各轨片段 index/start/end/时长/material_id，转场/滤镜/关键帧的目标片段统一用 track+index 寻址；
+  - `add_transition --track --index --type 叠化 [--duration 0.8]`（挂目标片段头部，与上一段重叠）；
+  - `add_animation --kind intro|outro|group --type 渐显`；
+  - `add_filter --type 自然 [--intensity 0-100]`（落盘在 draft 的 materials.effects）；
+  - `add_keyframe --property uniform_scale|alpha|position_x/y|rotation|scale_x/y|brightness|contrast|saturation|volume --time 片段相对秒 --value`——Ken Burns 缓推、画中画运镜、进度式动画；`volume` 属性走音频段专用接口；
+  - `add_video --fade-in/--fade-out`（alpha 关键帧封装，与 `add_audio --fade-in/out` 对称）。
+- **序列化缺口修复**（E2E 自测发现）：vendor 的材质收集只在 add_segment 时发生，转场/滤镜/动画/淡入淡出属于对已有片段的增量修改（pickle 往返），落盘的 draft_content.json 会静默丢材质——`save_draft` 落盘前新增 `_collect_materials` 统一重收集（按类型 ID 去重，幂等），并把该不变量写进 SKILL 扩展纪律。
+- **错误路径结构化**：枚举猜错/轨道不存在/序号越界统一输出 stdout JSON（`success:false` + `close_matches` 相近建议 / `tracks` 现有轨道列表 / 查表提示）+ 退出码 1，Agent 可结构化自纠。
+- E2E 验证（ffmpeg 合成素材全链路）：双段铺轨 → 叠化转场/渐显动画/自然滤镜/uniform_scale 关键帧对/视频淡入 → save_draft → 解析 draft_content.json 确认四类材质与关键帧全部真实落盘；误猜枚举得 close_matches 建议；`list_enums --search 叠` 精准过滤。
+
+## v0.8.4 - 2026-09-16
+
+- **素材落位匹配（用户痛点：多段录屏/实拍素材不知道放时间轴哪里）**：新 `scripts/b-roll-finder/match_footage.py`，精剪后运行，三条策略：
+  - **镜号映射（机械）**：素材文件名按目录规范带镜号（`实拍【EP001-S01-001到S04-001】.mp4`）→ 对上 `storyboard.json` 的 `broll_candidates.shot_id` → 在 `Sub/master.srt` 找该条旁白原句 → beat 落点 = 句起点 +0.3s（词锚规则），区间 = min(素材时长, 句长+2s, 8s)；
+  - **语义候选（只出材料不下结论）**：文件名无镜号的素材列出清单 + 未占用时段，交 Agent/用户语义配对——脚本不瞎猜；
+  - **时长对齐防冲突（机械）**：素材 <2s 给 warning、beat 重叠自动顺延、素材时长是硬上限（裁内容先问用户）。
+- **A/B 边界前置**：带人声讲解的录屏是 A-roll（走粗剪转录挑 take），只有无声覆盖素材进本匹配（folder-schema 既有规则的执行化）；
+- 产出 `Polished/broll-compose.draft.json` + `match_report.md`，🔴 匹配表用户逐条确认后才转正进装配——配对是建议，语义配对权在人；
+- video-polish 装配流程第 2 步改为「装配清单二选一」（落位骨架转正 / 手写 compose），主 SKILL 路由表、workflow 模板、b-roll-finder SKILL 新「素材落位匹配」节级联；
+- 测试：镜号录屏（2 段）正确落到对应旁白句 +0.3s，无镜号素材进语义配对清单。
+
+## v0.8.3 - 2026-09-15
+
+- **卡顿/重复自动剪除（用户痛点：录视频卡顿重读一句话，转录环节感知不到）**：新 `scripts/video-rough-cut/detect_repeats.py`，嵌入粗剪 keeps 链路（select_takes → **detect_repeats** → tighten_pauses → EDL），词级时间戳上检测三类：
+  - **词级结巴**（"我们我们来看"，同词连读 ≤0.5s）→ 自动剪首次，保留最后一次；
+  - **前缀废弃**（说一半停住重说完整："我觉得这个 → 我觉得这个方案"）→ 后文以首次尝试为真前缀且停顿 ≥0.08s，自动剪首次——停顿条件区分"往下说"与"重说"（正常连续语流任意前 N 词都是后文前缀，无停顿不触发）；
+  - **相似重说 / 长间隔整句重读** → 只进 `repeats_report.md` 待确认清单，**不自动剪**——非前缀的相似重说与排比句（"非常实用/非常好用"）在文本上无法区分，宁可留一处结巴给用户裁决，不冒险剪掉排比（🔴 句级删除 diff 确认纪律）。
+- 字幕不受影响：caption_corrected.srt 以文稿拼写为准（文稿本来没有结巴），剪除只作用于音频时间线；确认要剪的待确认项手工并入 keeps 后重跑 tighten_pauses。
+- 产出：`keeps_dedup_<source>.json`（喂 tighten_pauses）+ `repeats_report.json/.md`（自动剪除清单 + 待确认清单，含删/留文本、相似度、间隔）；5 个边界场景测试全过（结巴/前缀改口/排比不误剪/整句重读只标记/正常语流零误报），keeps 减除与 cut 区间精确对账。
+- 修复两个实现 bug（自测发现）：窗口从大到小遍历时 `break` 方向反了（大窗口超长间隔会挡住小窗口的真改口）；`global` 声明位置导致启动即语法错误。
+- 级联：rough-cut 流程（13 步）/执行脚本/硬规则/失败模式表/输出树、主 SKILL.md 端到端、workflow 模板。
+
 ## v0.8.2 - 2026-09-14
 
 - **吸收 OpenMontage 治理层（AGPL-3.0，仅原理——全部为本合集原生实现，登记见 external-references）**：把"会不会像 PPT / 会不会违约 / 为什么这么选"变成带数值的门，五个新脚本全部零依赖（Python 标准库 + ffprobe/ffmpeg），输入输出对齐既有产物（storyboard.md/json、edl.json、broll-compose.json、master.srt）：

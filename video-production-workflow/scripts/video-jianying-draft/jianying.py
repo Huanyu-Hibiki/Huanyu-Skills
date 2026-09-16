@@ -375,6 +375,177 @@ def _mac_install_registry(draft_name, info, root):
     _write_json_atomic(rm, reg)
     return bak
 
+# ─── 深层能力 helpers（转场/动画/滤镜/关键帧，v0.8.5）─────────────────
+# 设计原则（同 SKILL「vendor 深层能力」节）：枚举只查表不猜 ID；
+# 片段寻址 = list_segments 输出的 track+index；所有命令输出 JSON。
+#
+# 序列化缺口修补：vendor 的材质收集只在 add_segment 时发生，而转场/滤镜/
+# 动画/蒙版/淡入淡出是后续对已有片段的增量修改（pickle 往返），save_draft
+# 落盘前必须统一重收集一次（__contains__ 按类型 ID 去重，幂等）。
+
+def _collect_materials(sc):
+    for track in sc.tracks.values():
+        for seg in track.segments:
+            t = type(seg).__name__
+            if t == "Video_segment":
+                if getattr(seg, "transition", None) is not None and seg.transition not in sc.materials:
+                    sc.materials.transitions.append(seg.transition)
+                for f in getattr(seg, "filters", []) or []:
+                    if f not in sc.materials:
+                        sc.materials.filters.append(f)
+                if getattr(seg, "animations_instance", None) is not None and seg.animations_instance not in sc.materials:
+                    sc.materials.animations.append(seg.animations_instance)
+                for e in getattr(seg, "effects", []) or []:
+                    if e not in sc.materials:
+                        sc.materials.video_effects.append(e)
+                if getattr(seg, "mask", None) is not None:
+                    sc.materials.masks.append(seg.mask.export_json())
+            elif t == "Audio_segment":
+                if getattr(seg, "fade", None) is not None and seg.fade not in sc.materials:
+                    sc.materials.audio_fades.append(seg.fade)
+                for e in getattr(seg, "effects", []) or []:
+                    if e not in sc.materials:
+                        sc.materials.audio_effects.append(e)
+
+
+_ENUM_KINDS = {
+    "transition": lambda: dy.Transition_type,
+    "filter": lambda: dy.Filter_type,
+    "intro": lambda: dy.Intro_type,
+    "outro": lambda: dy.Outro_type,
+    "group": lambda: dy.Group_animation_type,
+    "mask": lambda: dy.Mask_type,
+}
+_ANIM_KINDS = {"intro": lambda: dy.Intro_type, "outro": lambda: dy.Outro_type,
+               "group": lambda: dy.Group_animation_type}
+KF_PROPS = ("position_x", "position_y", "rotation", "scale_x", "scale_y",
+            "uniform_scale", "alpha", "saturation", "contrast", "brightness", "volume")
+
+
+def _fail_json(payload: dict):
+    """错误也走 stdout JSON 契约（{ok:false,...}），退出码 1，供 Agent 结构化自纠。"""
+    print(json.dumps(payload, ensure_ascii=False))
+    sys.exit(1)
+
+
+def _resolve_enum(enum_cls, name, kind):
+    """中/英文枚举名 → 枚举成员。精确 → 忽略大小写 → 唯一包含匹配；失败给相近建议。"""
+    members = {m.name: m for m in enum_cls}
+    if name in members:
+        return members[name]
+    ci = {k.lower(): v for k, v in members.items()}
+    if name.lower() in ci:
+        return ci[name.lower()]
+    contains = [v for k, v in members.items() if name.lower() in k.lower()]
+    if len(contains) == 1:
+        return contains[0]
+    import difflib
+    close = difflib.get_close_matches(name, list(members), n=4, cutoff=0.4)
+    _fail_json({
+        "success": False, "error": f"未找到{kind}「{name}」",
+        "hint": "用 list_enums --kind 查有效名称，绝不凭记忆猜 ID",
+        "close_matches": close,
+    })
+
+
+def _find_segment(a):
+    """track 名 + 片段序号（list_segments 输出的 index）→ segment 对象。"""
+    sc = _load(a.cache_dir, a.draft_id)
+    track = sc.tracks.get(a.track)
+    if track is None:
+        _fail_json({
+            "success": False, "error": f"轨道「{a.track}」不存在",
+            "tracks": list(sc.tracks.keys()),
+            "hint": "轨道名见 add_* 命令的 --track-name（默认 main/audio_main/subtitle）",
+        })
+    if not (0 <= a.index < len(track.segments)):
+        _fail_json({
+            "success": False, "error": f"片段序号 {a.index} 超出范围（该轨共 {len(track.segments)} 段）",
+            "hint": "先运行 list_segments 查看各轨片段与序号",
+        })
+    return sc, track, track.segments[a.index]
+
+
+def cmd_list_enums(a):
+    enum_cls = _ENUM_KINDS[a.kind]()
+    names = [m.name for m in enum_cls]
+    if a.search:
+        q = a.search.lower()
+        names = [n for n in names if q in n.lower()]
+    print(json.dumps({"kind": a.kind, "count": len(names), "names": names[:400]}))
+
+
+def cmd_list_segments(a):
+    sc = _load(a.cache_dir, a.draft_id)
+    out = []
+    for name, track in sc.tracks.items():
+        if a.track and name != a.track:
+            continue
+        segs = []
+        for i, seg in enumerate(track.segments):
+            tr = seg.target_timerange
+            segs.append({
+                "index": i,
+                "start_s": round(tr.start / 1_000_000, 3),
+                "end_s": round((tr.start + tr.duration) / 1_000_000, 3),
+                "duration_s": round(tr.duration / 1_000_000, 3),
+                "material_id": getattr(seg, "material_id", None),
+                "type": type(seg).__name__,
+            })
+        out.append({"track": name, "type": str(track.track_type), "segments": segs})
+    print(json.dumps({"success": True, "tracks": out}))
+
+
+def cmd_add_transition(a):
+    sc, track, seg = _find_segment(a)
+    if type(seg).__name__ != "Video_segment":
+        raise SystemExit(json.dumps({"success": False, "error": "转场只能挂在视频片段上"}, ensure_ascii=False))
+    member = _resolve_enum(dy.Transition_type, a.type, "转场")
+    seg.add_transition(member, duration=int(a.duration * 1_000_000) if a.duration else None)
+    _save(a.cache_dir, a.draft_id, sc)
+    print(json.dumps({"success": True, "track": a.track, "index": a.index,
+                      "transition": member.name, "duration_s": a.duration}))
+
+
+def cmd_add_animation(a):
+    sc, track, seg = _find_segment(a)
+    if type(seg).__name__ != "Video_segment":
+        raise SystemExit(json.dumps({"success": False, "error": "动画只能挂在视频片段上"}, ensure_ascii=False))
+    enum_cls = _ANIM_KINDS[a.kind]()
+    member = _resolve_enum(enum_cls, a.type, f"{a.kind}动画")
+    seg.add_animation(member)
+    _save(a.cache_dir, a.draft_id, sc)
+    print(json.dumps({"success": True, "track": a.track, "index": a.index,
+                      "animation_kind": a.kind, "animation": member.name}))
+
+
+def cmd_add_filter(a):
+    sc, track, seg = _find_segment(a)
+    if type(seg).__name__ != "Video_segment":
+        raise SystemExit(json.dumps({"success": False, "error": "滤镜只能挂在视频片段上"}, ensure_ascii=False))
+    member = _resolve_enum(dy.Filter_type, a.type, "滤镜")
+    seg.add_filter(member, intensity=a.intensity)
+    _save(a.cache_dir, a.draft_id, sc)
+    print(json.dumps({"success": True, "track": a.track, "index": a.index,
+                      "filter": member.name, "intensity": a.intensity}))
+
+
+def cmd_add_keyframe(a):
+    sc, track, seg = _find_segment(a)
+    if a.property == "volume":
+        # 音量关键帧走音频段专用接口
+        if type(seg).__name__ != "Audio_segment":
+            raise SystemExit(json.dumps({"success": False, "error": "volume 关键帧只能挂在音频片段上"}, ensure_ascii=False))
+        seg.add_keyframe(int(a.time * 1_000_000), a.value)
+    else:
+        if type(seg).__name__ != "Video_segment":
+            raise SystemExit(json.dumps({"success": False, "error": "视觉关键帧只能挂在视频片段上"}, ensure_ascii=False))
+        prop = dy.Keyframe_property[a.property]
+        seg.add_keyframe(prop, int(a.time * 1_000_000), a.value)
+    _save(a.cache_dir, a.draft_id, sc)
+    print(json.dumps({"success": True, "track": a.track, "index": a.index,
+                      "property": a.property, "time_s": a.time, "value": a.value}))
+
 # ─── commands ─────────────────────────────────────────────────────────
 
 def cmd_create_draft(a):
@@ -398,9 +569,20 @@ def cmd_add_video(a):
     sc.add_track(dy.Track_type.video, tn)
     seg = dy.Video_segment(mat, _tr(ts, ts + (end - start) / a.speed),
                            source_timerange=_tr(start, end), speed=a.speed)
+    # 视频淡入/淡出：vendor 的 Video_segment 无 add_fade，用 alpha 关键帧实现
+    seg_dur_us = int((end - start) / a.speed * 1_000_000)
+    if a.fade_in or a.fade_out:
+        fi = min(int(a.fade_in * 1_000_000), seg_dur_us // 2) if a.fade_in else 0
+        fo = min(int(a.fade_out * 1_000_000), seg_dur_us // 2) if a.fade_out else 0
+        alpha = dy.Keyframe_property.alpha
+        if fi:
+            seg.add_keyframe(alpha, 0, 0.0).add_keyframe(alpha, fi, 1.0)
+        if fo:
+            seg.add_keyframe(alpha, seg_dur_us - fo, 1.0).add_keyframe(alpha, seg_dur_us, 0.0)
     sc.add_segment(seg, tn)
     _save(a.cache_dir, a.draft_id, sc)
-    print(json.dumps({"success": True, "file": os.path.basename(a.file), "track": tn}))
+    print(json.dumps({"success": True, "file": os.path.basename(a.file), "track": tn,
+                      "fade_in": a.fade_in, "fade_out": a.fade_out}))
 
 def cmd_add_audio(a):
     sc = _load(a.cache_dir, a.draft_id)
@@ -547,6 +729,7 @@ def cmd_save_draft(a):
                 mapped[key] = os.path.join(assets, name)
             mat.replace_path = mapped[key]
         # 原子落盘：先写 tmp 再 os.replace，中途崩溃不留半截 JSON
+        _collect_materials(sc)   # 转场/滤镜/动画等增量修改绕过了 add_segment 的材质收集，落盘前统一重收集
         content_tmp = os.path.join(out, 'draft_content.json.tmp')
         sc.dump(content_tmp)
         os.replace(content_tmp, os.path.join(out, 'draft_content.json'))
@@ -582,7 +765,13 @@ def main():
     sub = pa.add_subparsers(dest='cmd', required=True)
 
     p = sub.add_parser('create_draft'); p.add_argument('--width', type=int, default=1920); p.add_argument('--height', type=int, default=1080); p.add_argument('--cache-dir', required=True); p.set_defaults(fn=cmd_create_draft)
-    p = sub.add_parser('add_video'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_video)
+    p = sub.add_parser('add_video'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--fade-in', type=float, default=0.0, dest='fade_in', help='video fade-in seconds (alpha keyframes)'); p.add_argument('--fade-out', type=float, default=0.0, dest='fade_out', help='video fade-out seconds'); p.set_defaults(fn=cmd_add_video)
+    p = sub.add_parser('list_enums'); p.add_argument('--kind', required=True, choices=list(_ENUM_KINDS), help='transition/filter/intro/outro/group/mask'); p.add_argument('--search', help='按关键词过滤枚举名'); p.set_defaults(fn=cmd_list_enums)
+    p = sub.add_parser('list_segments'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', help='只看指定轨道'); p.set_defaults(fn=cmd_list_segments)
+    p = sub.add_parser('add_transition'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True, help='片段序号（list_segments 输出）'); p.add_argument('--type', required=True, help='转场名（list_enums --kind transition 查表）'); p.add_argument('--duration', type=float, help='秒，缺省用剪映默认'); p.set_defaults(fn=cmd_add_transition)
+    p = sub.add_parser('add_animation'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--kind', required=True, choices=['intro', 'outro', 'group']); p.add_argument('--type', required=True, help='动画名（list_enums --kind 查表）'); p.set_defaults(fn=cmd_add_animation)
+    p = sub.add_parser('add_filter'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--type', required=True, help='滤镜名（list_enums --kind filter 查表）'); p.add_argument('--intensity', type=float, default=100.0); p.set_defaults(fn=cmd_add_filter)
+    p = sub.add_parser('add_keyframe'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--property', required=True, choices=KF_PROPS); p.add_argument('--time', type=float, required=True, help='片段相对秒'); p.add_argument('--value', type=float, required=True); p.set_defaults(fn=cmd_add_keyframe)
     p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--fade-in', type=float, default=0.0, dest='fade_in', help='audio fade-in seconds'); p.add_argument('--fade-out', type=float, default=0.0, dest='fade_out', help='audio fade-out seconds'); p.add_argument('--no-lane-split', action='store_true', dest='no_lane_split', help='disable greedy lane split; overlapping audio raises SegmentOverlap'); p.set_defaults(fn=cmd_add_audio)
     p = sub.add_parser('add_text'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--text', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--font-size', type=float); p.add_argument('--font-color'); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_text)
     p = sub.add_parser('add_subtitle'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--srt', required=True); p.add_argument('--time-offset', type=float); p.add_argument('--font-size', type=float, default=5.0); p.add_argument('--font-color', default='#FFFFFF'); p.add_argument('--track-name'); p.add_argument('--max-chars', type=float, default=18, dest='max_chars', help='max display units per cue (CJK=1, ASCII=0.5)'); p.add_argument('--min-chars', type=float, default=6, dest='min_chars'); p.add_argument('--no-split', action='store_true', dest='no_split', help='import the SRT as-is without splitting'); p.set_defaults(fn=cmd_add_subtitle)

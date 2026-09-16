@@ -24,6 +24,7 @@ create_draft
   → add_subtitle
   → add_audio
   → add_text / add_image / add_effect / add_sticker（按需）
+  → add_transition / add_animation / add_filter / add_keyframe（按需，先 list_segments + list_enums）
   → save_draft
 ```
 
@@ -145,18 +146,23 @@ Rough/
 
 ## vendor 深层能力与扩展模式
 
-CLI 只暴露高频命令；vendor（`scripts/video-jianying-draft/vendor/pyJianYingDraft/`）已内置以下能力，需要时**优先扩展 `jianying.py` 子命令**而不是绕过 CLI 直接改草稿 JSON：
+CLI 已直接暴露转场/动画/滤镜/关键帧（v0.8.5）；vendor（`scripts/video-jianying-draft/vendor/pyJianYingDraft/`）还有更多底层能力，需要时**优先扩展 `jianying.py` 子命令**而不是绕过 CLI 直接改草稿 JSON：
 
-| 能力 | vendor API | 典型用途 |
-|---|---|---|
-| 关键帧动画 | `segment.add_keyframe(Keyframe_property.*, t_us, value)`；属性含 `position_x/y`、`uniform_scale`、`alpha`、`brightness/contrast/saturation`、音频 `volume` | Ken Burns 微动、画中画运镜、视频淡入淡出（alpha 关键帧，vendor 的 `Video_segment` 无 `add_fade`） |
-| 转场 | `Video_segment.add_transition(Transition_type, duration=)` | 两段之间硬切改软转场 |
-| 段动画 | `Video_segment.add_animation(Intro_type/Outro_type/Group_animation_type, ...)` | 片头/片尾/组合动画 |
-| 滤镜/蒙版 | `add_filter(Filter_type, intensity)`、`add_mask(Mask_type, ...)` | 调色滤镜、形状遮罩 |
-| 音频淡入淡出 | `Audio_segment.add_fade(in_us, out_us)`（CLI `add_audio --fade-in/--fade-out` 已暴露） | BGM 进出、SFX 边界 |
-| 变速 | `Video_segment/Audio_segment(speed=)`（CLI `--speed` 已暴露） | 时间的变速重排 |
+| 能力 | CLI | vendor API | 典型用途 |
+|---|---|---|---|
+| 转场 | `add_transition --track T --index N --type 叠化 [--duration 0.8]` | `Video_segment.add_transition(Transition_type, duration_us)` | 两段之间硬切改软转场（挂在目标片段头部，与上一段重叠） |
+| 段动画 | `add_animation --kind intro/outro/group --type 渐显` | `add_animation(Intro_type/Outro_type/Group_animation_type)` | 片头/片尾/组合动画 |
+| 滤镜 | `add_filter --type 自然 [--intensity 70]` | `add_filter(Filter_type, intensity)` | 调色滤镜（落盘在 draft 的 materials.effects） |
+| 关键帧 | `add_keyframe --property alpha --time 0 --value 0`（片段相对秒） | `add_keyframe(Keyframe_property, t_us, value)`；属性含 position_x/y、rotation、scale_x/y、uniform_scale、alpha、brightness/contrast/saturation、volume | Ken Burns 微动、画中画运镜、进度式动画 |
+| 视频淡入淡出 | `add_video --fade-in 0.5 [--fade-out 0.5]` | alpha 关键帧封装 | 与 `add_audio --fade-in/out` 对称 |
+| 蒙版 | （CLI 未暴露，需扩展） | `add_mask(Mask_type, center/size/rotation/feather)` | 形状遮罩 |
 
-**转场/动画/滤镜的枚举值绝不凭记忆猜**——从 vendor 的 `metadata/` 目录（transitions/filters/animations 枚举表）查准确名字；枚举对不上剪映版本时宁可放弃该效果，不写非法 ID 损坏草稿。
+**辅助命令**（先查后用，绝不猜 ID）：
+
+- `list_enums --kind transition|filter|intro|outro|group|mask [--search 关键词]`：列出有效名称（转场 362 / 滤镜 468 / 动画 290 个，中英文即枚举名）；
+- `list_segments [--track T]`：列出各轨片段的 index/start/end/时长/material_id——**转场/滤镜/关键帧的目标片段都靠这个 index 寻址**。
+
+三条纪律：① 枚举名只从 `list_enums` 查表，猜错会得到结构化错误 + `close_matches` 相近建议（stdout JSON、退出码 1）；② keyframe 的 `--time` 是**片段相对秒**，`volume` 属性只能挂音频段、其余只能挂视频段；③ 转场/滤镜/动画/淡入淡出属于**对已有片段的增量修改**，vendor 的材质收集只在 add_segment 时发生——`save_draft` 落盘前已内置 `_collect_materials` 统一重收集（幂等），任何绕过 CLI 的扩展都必须保持这个不变量。
 
 **save-time JSON patch 模式**（适配剪映新版本未知字段的通用逃生通道）：vendor 写不动的字段（如 `enable_adjust` 亮度调节 bundle、云端素材 `music_id` 回写），统一走「`save_draft` 落盘后 → 重读 `draft_info.json`/`draft_content.json` → 打补丁 → 原子写回」；补丁必须在剪映未运行时执行，且每次补丁在 `jianying_draft_manifest.md` 记录补丁字段清单。
 
@@ -181,6 +187,18 @@ for /f "delims=" %i in ('uv run --project "<合集根>" python "<合集根>/scri
 
 # BGM：与旁白共存默认音量 0.6 + 淡入淡出 1s
 ... add_audio --draft-id <id> --cache-dir "%CACHE%" --file <bgm> --track-name BGM --volume 0.6 --fade-in 1 --fade-out 1
+
+# 视频淡入（alpha 关键帧封装）
+... add_video --draft-id <id> --cache-dir "%CACHE%" --file <clip.mp4> --fade-in 0.5
+
+# 转场/动画/滤镜/关键帧：先查表，再对片段操作
+... list_enums --kind transition --search 叠       # 362 个转场，中文名即枚举名
+... list_segments --draft-id <id> --cache-dir "%CACHE%"   # 各轨片段 index/时间
+... add_transition --draft-id <id> --cache-dir "%CACHE%" --track main --index 1 --type 叠化 --duration 0.8
+... add_animation --draft-id <id> --cache-dir "%CACHE%" --track main --index 0 --kind intro --type 渐显
+... add_filter --draft-id <id> --cache-dir "%CACHE%" --track main --index 0 --type 自然 --intensity 70
+... add_keyframe --draft-id <id> --cache-dir "%CACHE%" --track main --index 0 --property uniform_scale --time 0 --value 1.0
+... add_keyframe --draft-id <id> --cache-dir "%CACHE%" --track main --index 0 --property uniform_scale --time 4.5 --value 1.05   # Ken Burns 缓推
 
 # 调整单条长度 / 原样导入
 ... add_subtitle --srt <srt> --max-chars 15      # 更短更碎
