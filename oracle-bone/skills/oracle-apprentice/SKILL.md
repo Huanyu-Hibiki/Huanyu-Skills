@@ -1,7 +1,7 @@
 ---
 name: oracle-apprentice
-description: 拜师拆稿——分析对标博主/想学的稿子的撰写方式与表达方法（钩子/节奏/金句/结构/术语落地/互动设计），用四步闭环（复述→重建→迁移→实践）内化成自己的手艺。与 oracle-learn-from 互补：learn-from 拆账号级统计信号，apprentice 拆单条稿的写法（手艺层）。支持视频转录（走 adapters/script-extraction）或手动粘稿。触发词："拜师"/"拆这条稿"/"学这个博主的表达"/"他是怎么写的"/"apprentice"。
-argument-hint: "<博主名或视频URL> [— stage: watch|restate|rebuild|migrate]"
+description: 拜师拆稿——分析对标博主/想学的稿子的撰写方式与表达方法（钩子/节奏/金句/结构/术语落地/互动设计），用四步闭环（复述→重建→迁移→实践）内化成自己的手艺；**视觉拆解模式（—visual）**：抽帧证据 + 转写词锚，拆博主的视频包装与动效（字幕/贴纸板/转场/声音/B-roll 系统），产出 packaging-notes.md 供剪辑计划消费。与 oracle-learn-from 互补：learn-from 拆账号级统计信号，apprentice 拆单条稿的写法（手艺层）。支持视频转录（走 adapters/script-extraction）或手动粘稿。触发词："拜师"/"拆这条稿"/"学这个博主的表达"/"拆这个视频的包装"/"他是怎么写的"/"apprentice"。
+argument-hint: "<博主名或视频URL> [— stage: watch|restate|rebuild|migrate] [— visual]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
 
@@ -119,6 +119,35 @@ a) 直接认 b) 改写后发我 c) 自己重写两句发我。
 | **V3 独特性** | 把博主名字抹掉，任何创作者都该知道的常识（"开头要抓人""要有互动"）不通过 | 人人都说的正确废话 |
 
 **通过率自检**：单条拆 3-5 样，1-2 样过门是常态——**全过 = 验证太松**，回头重查 V3。
+
+### 视觉拆解模式（`—visual`——学博主的视频包装与动效）
+
+拆解单位是**视觉系统**不是镜头；规格语言统一用 [references/packaging-vocabulary.md](../../references/packaging-vocabulary.md)（六元组/动效四语义/声音四层/词锚），此处不复制。
+
+**Phase V0: 证据准备（三件）**
+
+1. **转写**：走现有转录管线拿段落时间戳（"词锚"锚到段落级）
+2. **抽帧证据**（ffmpeg 为 adapter 已有依赖；证据落 `study/<博主名>-apprentice/<标题>/evidence/`）：
+
+```bash
+# 视觉突变点密采（转场/包装元素出入场大概率在这）
+ffmpeg -i <视频> -vf "select='gt(scene,0.3)'" -vsync vfr -q:v 5 evidence/cut_%04d.jpg
+# 定间隔粗采（每 3 秒一帧看全局节奏）
+ffmpeg -i <视频> -vf "fps=1/3" -q:v 5 evidence/scan_%04d.jpg
+```
+
+   证据帧总量 **≤40 张**（超了提高 scene 阈值到 0.4 / 拉长到每 5 秒再采——控制读图成本）
+3. **多模态检查**：用 Read 读一张证据帧——成功 → 继续；失败（当前 runtime 无多模态）→ **降级**：只做文字层拆解（四步闭环照走），如实输出「包装拆解需要多模态 runtime——本机不具备，已跳过」，**不按转写文本脑补画面**
+
+**Phase V1: 系统级拆解 → `packaging-notes.md`**
+
+- 先通读全部证据帧 + transcript，列出**系统清单**（字幕系统/贴纸板/转场体系/音效提示/B-roll 覆盖/片头片尾——只列视频里真实存在的）
+- 每系统按六元组展开 + 词锚（"transcript 第 N 段：<首几字>…"）+ 动效四语义；描述与解释分开——帧显示什么、你推断什么，混写即违规
+- 无证据的断言标「未证实」，不脑补
+
+**Phase V2: 「值得偷的包装」→ 三重验证门（Phase 3.5 照旧）→ 知识卡片落轨**
+
+卡片"用法"指向用户某轨某段（如"转化轨的前 5 秒：数字板入场落在报价词上"）；**消费方**：oracle-edit-plan 的包装规格节会读 packaging-notes.md。
 
 ### Phase 4: 重建——质疑纠偏（硬约束）
 

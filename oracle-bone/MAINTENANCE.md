@@ -102,6 +102,12 @@ OpenMontage（本地参考项目，**AGPLv3**）的剪辑决策与成片质检�
 稳分位证据门）在**原理**上参考了 market-intelligence-radar（本地参考项目，MIT，
 Trae 插件）的竞争情报五态模型与评分硬门设计——仅学习原理，实现全部原创。
 
+第二十批的包装与动效方法论（视觉系统六元组 / 动效四语义 / 声音四层 / 词锚关系优先于秒数）
+在**原理**上参考了 hypit（本地参考项目，**修改版 Apache 2.0**）的参考视频拆解方法——
+仅学习原理，未复制其任何代码或文本，实现全部原创。
+与 video-production-workflow（同仓库姊妹 skill，MIT）的交接走其既有 handoff-contracts
+（oracle-edit-plan Integration 段登记；对应其 external-references.md 吸收本系统词典格式的先例）。
+
 借鉴边界（clean-room 声明）：
 
 - 只吸收**思想与规则形态**（预算棘轮、任务摘要、同步矩阵、词典纠错、润色纪律），**未复制其任何文本、代码或文档段落**

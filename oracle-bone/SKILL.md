@@ -38,7 +38,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 1. **不保证爆款，也不直接产生流量**——本系统是校准器不是放大器：预测越来越准，不替内容变好；精度上限由校准池样本量决定（confidence 表见 state-management.md）。
 2. **cold-start 前 5 篇预测精度 ±50%**——写预测的目的是**采集校准数据**，不是做发布决策；导入对标（learn-from）可显著改善。
-3. **hooks 是 Claude Code 格式**（预测不可变强制 / 会话自动状态报告）——不支持 hooks 的 runtime 降级为 skill 内自检 + 用户 review 软防线，保护强度依赖流程纪律。
+3. **hooks 是 Claude Code 格式**——不支持的 runtime 降级为 skill 内自检 + review 软防线，保护强度依赖流程纪律。
 4. **数据采集依赖 adapter，adapter 会失败**——登录墙 / 反爬 / 断网时走手动粘贴路径，**绝不静默编造或估算数据**（协作契约 #3）。
 5. **AI 写的 draft 是脚手架不是成品**——不改写直接拍会拉低 ER 并污染校准数据（seed Refusals 有警告分支）。默认起稿 = **oracle-voice 语音起稿**（从用户录音原话长出来）；AI draft 降级为 seed 显式降级路径。
 6. **一个项目一份 state**——`.oracle-state.json` 全局唯一于各项目根；多账号 / 多项目 = 多个项目根各自 init，不支持单 state 混装。
@@ -167,7 +167,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 |---|---|---|
 | "初始化" / "init" / "首次使用" | `/oracle-init` | 无（这是入口） |
 | "找对标" / "学这个账号" / "拆这几个对标视频" / "learn from" | `/oracle-learn-from` | 已 init；cold-start 强烈建议；后续可随时 --append / --replace |
-| "拜师" / "拆这条稿" / "apprentice" | `/oracle-apprentice` | 手艺层拆稿四步闭环内化；与 learn-from 分工：learn-from=数据信号，apprentice=单条写法 |
+| "拜师" / "拆这条稿" / "拆包装" / "apprentice" | `/oracle-apprentice` | 手艺层拆稿（—visual 拆包装动效）；与 learn-from 分工：learn-from=数据信号，apprentice=单条写法 |
 | "找选题" / "我不知道做什么" / "seed" | `/oracle-seed` | 已 init（cold-start 用户专用一次性种子动作） |
 | "录音起稿" / "语音起稿" / "转写这段录音" | `/oracle-voice` | 已 init + 选题已定（聊天卡或作品目录）；`—transcribe-only` 裸转写 |
 | "打分这篇 [path]" / "score this [path]" | `/oracle-score` | rubric_notes.md 存在（不存在时自动从 starter-rubric 兜底） |
@@ -210,7 +210,7 @@ oracle-retro (窗口按轨道 → ## 复盘 段追加 → 观察入 rubric_notes
 
 1. **方案菜单**：改稿/修复默认出 2-4 个方案 + 每案特点/成本/风险 + ⭐推荐 + 等用户选；用户明确说「直接做/你就执行」才代选。
 2. **双角度交叉验证**：改稿后重跑 score 对比（composite + 各维度变化），不涨则回退提示。
-3. **真实数据原则**：禁止硬编占位时间/数字/事实；用 `[等真实数据]` 模糊标记 + 显式提醒；用户贴真值立即替换并回溯清污染。
+3. **真实数据原则**：禁硬编占位数据；缺用 `[等真实数据]` 标记；真值到手立即替换并回溯清污染。
 4. **发现即改**：发现问题直接改，改完报告结果；不输出「我发现问题了」的过程叙述。
 5. **术语即解释**：任何分流/分叉/几问的术语首次提出必须配「这是 X，对应 Y 决策」解释。
 6. **假性确认防线**：用户说「按你的意思执行」→ 先复述将动的具体项再动手；没明说的决策点列出来等拍板。
@@ -260,9 +260,9 @@ oracle-bone/
 ├── README.md                          # 门面
 ├── DESIGN.md                          # 设计文档（完整流程梳理）
 ├── skills/                            # 29 个子 skill
-│   ├── oracle-init/SKILL.md           # 入口：五 Phase onboarding（三档案+脚手架）
+│   ├── oracle-init/SKILL.md           # 入口：五 Phase onboarding
 │   ├── oracle-learn-from/SKILL.md     # 对标导入（数据信号）
-│   ├── oracle-apprentice/SKILL.md     # 拜师拆稿（四步闭环 + 三重验证门）
+│   ├── oracle-apprentice/SKILL.md     # 拜师拆稿（四步闭环 + 视觉拆解）
 │   ├── oracle-migrate/SKILL.md        # schema 迁移
 │   ├── oracle-trends/SKILL.md         # 热点抓取（信源分层）
 │   ├── oracle-recommend/SKILL.md      # 候选池排序推荐（按占比过滤）
@@ -272,15 +272,15 @@ oracle-bone/
 │   ├── oracle-title/SKILL.md          # 标题候选生成 + 淘汰制终审 + 改名级联
 │   ├── oracle-description/SKILL.md    # 多平台简介
 │   ├── oracle-cover/SKILL.md          # 封面 prompt（按平台比例派生）
-│   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解 → cover-patterns.md
+│   ├── oracle-cover-analyze/SKILL.md  # 对标封面拆解（→ cover-patterns）
 │   ├── oracle-no-ai-slop/SKILL.md     # AI 味检测修正（预测前必跑）
 │   ├── oracle-who-for/SKILL.md        # 受众价值采访（流量轨）
 │   ├── oracle-open-source/SKILL.md    # 开源度审查（转化轨）
 │   ├── oracle-simulate-audience/SKILL.md  # 评论区预演
 │   ├── oracle-compliance/SKILL.md     # 平台合规审查
 │   ├── oracle-predict/SKILL.md        # 盲预测 + immutable 日志（核心）
-│   ├── oracle-shoot/SKILL.md          # 登记拍摄（buffer +1）
-│   ├── oracle-edit-plan/SKILL.md      # 剪辑计划 + 成片验收（制作质量进链路记录）
+│   ├── oracle-shoot/SKILL.md          # 登记拍摄（buffer+1）
+│   ├── oracle-edit-plan/SKILL.md      # 剪辑计划+成片验收（含包装规格）
 │   ├── oracle-publish/SKILL.md        # 发布登记（buffer -1，合规 gate）
 │   ├── oracle-pinned-comment/SKILL.md # 置顶评论
 │   ├── oracle-derivative/SKILL.md     # 衍生内容
@@ -296,15 +296,15 @@ oracle-bone/
 │   ├── blind-prediction-protocol.md   # 原则 #1
 │   ├── bump-validation-protocol.md    # 原则 #2
 │   ├── observation-lifecycle.md       # 原则 #3
-│   ├── prediction-anatomy.md          # 合格预测的 7 组件
+│   ├── prediction-anatomy.md          # 合格预测 7 组件
 │   ├── scoring-procedure.md           # 打分规程（score/predict/trends 共用）
 │   ├── candidate-schema.md            # 候选项统一 schema
-│   ├── cadence-protocol.md            # 节奏协议（buffer 警戒 + 拍/发分离）
+│   ├── cadence-protocol.md            # 节奏协议（buffer 警戒/拍发分离）
 │   ├── state-management.md            # state 读写约定
 │   ├── revision-loop-protocol.md      # 改稿闭环
 │   ├── migration-protocol.md          # schema 演进哲学
 │   ├── content-folder-schema.md       # 作品目录 schema
-│   ├── content-funnel-protocol.md     # init 内容漏斗采访协议
+│   ├── content-funnel-protocol.md     # 漏斗采访协议
 │   └── collaboration-contract.md      # 协作契约
 ├── starter-rubrics/                   # 各内容形态先验 rubric
 │   ├── opinion-video.md               # 观点视频（默认）
@@ -332,7 +332,7 @@ oracle-bone/
 │   ├── session-start.json/.sh             # 会话自动状态报告
 │   └── meta-logging.json / log-event.sh   # 被动记录
 ├── tools/                             # 独立 CLI 脚本
-│   ├── context.py                     # 任务状态摘要（只读 ≤6KB；退出码 0/2/3，schema 漂移提示 migrate）
+│   ├── context.py                     # 任务状态摘要（只读 ≤6KB，退出码 0/2/3）
 │   ├── score-curve.py                 # 预测精度收敛曲线（md-to-sqlite / validate-bump 预留）
 │   ├── snapshot_store.py              # 采集快照库（runs + snapshots 时序模型，latest vs prev diff）
 │   ├── data_normalizer.py             # 四平台作品数据统一归一器
@@ -349,6 +349,7 @@ oracle-bone/
 │   ├── content-funnel-theory.md           # 内容漏斗三层模型摘要
 │   ├── conversion-track-playbook.md       # 转化轨手册（13 条第一性原理 + 选题 6 问）
 │   ├── hook-prototypes.md                 # 开场内容原型库（10 原型 + 留存优先级；seed/apprentice/title 消费）
+│   ├── packaging-vocabulary.md            # 包装与动效规格语言（apprentice 拆解 / edit-plan 规格与验收共用）
 │   └── platform-notes.md                  # Windows/Obsidian/文件锁平台坑
 └── examples/
     └── script_patterns.example.md     # script_patterns 全填示例

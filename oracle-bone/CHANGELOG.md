@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 视觉拆解模式 + 包装规格 + VPW 交接（2026-09-12，第二十批，方法论原理参考 hypit）
+
+- **新增共享规格语言 `references/packaging-vocabulary.md`**：视觉系统六元组（内容外观/空间关系/入场/活跃行为/持续/退场，绑定转写段落）/ 动效四语义（入场抓注意/落定建状态/替换保可读/退场让位）+ 描述纪律（动效名字只是起点，要写路径/缩放/透明度/节奏/过冲）/ 声音四层（语音主轴/音乐情绪底/环境跨切延续/音效挂感知事件）/ **词锚规格**（锚"transcript 第 N 段"不锚秒——换文案规格仍有效，执行侧词级时间戳兑现成秒）
+- **oracle-apprentice 新增 `—visual` 模式**：拆博主的视频包装与动效——Phase V0 证据准备（现有转录管线拿段落时间戳 + ffmpeg 抽帧：scene 变化点密采 + 每 3s 粗采，证据 ≤40 张控成本 + **多模态检查**：Read 读帧失败即降级文字层拆解并如实声明，绝不按转写脑补画面）→ Phase V1 系统级拆解落 `packaging-notes.md`（描述与解释分开，无证据标未证实）→ Phase V2 值得偷的包装过三重验证门照旧；oracle-edit-plan 为其消费方
+- **oracle-edit-plan 增强**：plan 模式加「包装规格」节（从 packaging-notes/cover-patterns 搬运规格，本期不做的如实列出不虚设）；accept 模式加包装验收（词锚核对/字幕配置可读/共享布局/装饰性清退）
+- **VPW 交接分支**（oracle-edit-plan Integration）：单机=按姊妹 skill video-production-workflow 的 handoff-contracts 打包（定稿→manuscript.md 带 YAML 头 + edit-plan + packaging-notes 落其 `video scripts/`，broll/motion 意图整理为其明文欢迎的 broll-compose.json/motion_request_list.md；两套目录约定不合并）；双机=制作交接包（edits/handoff-manifest.md 清单）经 git/网盘到剪辑机，VPW 在 B 机自闭环，成片+master.srt 回传走 accept 验收——中间过程 AI 不可见，两边 state 不跨机互写
+- MAINTENANCE §5 署名 hypit（修改版 Apache 2.0，仅原理零复制）+ 登记 VPW 交接点（对应其 external-references 吸收词典格式的先例）；行为用例 27
+
 ### Added — oracle-feishu 飞书多维表格同步（2026-09-12，第十九批）
 
 - **新子 skill oracle-feishu（29 号）**：把链路结构化数据同步到飞书多维表格做可视化与监测——**五张表全部从本地文件确定性推导**：episodes 作品总表（预测 vs 实际/偏差/状态，源 = predictions + state.shoots）/ candidates 候选池（含 source_tier/回流标记，源 = candidates.md + history）/ calibration 校准样本（bucket 命中率，源 = 已复盘 predictions）/ trends 热点台账（信源贡献度）/ snapshots 状态快照（buffer/待复盘/confidence 时间序列）

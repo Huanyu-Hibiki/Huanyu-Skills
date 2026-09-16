@@ -69,6 +69,11 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ## 7. 字幕计划
 - <逐句字幕 / 关键句字幕>；安全区提醒（各平台 UI 遮挡位）
+
+## 8. 包装规格（可选——study/<博主>-apprentice/<标题>/packaging-notes.md 或 cover-patterns.md 存在时）
+- 逐系统搬运规格（视觉系统六元组 + 动效四语义 + 词锚，语言见 references/packaging-vocabulary.md）；
+  词锚直接沿用"transcript 第 N 段"——执行侧（video-production-workflow）的词级时间戳会把它兑现成秒
+- 本期明确**不做**的包装（素材/工具够不着的）如实列出，不虚设规格
 ```
 
 🔴 **CHECKPOINT**：计划是建议——用户确认 / 改某节 / 不用计划直接剪。确认后用户去剪（AI 不可见）。
@@ -97,6 +102,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - 意图不明的镜头（说不出它支撑哪句话）？
 - 文字堆砌（同屏字幕 + 贴纸 + 大段标题）？
 - 口说无凭的"电影感"（镜头语言在暗示稿子没兑现的东西）？
+
+**包装验收**（计划含「包装规格」节时）：逐系统对照——动效是否落在预定的词/句上（词锚核对）？每种字幕配置可读否？共享布局在内容替换后是否仍成立？装饰性动效是否挤占了信息动效？
 
 **输出纪律（契约 #12）**：每条问题指到**具体镜头/时间点**；发现一类问题扫完同类；critical 必带修法（"第 3 刀 12s 处两镜同机位 → 对调 2/3 或中间垫 B-roll"）——提不出修法的标「待查」不阻塞。**最多 2 轮往返**，之后带警告放行，卡点留给数据复盘。
 
@@ -130,3 +137,11 @@ oracle-seed → oracle-voice → oracle-title → description → cover → no-a
 ```
 
 可选步骤——有自己剪辑心法的用户可跳过 plan；accept 在发布前任何时候可跑。retro 可读 acceptance.md 区分"内容偏差 vs 制作偏差"。
+
+## 交接给视频生产（video-production-workflow，可选）
+
+执行侧管线（分镜/剪映草稿/B-roll 生成/装配/成片）在姊妹 skill video-production-workflow（下称 VPW）——本 skill 出**内容侧意图**，执行权威在 VPW 自己的闸门，**不越界**。交接按其 [handoff-contracts](../../../video-production-workflow/shared-references/handoff-contracts.md) 打包：
+
+- **单机**（两个 skill 同一 Agent/机器）：把定稿脚本（→ `video scripts/manuscript.md`，带 YAML 头 source=oracle-bone）+ edit-plan.md + packaging-notes.md 复制到 VPW 项目根 `video scripts/`，用户喊 `/video-init --manuscript` 接管；broll/motion 意图可整理为其明文欢迎的 `broll-compose.json` / `motion_request_list.md`。两套项目目录约定不同，**不合并**
+- **双机**（本机内容+验收，另一台剪辑机装 VPW/剪映）：产出**制作交接包**——`edits/handoff-manifest.md` 清单（文件 + 用途）+ 定稿 + edit-plan.md + packaging-notes.md，用户经 git/网盘传到 B 机；VPW 在 B 机自闭环（它的 state/审批不跨机），成片 + master.srt 回传本机作品目录后走 accept 验收
+- 中间过程对本 skill 不可见（"实际制作 AI 不可见"原则的跨 skill 版）；收片后照常验收，机检数值可参考 VPW 的 qa-report
