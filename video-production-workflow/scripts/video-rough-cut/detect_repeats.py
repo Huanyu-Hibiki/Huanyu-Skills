@@ -169,6 +169,11 @@ def main() -> None:
         k = f"{speech[c['keep'][0]]['text']}…{speech[c['keep'][1]]['text']}"
         c["cut_text"] = "".join(x["text"] for x in speech[c["cut"][0]:c["cut"][1] + 1])
         c["keep_text"] = "".join(x["text"] for x in speech[c["keep"][0]:c["keep"][1] + 1])
+        # 方向保险：剪掉的一定不能比保留的长（等长窗口报告只覆盖保留段前缀，
+        # 实际保留的第二次尝试通常更长）——不满足即降级为待确认
+        if c["auto"] and len(_norm(c["cut_text"])) > len(_norm(c["keep_text"])):
+            c["auto"] = False
+            c["note"] += "；异常：删除段长于保留段，降级待确认"
         (auto_c if c["auto"] else review_c).append(c)
 
     # 时间跨度（词索引 → 源时间轴），剪除段含中间的 gap

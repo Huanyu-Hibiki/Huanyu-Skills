@@ -57,7 +57,11 @@ def convert(whisper_path: Path, output_path: Path):
             'text': w['text'].strip(),
             'start': w['start'],
             'end': w['end'],
-            'isGap': False
+            'isGap': False,
+            # ASR 词级置信度透传（faster-whisper probability / whisper probability）：
+            # select_takes 用它惩罚幻觉词，verify_keeps 用它检测静音幻觉段。
+            # 旧转录无此字段时默认 1.0（不触发任何惩罚）。
+            'confidence': round(float(w.get('confidence', 1.0)), 3)
         })
 
     output_path.write_text(

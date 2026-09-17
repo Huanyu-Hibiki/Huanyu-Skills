@@ -546,6 +546,68 @@ def cmd_add_keyframe(a):
     print(json.dumps({"success": True, "track": a.track, "index": a.index,
                       "property": a.property, "time_s": a.time, "value": a.value}))
 
+def _video_lane(sc, base_name, ts_us, te_us):
+    """视频轨贪心分道：base 轨放不下（重叠）时溢出到 base-2/base-3…，返回实际轨名。
+    注意 vendor 的 Timerange 是微秒——入参必须已是微秒（秒与微秒混比会使重叠检查恒真）。"""
+    name = base_name
+    i = 2
+    while True:
+        if name not in sc.tracks:
+            sc.add_track(dy.Track_type.video, name)
+        tr = sc.tracks[name]
+        if all(te_us <= s.target_timerange.start or ts_us >= s.target_timerange.start + s.target_timerange.duration
+               for s in tr.segments):
+            return name
+        name = f"{base_name}-{i}"
+        i += 1
+
+
+def cmd_load_beats(a):
+    """把 broll-compose.json 的 beats 批量放进草稿的 B-roll 视频轨。
+
+    beats 落点是精剪时间轴（master.srt/fine_cut.mp4 的秒），因此本命令的
+    标准用法是装配草稿：fine_cut.mp4 铺主轨 + master.srt 字幕轨 + 本命令
+    灌 B-roll 轨——时间轴与精剪逐帧一致。剪映打开过的草稿已加密，不可追加。
+    """
+    compose = json.loads(Path(a.compose).read_text(encoding="utf-8-sig"))
+    beats = compose.get("beats", [])
+    if not beats:
+        _fail_json({"success": False, "error": f"{a.compose} 里没有 beats"})
+    sc = _load(a.cache_dir, a.draft_id)
+    added, skipped, warnings, tracks_used = [], [], [], set()
+    for b in beats:
+        f = b.get("file", "")
+        if not f or not os.path.exists(f):
+            skipped.append({"id": b.get("id"), "file": f, "reason": "文件缺失"})
+            continue
+        w, h, dur = _video_info(f)
+        ts = float(b.get("start", 0))
+        te = float(b.get("end", ts + dur))
+        span = te - ts
+        use_dur = min(span, dur)
+        if dur + 0.05 < span:
+            warnings.append({"id": b.get("id"),
+                             "note": f"素材 {dur:.2f}s 短于落点区间 {span:.2f}s，按素材全长放置（尾部留白）"})
+        mat = dy.Video_material(material_type='video', path=os.path.abspath(f),
+                                material_name=_material_name_for(sc, 'videos', f),
+                                duration=dur, width=w, height=h)
+        sc.add_material(mat)
+        seg = dy.Video_segment(mat, _tr(ts, ts + use_dur),
+                               source_timerange=_tr(0, use_dur))
+        track = _video_lane(sc, a.track, int(ts * 1_000_000), int((ts + use_dur) * 1_000_000))
+        tracks_used.add(track)
+        sc.add_segment(seg, track)
+        if a.fade_in:
+            alpha = dy.Keyframe_property.alpha
+            fi = min(int(a.fade_in * 1_000_000), seg.target_timerange.duration // 2)
+            seg.add_keyframe(alpha, 0, 0.0).add_keyframe(alpha, fi, 1.0)
+        added.append({"id": b.get("id"), "track": track,
+                      "start": ts, "end": round(ts + use_dur, 3), "file": os.path.basename(f)})
+    _save(a.cache_dir, a.draft_id, sc)
+    print(json.dumps({"success": True, "added": len(added), "details": added,
+                      "skipped": skipped, "warnings": warnings,
+                      "tracks": sorted(tracks_used)}, ensure_ascii=False))
+
 # ─── commands ─────────────────────────────────────────────────────────
 
 def cmd_create_draft(a):
@@ -772,6 +834,7 @@ def main():
     p = sub.add_parser('add_animation'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--kind', required=True, choices=['intro', 'outro', 'group']); p.add_argument('--type', required=True, help='动画名（list_enums --kind 查表）'); p.set_defaults(fn=cmd_add_animation)
     p = sub.add_parser('add_filter'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--type', required=True, help='滤镜名（list_enums --kind filter 查表）'); p.add_argument('--intensity', type=float, default=100.0); p.set_defaults(fn=cmd_add_filter)
     p = sub.add_parser('add_keyframe'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--track', required=True); p.add_argument('--index', type=int, required=True); p.add_argument('--property', required=True, choices=KF_PROPS); p.add_argument('--time', type=float, required=True, help='片段相对秒'); p.add_argument('--value', type=float, required=True); p.set_defaults(fn=cmd_add_keyframe)
+    p = sub.add_parser('load_beats'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--compose', required=True, help='broll-compose.json（beats 落点=精剪时间轴）'); p.add_argument('--track', default='B-roll', help='B-roll 轨基名，重叠自动分道 B-roll-2…'); p.add_argument('--fade-in', type=float, default=0.0, dest='fade_in', help='每条 B-roll 淡入秒（alpha 关键帧）'); p.set_defaults(fn=cmd_load_beats)
     p = sub.add_parser('add_audio'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--file', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--target-start', type=float); p.add_argument('--volume', type=float, default=1.0); p.add_argument('--speed', type=float, default=1.0); p.add_argument('--track-name'); p.add_argument('--fade-in', type=float, default=0.0, dest='fade_in', help='audio fade-in seconds'); p.add_argument('--fade-out', type=float, default=0.0, dest='fade_out', help='audio fade-out seconds'); p.add_argument('--no-lane-split', action='store_true', dest='no_lane_split', help='disable greedy lane split; overlapping audio raises SegmentOverlap'); p.set_defaults(fn=cmd_add_audio)
     p = sub.add_parser('add_text'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--text', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--font-size', type=float); p.add_argument('--font-color'); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_text)
     p = sub.add_parser('add_subtitle'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--srt', required=True); p.add_argument('--time-offset', type=float); p.add_argument('--font-size', type=float, default=5.0); p.add_argument('--font-color', default='#FFFFFF'); p.add_argument('--track-name'); p.add_argument('--max-chars', type=float, default=18, dest='max_chars', help='max display units per cue (CJK=1, ASCII=0.5)'); p.add_argument('--min-chars', type=float, default=6, dest='min_chars'); p.add_argument('--no-split', action='store_true', dest='no_split', help='import the SRT as-is without splitting'); p.set_defaults(fn=cmd_add_subtitle)

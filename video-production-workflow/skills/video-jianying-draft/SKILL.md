@@ -55,6 +55,19 @@ create_draft
 
 完整流程见 [references/video-jianying-draft/remotion-export.md](../../references/video-jianying-draft/remotion-export.md)（方法论改编自 video-shotcraft，Apache-2.0）。成片交付后默认询问用户一次是否需要剪映工程；剪映打开保存后草稿加密，单向转换，重导出即重装覆盖。
 
+## B-roll 装配草稿（load_beats：B-roll 批量进同一剪映工程）
+
+用户选择"剪映路线"调 B-roll 时，`load_beats` 把 `broll-compose.json` 的落点表**批量灌进草稿的 B-roll 视频轨**（重叠自动分道 `B-roll-2`…，素材短于落点区间给 warning，文件缺失跳过并上报，可选 `--fade-in` 逐条 alpha 淡入）：
+
+```bash
+# 装配草稿标准序列（时间轴基准 = 精剪时间轴，B-roll 落点逐帧对齐）：
+create_draft → add_video（fine_cut.mp4 整条铺 main 主轨）→ add_subtitle（master.srt）
+  → load_beats --draft-id <id> --cache-dir "%CACHE%" --compose broll-compose.json --track B-roll [--fade-in 0.3]
+  → save_draft
+```
+
+**时间轴基准规则（必须遵守）**：`broll-compose.json` 的落点是**精剪时间轴**（master.srt/fine_cut.mp4 的秒）。05 生成的草稿是粗剪时间轴，且剪映打开保存后已加密不可再写——所以 **B-roll 装配草稿是精剪后新建的**（fine_cut 底片整条铺主轨），不是往 05 老草稿里追加。它仍是本 skill 同一管线、同一 cache 体系产出的剪映工程；用户在剪映里微调 B-roll（拖位置/转场/关键帧）后由剪映导出成片。FFmpeg 路线（`/video-polish` compose_broll.py 自动合成 + QA 机检）与本路线按用户需求二选一或并行——FFmpeg 出验收版，剪映出微调工程。
+
 ## 失败模式与恢复
 
 | 触发条件 | 一线修复 | 仍失败兜底 |

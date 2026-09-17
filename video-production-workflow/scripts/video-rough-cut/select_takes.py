@@ -51,6 +51,12 @@ CHUNK_SILENCE = 1.2
 RATE_BAND = (2.5, 7.0)
 # Weights for the total score.
 W_MATCH, W_COMPLETE, W_PAUSE, W_RATE = 0.40, 0.25, 0.20, 0.15
+# Hallucination gate: takes whose words are mostly low-confidence are Whisper
+# silence-hallucinations (transcript has text, audio has none — the speaker
+# actually stopped and re-read). Such takes are REJECTED outright, even when
+# they are the only candidate: a missing sentence goes to human review, a
+# hallucinated one silently ruins the cut.
+HALLUCINATION_HARD = 0.35
 # Pre/post roll absorbed around first/last word when cutting (seconds).
 LEAD_PAD, TAIL_PAD = 0.08, 0.30
 
@@ -131,6 +137,7 @@ class Take:
     __slots__ = (
         "start", "end", "word_first", "word_last", "match", "completeness",
         "pause_ratio", "rate_score", "total", "speech_duration", "pause_time",
+        "lowconf_ratio",
     )
 
     def __init__(self):
@@ -139,6 +146,7 @@ class Take:
         self.match = self.completeness = self.pause_ratio = 0.0
         self.rate_score = self.total = 0.0
         self.speech_duration = self.pause_time = 0.0
+        self.lowconf_ratio = 0.0
 
     def to_json(self) -> dict:
         return {
@@ -150,6 +158,7 @@ class Take:
                 "completeness": round(self.completeness, 3),
                 "pause_ratio": round(self.pause_ratio, 3),
                 "rate_score": round(self.rate_score, 3),
+                "lowconf_ratio": round(getattr(self, "lowconf_ratio", 0.0), 3),
             },
             "speech_duration": round(self.speech_duration, 3),
             "interior_pause_time": round(self.pause_time, 3),
@@ -224,12 +233,23 @@ def score_take(
     else:
         rate_score = max(0.0, 1.0 - (cps - hi) / hi)
 
+    # 幻觉惩罚：转录文本对得上文稿 ≠ 音频里真说了。Whisper 在停顿处常幻觉补尾
+    # （截断句"看起来"完整），幻觉词的词级置信度显著偏低。take 内低置信词占比
+    # 高时压低总分，让真实重读的 take 胜出。词无 confidence 字段（旧转录）时跳过。
+    confs = [w.get("confidence") for w in speech_words[word_first:word_last + 1]]
+    confs = [c for c in confs if isinstance(c, (int, float))]
+    lowconf_ratio = 0.0
+    if confs:
+        lowconf_ratio = sum(1 for c in confs if c < 0.5) / len(confs)
+
     total = (
         W_MATCH * match_ratio
         + W_COMPLETE * completeness
         + W_PAUSE * (1.0 - min(1.0, pause_ratio * 4.0))
         + W_RATE * rate_score
     )
+    if lowconf_ratio > 0.3:
+        total *= 1.0 - 0.5 * lowconf_ratio   # >30% 低置信词：最多打对折
 
     take = Take()
     take.word_first, take.word_last = word_first, word_last
@@ -237,6 +257,7 @@ def score_take(
     take.match, take.completeness = match_ratio, completeness
     take.pause_ratio, take.rate_score, take.total = pause_ratio, rate_score, total
     take.speech_duration, take.pause_time = duration, pause_time
+    take.lowconf_ratio = lowconf_ratio
     return take
 
 
@@ -272,13 +293,20 @@ def find_all_takes(
 ) -> List[Take]:
     regions = find_candidate_regions(sentence_chars, chunks)
     takes: List[Take] = []
+    rejected_hallucinations = 0
     for region in regions:
         t = score_take(
             sentence_chars, whisper_chars, char_map,
             region, speech_words, pause_threshold,
         )
         if t is not None and t.match >= min_match and t.completeness >= 0.5:
+            if t.lowconf_ratio > HALLUCINATION_HARD:
+                rejected_hallucinations += 1
+                continue
             takes.append(t)
+    if rejected_hallucinations:
+        print(f"  ⚠ {rejected_hallucinations} 个候选 take 因低置信词占比 >{HALLUCINATION_HARD:.0%} "
+              f"被判定为 Whisper 幻觉拒绝——该句将进入未匹配清单交人工裁决")
 
     # Dedup overlapping detections of the same physical take (>50% overlap).
     takes.sort(key=lambda t: (t.start, t.end))
@@ -405,7 +433,9 @@ def main() -> None:
     if not speech_words:
         sys.exit("transcript has no speech words")
 
-    whisper_chars, char_map = flatten_whisper(words)
+    # flatten 必须吃过滤后的数组：其 w_idx 是枚举下标，与 build_utterance_chunks
+    # 的 speech_words 下标空间保持一致（含 gap 的原始下标会越界错位）
+    whisper_chars, char_map = flatten_whisper(speech_words)
     chunks = build_utterance_chunks(speech_words, char_map)
 
     # Normalized char string per sentence (same normalization as align_to_manuscript).

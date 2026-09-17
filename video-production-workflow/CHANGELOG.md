@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.8.7 - 2026-09-16
+
+- **剪映路线 B-roll 批量装配（用户需求：两条装配路线并行，B-roll 必须进 video-jianying-draft 生成的同一剪映工程）**：`jianying.py` 新增 `load_beats` 子命令——读 `broll-compose.json` 落点表批量灌进草稿 B-roll 视频轨：重叠自动分道（`B-roll-2`…，修复 _video_lane 秒/微秒混比导致重叠检查恒真的 bug）、素材短于落点区间给 warning 按全长放置、文件缺失跳过并上报、可选 `--fade-in` 逐条 alpha 淡入；落点 = 精剪时间轴逐帧对齐。
+- **时间轴基准规则**（SKILL「B-roll 装配草稿」节）：broll-compose 落点是精剪时间轴，而 05 老草稿是粗剪时间轴且剪映打开后加密不可再写——B-roll 装配草稿 = 精剪后新建（fine_cut 底片铺主轨 + master.srt 字幕轨 + load_beats 灌 B-roll 轨），仍是同一管线同一 cache 产出的剪映工程；FFmpeg 路线（video-polish 自动合成 + QA 机检）与剪映路线按用户需求二选一或并行——FFmpeg 出验收版，剪映出微调工程（此路线下 QA 以剪映导出成片后补跑 final_probe + 人工核对）。
+- E2E 验证：fine_cut 底片 + master.srt + 三条 beats（正常/重叠/缺失）→ 同一草稿四轨结构（main/B-roll/B-roll-2/subtitle）落盘正确，B1 起点精确 2.3s。
+
+## v0.8.6 - 2026-09-16
+
+- **修复严重 bug：口播重读场景剪出截断句（用户报告："……做出来的学习引擎"被剪成"……成本做"；重复片段保留、完整句被剪）。参考 video-use（MIT）"决策必须 self-eval、不确定不剪"的纪律，修复分四层（全部确定性实现，无 LLM）**：
+- **根因确认（复现）**：Whisper 在停顿处**幻觉补尾**——口播说到"做"卡住，ASR 在静音里幻觉补出"出来的学习引擎"文字，让截断 take 在文本对齐上"看起来完整"（match/completeness 双满分），评分无法区分，真实重读的完整 take 反被淘汰。幻觉词的词级置信度显著偏低，是唯一的确定性破绽。
+- **修复 1｜置信度透传**：`whisper_to_subtitles_words.py` 此前丢弃 faster-whisper 的词级 `probability`——现在透传为 `confidence`（旧转录无此字段默认 1.0，不触发惩罚）。
+- **修复 2｜幻觉软惩罚 + 硬闸**（`select_takes.py`）：take 内低置信词占比 >30% 总分打对折（有竞争时让真实重读胜出）；**>35% 直接拒绝该 take**（唯一候选也不放行——缺句子交人工裁决，幻觉句子静音毁掉成片）。同时修复 `flatten_whisper` 的**下标空间错位**（含 gap 词条的原始下标 vs 过滤后数组越界——converter 输出喂 select_takes 必崩的存量 bug）。
+- **修复 3｜keeps 回读校验保险丝**（新 `scripts/video-rough-cut/verify_keeps.py`，EDL 前必跑）：把 keeps 覆盖的转录文本拼回与文稿逐句核对——**句子截断**（句尾在成片缺失，即用户症状）/ **重复未剪**（同句多次出现）/ **疑似幻觉词**（低置信占比）三查；fail 不得生成 EDL，findings 逐条交用户裁决。上游任何环节出错最终都体现在 keeps 文本上，此闸兜底一切。
+- **修复 4｜detect_repeats 方向保险**：删除段长于保留段的候选自动降级待确认（防剪反）。
+- 回归验证：幻觉场景 → 选出完整第二次（幻觉段淘汰）；干净重读场景 → 不受影响；用户症状 keeps（截断到"做"）→ 保险丝报「句子截断」fail；`test_select_takes.py` 与 detect_repeats 五场景不回归。
+- 级联：rough-cut SKILL 流程（14 步，verify 为第 10 步前置保险丝）/硬规则/失败模式表/输出树。
+
 ## v0.8.5 - 2026-09-16
 
 - **剪映 CLI 补全转场/关键帧/滤镜（借鉴 jianying-editor-skill MIT 实现方案，原生实现，登记见 external-references）**：`jianying.py` 新增 6 个子命令 + `add_video` 视频淡入淡出：

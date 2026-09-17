@@ -19,7 +19,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 ## 流程
 
 1. 读取 manifest，确认所有已批准的 B-roll 都存在；
-2. **装配清单来源（二选一，都不许跳过确认闸）**：a) `/b-roll-finder` 的素材落位匹配产出 `Polished/broll-compose.draft.json`——展示 `match_report.md` 匹配表，用户逐条确认后转正为 `broll-compose.json`（semantic_pool 条目此刻完成语义配对）；b) 用户/Agent 手写的 `broll-compose.json`——按既有流程展示核对；
+2. **装配清单来源（三选一，都不许跳过确认闸）**：a) `/b-roll-finder` 的素材落位匹配产出 `Polished/broll-compose.draft.json`——展示 `match_report.md` 匹配表，用户逐条确认后转正为 `broll-compose.json`（semantic_pool 条目此刻完成语义配对）；b) 用户/Agent 手写的 `broll-compose.json`——按既有流程展示核对；c) **用户选择剪映路线**：转正后的 `broll-compose.json` 交给 `/video-jianying-draft load_beats` 灌进装配草稿（fine_cut 底片 + B-roll 轨，见其 SKILL「B-roll 装配草稿」节），由剪映微调后导出——此路线下本 skill 的 FFmpeg 合成跳过，QA 以剪映导出成片后补跑（`final_probe.py` + 人工核对）；
 3. **交付承诺核对（装配前必跑）**：运行 `check_delivery_promise.py`——已批准条目文件缺失 = fail 禁止装配（回 `/b-roll-generate` 重做）；静帧兜底导致运动比低于 `delivery_promise` 承诺 = degraded，**必须用户显式批准降级并记入 `decision_log.json`（category=promise_change），不许静默出片**；
 4. 按 `master.srt` 和词级锚点定位 B-roll，默认落在关键词后 `0.2-0.5s`；
 5. 对全屏 B-roll 使用 cover-crop；透明素材保留 alpha；静态图使用项目确认的静止或微动策略；
