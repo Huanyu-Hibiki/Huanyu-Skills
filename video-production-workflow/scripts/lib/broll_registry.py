@@ -155,7 +155,7 @@ def validate_shot_brief(brief: Dict[str, Any], engine: Optional[str] = None) -> 
         encoded_brief = json.dumps(brief, ensure_ascii=False)
     except (TypeError, ValueError, RecursionError) as error:
         raise ValueError("shot brief must be serializable and not deeply nested") from error
-    if len(encoded_brief) > 32_768 or _has_excessive_nesting(brief):
+    if len(encoded_brief.encode("utf-8")) > 32_768 or _has_excessive_nesting(brief):
         raise ValueError("shot brief must be a JSON object no larger than 32KiB")
     template = get_template(str(brief.get("template_id", "")))
     if not template:

@@ -160,6 +160,23 @@ class TestHyperFramesPackaging(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_shot_brief(dict(brief, props=deeply_nested))
 
+    def test_rejects_symlinked_hyperframes_shot_folder(self):
+        """A shot folder symlink must not redirect HyperFrames artifacts."""
+        brief = self._hyperframes_brief("safe-shot")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            output = root / "output"
+            output.mkdir()
+            outside = root / "outside"
+            outside.mkdir()
+            redirected = output / "safe-shot"
+            try:
+                redirected.symlink_to(outside, target_is_directory=True)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"symlinks unavailable: {error}")
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                render_hyperframes_shot(brief, output)
+
     def test_shared_brief_routes_to_seek_safe_hyperframes_packaging_track(self):
         """The public CLI produces a safe, deterministic HTML artifact and packaging item."""
         cli = Path(__file__).resolve().parent / "auto_edit.py"

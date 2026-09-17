@@ -190,20 +190,43 @@ def _draw_stat_counter_frame(frame_idx: int, total_frames: int, width: int, heig
     return im
 
 
-def render_remotion_shot(shot_brief: Dict[str, Any], out_dir: Path | str) -> Dict[str, Any]:
-    """Execute Remotion scene evaluation, generate frames, and encode via FFmpeg."""
-    out_dir = Path(out_dir).resolve()
-    raw_shot_id = shot_brief.get("id", f"broll-{int(time.time())}")
-    clean_shot_id = Path(raw_shot_id).name
+def _safe_shot_folder(out_dir: Path | str, raw_shot_id: Any) -> Tuple[Path, str]:
+    """Resolve an output folder without following user-controlled symlinks."""
+    requested_root = Path(out_dir)
+    current = requested_root
+    while True:
+        if current.is_symlink():
+            raise ValueError("symlinked Remotion output path")
+        if current.parent == current:
+            break
+        current = current.parent
 
-    # SEC-01 Path traversal protection
-    if not clean_shot_id or not re.match(r"^[a-zA-Z0-9_-]+$", clean_shot_id) or ".." in str(raw_shot_id):
+    root = requested_root.resolve()
+    if root.exists() and not root.is_dir():
+        raise ValueError("Remotion output path is not a directory")
+
+    clean_shot_id = Path(str(raw_shot_id)).name
+    if not clean_shot_id or not re.fullmatch(r"[a-zA-Z0-9_-]+", clean_shot_id) or ".." in str(raw_shot_id):
         raise ValueError(f"invalid or unsafe shot_id: {raw_shot_id}")
 
-    shot_folder = (out_dir / clean_shot_id).resolve()
-    if not str(shot_folder).startswith(str(out_dir)):
-        raise ValueError("path traversal detected in shot_id")
+    candidate = root / clean_shot_id
+    if candidate.is_symlink():
+        raise ValueError("symlinked Remotion artifact folder")
+    try:
+        shot_folder = candidate.resolve()
+        shot_folder.relative_to(root)
+    except (OSError, ValueError) as error:
+        raise ValueError("path traversal detected in shot_id") from error
+    return shot_folder, clean_shot_id
+
+
+def render_remotion_shot(shot_brief: Dict[str, Any], out_dir: Path | str) -> Dict[str, Any]:
+    """Execute Remotion scene evaluation, generate frames, and encode via FFmpeg."""
+    raw_shot_id = shot_brief.get("id", f"broll-{int(time.time())}")
+    shot_folder, clean_shot_id = _safe_shot_folder(out_dir, raw_shot_id)
     shot_folder.mkdir(parents=True, exist_ok=True)
+    if shot_folder.is_symlink():
+        raise ValueError("symlinked Remotion artifact folder")
 
     # SEC-02 Bounds checking for DoS prevention
     dur = float(shot_brief.get("duration", 3.0))
