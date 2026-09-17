@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
+import json
+import re
 
 REMOTION_TEMPLATES: List[Dict[str, Any]] = [
     {
@@ -86,6 +88,20 @@ REMOTION_TEMPLATES: List[Dict[str, Any]] = [
     }
 ]
 
+
+def _has_excessive_nesting(value: Any, maximum_depth: int = 64) -> bool:
+    """Bound JSON traversal work independently of its serialized byte size."""
+    pending = [(value, 1)]
+    while pending:
+        current, depth = pending.pop()
+        if depth > maximum_depth:
+            return True
+        if isinstance(current, dict):
+            pending.extend((child, depth + 1) for child in current.values())
+        elif isinstance(current, list):
+            pending.extend((child, depth + 1) for child in current)
+    return False
+
 # HyperFrames consumes the same shot-brief fields as Remotion.  The engine
 # difference is deliberately registry metadata, not a second manifest format.
 HYPERFRAMES_TEMPLATES: List[Dict[str, Any]] = [
@@ -129,6 +145,39 @@ def get_template(template_id: str) -> Optional[Dict[str, Any]]:
         if t["id"] == template_id:
             return t
     return None
+
+
+def validate_shot_brief(brief: Dict[str, Any], engine: Optional[str] = None) -> Dict[str, Any]:
+    """Validate the public shot-brief contract against its registry entry."""
+    if not isinstance(brief, dict):
+        raise ValueError("shot brief must be a JSON object no larger than 32KiB")
+    try:
+        encoded_brief = json.dumps(brief, ensure_ascii=False)
+    except (TypeError, ValueError, RecursionError) as error:
+        raise ValueError("shot brief must be serializable and not deeply nested") from error
+    if len(encoded_brief) > 32_768 or _has_excessive_nesting(brief):
+        raise ValueError("shot brief must be a JSON object no larger than 32KiB")
+    template = get_template(str(brief.get("template_id", "")))
+    if not template:
+        raise ValueError("unsupported template_id")
+    actual_engine = brief.get("engine")
+    if actual_engine != template["engine"] or (engine and actual_engine != engine):
+        raise ValueError("unsupported engine/template combination")
+    if brief.get("style_pack") not in template["style_packs"]:
+        raise ValueError("unsupported style_pack for template")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", str(brief.get("id", ""))):
+        raise ValueError("unsafe shot id")
+    try:
+        duration = float(brief.get("duration"))
+    except (TypeError, ValueError):
+        raise ValueError("invalid duration") from None
+    low, high = template["duration_range"]
+    if not low <= duration <= high:
+        raise ValueError("duration outside template range")
+    props = brief.get("props", {})
+    if not isinstance(props, dict) or len(props) > 16:
+        raise ValueError("invalid props")
+    return template
 
 
 def find_matching_template(visual_role: str, style_pack: Optional[str] = None,

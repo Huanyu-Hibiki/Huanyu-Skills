@@ -820,6 +820,18 @@ def cmd_save_draft(a):
         "missing_media": missing,
         "message": f"草稿已保存。打开剪映专业版即可看到 {a.draft_id}"}))
 
+def cmd_apply_edit_plan(a):
+    output_dir = a.output_dir or _default_draft_root()
+    if not output_dir:
+        print("ERROR: 未指定 --output-dir 且未能探测到剪映草稿根", file=sys.stderr)
+        sys.exit(1)
+    draft_id = getattr(a, 'draft_id', None)
+    if draft_id:
+        _validate_draft_name(draft_id, output_dir)
+    from lib.edit_draft import apply_edit_plan
+    draft_path = apply_edit_plan(a.plan, output_dir, dy, draft_id=draft_id)
+    print(json.dumps({"success": True, "draft": draft_path}))
+
 # ─── CLI ──────────────────────────────────────────────────────────────
 
 def main():
@@ -842,6 +854,7 @@ def main():
     p = sub.add_parser('add_effect'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--effect', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_effect)
     p = sub.add_parser('add_sticker'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--sticker-id', required=True); p.add_argument('--start', type=float); p.add_argument('--end', type=float); p.add_argument('--width', type=int, default=1080); p.add_argument('--height', type=int, default=1920); p.add_argument('--track-name'); p.set_defaults(fn=cmd_add_sticker)
     p = sub.add_parser('save_draft'); p.add_argument('--draft-id', required=True); p.add_argument('--cache-dir', required=True); p.add_argument('--output', help='剪映真实草稿根；缺省时自动探测已验证的默认候选，探测不到必须显式传入'); p.add_argument('--donor-draft', dest='donor_draft', help='Mac: 从指定明文草稿抄 platform 设备指纹'); p.add_argument('--allow-missing-fingerprint', action='store_true', dest='allow_missing_fingerprint', help='Mac: 无指纹实验性安装（未经实测，结果自负）'); p.set_defaults(fn=cmd_save_draft)
+    p = sub.add_parser('apply_edit_plan'); p.add_argument('--plan', required=True, help='edit-plan.v1.json 路径'); p.add_argument('--output-dir', '--output', dest='output_dir', help='草稿输出目录（缺省自动探测草稿根）'); p.add_argument('--draft-id', dest='draft_id', help='草稿标识或名称（缺省自动基于哈希命名）'); p.set_defaults(fn=cmd_apply_edit_plan)
 
     a = pa.parse_args(); a.fn(a)
 

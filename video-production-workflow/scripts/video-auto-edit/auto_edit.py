@@ -2,10 +2,12 @@
 """Explicit edit-plan workflow; no automatic speech decisions."""
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.edit_plan import load_plan, frame, probe
@@ -14,6 +16,35 @@ from lib.boundary_protect import analyze_cut_boundary, generate_boundary_report
 from lib.pause_tighten import tighten_pauses, generate_pauses_report
 from lib.take_selection import convert_takes_to_plan, evaluate_circuit_breaker, restore_take_in_plan
 from lib.screen_demo import match_screen_anchors, generate_broll_manifest
+from lib.broll_registry import validate_shot_brief
+
+
+def load_broll_manifest(path):
+    """Read the canonical manifest without silently replacing corrupt data."""
+    if not path.exists():
+        return {'version': '1', 'items': [], 'summary': {}}
+    try:
+        value = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot safely read B-roll manifest: {error}") from error
+    if not isinstance(value, dict) or not isinstance(value.get('items'), list):
+        raise ValueError('cannot safely read B-roll manifest: invalid schema')
+    return value
+
+
+def write_broll_manifest(path, manifest):
+    """Atomically publish a complete manifest after every item state change."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent,
+                                         prefix=f'.{path.name}.', suffix='.tmp', delete=False) as handle:
+            handle.write(json.dumps(manifest, indent=2, ensure_ascii=False))
+            tmp = Path(handle.name)
+        os.replace(tmp, path)
+    finally:
+        if tmp and tmp.exists():
+            tmp.unlink()
 
 
 def run_boundary_check(plan):
@@ -47,7 +78,7 @@ def run_boundary_check(plan):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['plan', 'validate', 'subtitles', 'preview', 'verify-draft', 'boundary-check', 'tighten', 'select-takes', 'restore', 'insert-screen-demo', 'insert-broll-packaging'])
+    parser.add_argument('command', choices=['plan', 'validate', 'subtitles', 'preview', 'verify-draft', 'boundary-check', 'tighten', 'select-takes', 'restore', 'insert-screen-demo', 'insert-broll-packaging', 'retry-broll-item'])
     parser.add_argument('project', type=Path)
     parser.add_argument('--input', type=Path)
     parser.add_argument('--plan', type=Path)
@@ -61,6 +92,7 @@ def main():
     parser.add_argument('--engine', choices=['remotion', 'hyperframes'], default='remotion', help='local packaging renderer')
     parser.add_argument('--brief', type=Path, help='pre-authored shot brief JSON')
     parser.add_argument('--item', type=str, help='item ID to restore')
+    parser.add_argument('--retry-item', type=str, help='failed B-roll item ID to retry')
     parser.add_argument('--undo-group', type=str, help='undoGroup to restore')
     parser.add_argument('--apply', action='store_true', help='apply safe boundaries, tightened pauses, or selected/restored takes into edit-plan.v1.json')
     parser.add_argument('--strict', action='store_true', help='fail validate if any boundary requires review or circuit breaker triggered')
@@ -312,8 +344,11 @@ def main():
                 'planHash': plan['planHash'],
             }))
             return 0
-        elif args.command == 'insert-broll-packaging':
+        elif args.command in ('insert-broll-packaging', 'retry-broll-item'):
             from lib.broll_narrative import generate_shot_brief
+
+            manifest_path = args.project / 'Polished/broll-manifest.v1.json'
+            manifest = load_broll_manifest(manifest_path)
 
             # Locate target sentence in plan['timeline']
             target_sent = None
@@ -334,7 +369,15 @@ def main():
                     raise ValueError("no keep sentence available in timeline")
 
             # Generate or load shot brief
-            if args.brief and args.brief.is_file():
+            if args.command == 'retry-broll-item':
+                if not args.retry_item:
+                    raise ValueError('--retry-item is required')
+                prior = next((entry for entry in manifest['items'] if entry.get('id') == args.retry_item), None)
+                if not prior or prior.get('status') != 'failed' or not isinstance(prior.get('shot_brief'), dict):
+                    raise ValueError('retry item must be a failed manifest item with a shot brief')
+                brief = dict(prior['shot_brief'])
+                args.engine = brief.get('engine')
+            elif args.brief and args.brief.is_file():
                 brief = json.loads(args.brief.read_text(encoding='utf-8'))
             else:
                 brief = generate_shot_brief(
@@ -353,6 +396,7 @@ def main():
 
             if brief.get('engine') != args.engine:
                 raise ValueError('brief engine does not match --engine')
+            validate_shot_brief(brief, engine=args.engine)
             engine_out = args.project / 'Polished' / args.engine
             try:
                 if args.engine == 'hyperframes':
@@ -370,6 +414,14 @@ def main():
                 if args.apply:
                     out_plan = args.project / 'Rough/edit-plan.v1.json'
                     out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                old = next((entry for entry in manifest['items'] if entry.get('id') == brief['id']), {})
+                manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [{
+                    'id': brief['id'], 'route': 'packaging', 'engine': args.engine,
+                    'template_id': brief.get('template_id'), 'style_pack': brief.get('style_pack'),
+                    'shot_brief': brief, 'status': 'failed', 'attempt': int(old.get('attempt', 0)) + 1,
+                    'error': str(error), 'action': 'retry_this_item_only',
+                }]
+                write_broll_manifest(manifest_path, manifest)
                 print(json.dumps({'status': 'render_failed', 'engine': args.engine, 'reason': str(error)}))
                 return 0
             rq_fail_id = f"{brief['id']}-qa-failed"
@@ -442,13 +494,6 @@ def main():
             plan['timeline'] = updated_timeline
 
             # Update or create broll-manifest
-            manifest_path = args.project / 'Polished/broll-manifest.v1.json'
-            manifest = {'version': '1', 'items': [], 'summary': {}}
-            if manifest_path.is_file():
-                try:
-                    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-                except Exception:
-                    pass
             manifest_items = [it for it in manifest.get('items', []) if it.get('id') != brief['id']]
             prior_item = next((it for it in manifest.get('items', []) if it.get('id') == brief['id']), None)
             engine_change = None
@@ -471,6 +516,9 @@ def main():
                 'source_path': render_res.get('source_path'),
                 'engine_change': engine_change,
                 'receipt_path': render_res.get('receipt_path'),
+                'shot_brief': brief,
+                'attempt': int((prior_item or {}).get('attempt', 0)) + 1,
+                'error': None,
             })
             manifest['items'] = manifest_items
             manifest['summary'] = {
@@ -479,8 +527,7 @@ def main():
                 'screen_demo_count': sum(1 for x in manifest_items if x.get('route') == 'screen_demo'),
                 'approved_count': sum(1 for x in manifest_items if x.get('status') == 'approved'),
             }
-            manifest_path.parent.mkdir(parents=True, exist_ok=True)
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
+            write_broll_manifest(manifest_path, manifest)
 
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
