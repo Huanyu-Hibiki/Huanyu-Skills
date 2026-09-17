@@ -38,8 +38,13 @@ def _check_hyperframes_dependency() -> None:
 
 def _safe_folder(out_dir: Path | str, shot_id: Any) -> Tuple[Path, str]:
     requested_root = Path(out_dir)
-    if requested_root.is_symlink():
-        raise ValueError("symlinked HyperFrames output path")
+    current = requested_root
+    while True:
+        if current.is_symlink():
+            raise ValueError("symlinked HyperFrames output path")
+        if current.parent == current:
+            break
+        current = current.parent
     root = requested_root.resolve()
     clean = Path(str(shot_id)).name
     if root.is_symlink() or not clean or not re.fullmatch(r"[A-Za-z0-9_-]+", clean) or ".." in str(shot_id):
@@ -51,6 +56,15 @@ def _safe_folder(out_dir: Path | str, shot_id: Any) -> Tuple[Path, str]:
     if folder.parent != root:
         raise ValueError("path traversal or symlinked artifact folder")
     return folder, clean
+
+
+def _safe_target(path: Path, folder: Path) -> Path:
+    """Reject pre-existing links and targets escaping the shot directory."""
+    if path.exists() and path.is_symlink():
+        raise ValueError("symlinked HyperFrames artifact")
+    if path.parent.resolve() != folder.resolve():
+        raise ValueError("HyperFrames artifact escaped shot folder")
+    return path
 
 
 def _validate_brief(brief: Dict[str, Any]) -> Tuple[float, int, int, int, Dict[str, Any]]:
@@ -99,7 +113,7 @@ def _samples(video: Path, folder: Path, duration: float) -> tuple[list[Dict[str,
     repeated_hashes: Dict[int, list[str]] = {}
     for seek_index, frame_index in enumerate(seek_order):
         at = times[frame_index]
-        png = folder / (f"output-sample-{frame_index}.png" if frame_index not in output else f"output-repeat-{seek_index}.png")
+        png = _safe_target(folder / (f"output-sample-{frame_index}.png" if frame_index not in output else f"output-repeat-{seek_index}.png"), folder)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{at:.6f}", "-i", str(video), "-frames:v", "1", str(png)], check=True, timeout=30)
         digest = _hash(png)
         if frame_index not in output:
@@ -119,17 +133,17 @@ def render_hyperframes_shot(brief: Dict[str, Any], out_dir: Path | str) -> Dict[
     folder.mkdir(parents=True, exist_ok=True)
     if folder.is_symlink():
         raise ValueError("symlinked artifact folder")
-    composition = folder / "composition.html"
+    composition = _safe_target(folder / "composition.html", folder)
     markup = _html(brief, duration, width, height)
     composition.write_text(markup, encoding="utf-8")
     # HyperFrames locates a project through index.html before applying
     # --composition, so retain an identical conventional entry point.
-    (folder / "index.html").write_text(markup, encoding="utf-8")
-    (folder / "shot_brief.json").write_text(json.dumps(brief, indent=2, ensure_ascii=False), encoding="utf-8")
-    (folder / "hyperframes.json").write_text('{"version":"0.6.98"}', encoding="utf-8")
-    video = folder / f"{shot_id}.mp4"
+    _safe_target(folder / "index.html", folder).write_text(markup, encoding="utf-8")
+    _safe_target(folder / "shot_brief.json", folder).write_text(json.dumps(brief, indent=2, ensure_ascii=False), encoding="utf-8")
+    _safe_target(folder / "hyperframes.json", folder).write_text(json.dumps({"version": HYPERFRAMES_VERSION}), encoding="utf-8")
+    video = _safe_target(folder / f"{shot_id}.mp4", folder)
     npx = _npx_command()
-    command = [npx, "hyperframes", "render", str(folder), "--composition", "composition.html", "--output", str(video), "--fps", str(fps), "--workers", "1"]
+    command = [npx, "--no-install", "hyperframes", "render", str(folder), "--composition", "composition.html", "--output", str(video), "--fps", str(fps), "--workers", "1"]
     # HyperFrames emits terminal progress bytes that are not decodable by the
     # Windows locale when this CLI is itself captured by an integration test.
     # Preserve stderr for a useful failure while keeping the parent protocol JSON.
@@ -140,12 +154,12 @@ def render_hyperframes_shot(brief: Dict[str, Any], out_dir: Path | str) -> Dict[
         raise ValueError(f"HyperFrames render failed: {detail[-2000:]}")
     if not video.is_file() or video.is_symlink():
         raise ValueError("HyperFrames did not produce a regular video")
-    report_path = folder / "seek-safe-report.json"
+    report_path = _safe_target(folder / "seek-safe-report.json", folder)
     samples, seek_order, seek_consistent = _samples(video, folder, duration)
     report = {"passed": True, "renderer": f"hyperframes-v{HYPERFRAMES_VERSION}", "frames": samples,
               "seek_order": seek_order, "seek_consistent": seek_consistent}
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    receipt_path = folder / "receipt.json"
+    receipt_path = _safe_target(folder / "receipt.json", folder)
     receipt_path.write_text(json.dumps({
         "engine": "hyperframes", "engine_version": HYPERFRAMES_VERSION, "shot_id": shot_id,
         "video_path": str(video.resolve()), "video_sha256": _hash(video),

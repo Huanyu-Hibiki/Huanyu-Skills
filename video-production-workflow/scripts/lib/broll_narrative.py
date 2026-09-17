@@ -37,7 +37,7 @@ def generate_shot_brief(sentence: Dict[str, Any], style_pack: str = "vox_explain
         tmpl = find_matching_template(visual_role="process_breakdown", style_pack=style_pack, engine=engine)
 
     if not tmpl:
-        raise RuntimeError(f"No suitable {engine} template found in registry")
+        raise ValueError(f"No suitable {engine} template found in registry; route to review")
 
     # Clamping duration to template range
     d_min, d_max = tmpl.get("duration_range", [2.5, 8.0])

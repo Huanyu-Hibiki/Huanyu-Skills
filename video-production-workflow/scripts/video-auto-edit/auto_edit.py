@@ -47,6 +47,16 @@ def write_broll_manifest(path, manifest):
             tmp.unlink()
 
 
+def summarize_broll_manifest(items):
+    """Recompute manifest counters after any targeted state transition."""
+    return {
+        'total_items': len(items),
+        'packaging_count': sum(1 for item in items if item.get('route') == 'packaging'),
+        'screen_demo_count': sum(1 for item in items if item.get('route') == 'screen_demo'),
+        'approved_count': sum(1 for item in items if item.get('status') == 'approved'),
+    }
+
+
 def run_boundary_check(plan):
     decisions = []
     keeps = [item for item in plan['timeline'] if item['op'] == 'keep']
@@ -441,6 +451,7 @@ def main():
                     'shot_brief': brief, 'status': 'failed', 'attempt': int(old.get('attempt', 0)) + 1,
                     'error': str(error), 'action': 'retry_this_item_only',
                 }]
+                manifest['summary'] = summarize_broll_manifest(manifest['items'])
                 write_broll_manifest(manifest_path, manifest)
                 print(json.dumps({'status': 'render_failed', 'engine': args.engine, 'reason': str(error)}))
                 return 0
@@ -461,6 +472,17 @@ def main():
                     out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
                     plan = load_plan(out_plan)
                     out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                old = next((entry for entry in manifest['items'] if entry.get('id') == brief['id']), {})
+                failed_item = {
+                    'id': brief['id'], 'route': 'packaging', 'engine': args.engine,
+                    'template_id': brief.get('template_id'), 'style_pack': brief.get('style_pack'),
+                    'shot_brief': brief, 'status': 'failed',
+                    'attempt': int(old.get('attempt', 0)) + 1,
+                    'error': qa_res.get('reason', 'qa_rejected'), 'action': 'retry_this_item_only',
+                }
+                manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [failed_item]
+                manifest['summary'] = summarize_broll_manifest(manifest['items'])
+                write_broll_manifest(manifest_path, manifest)
                 print(json.dumps({'status': 'qa_rejected', 'reason': qa_res.get('reason')}))
                 return 0
 
@@ -522,7 +544,17 @@ def main():
                     'from_engine': prior_item.get('engine'), 'to_engine': args.engine,
                     'from_template': prior_item.get('template_id'), 'to_template': brief['template_id'],
                     'reason': 'explicit packaging engine replacement; visual output requires review',
+                    'capability_delta': {
+                        'transparency': [prior_item.get('transparency'), brief.get('transparency')],
+                        'overlay_mode': [prior_item.get('overlay_mode'), brief.get('overlay_mode')],
+                        'renderer': [prior_item.get('engine'), args.engine],
+                    },
                 }
+                plan['reviewQueue'] = [rq for rq in plan.get('reviewQueue', []) if rq.get('id') != f"{brief['id']}-engine-change"]
+                plan['reviewQueue'].append({
+                    'id': f"{brief['id']}-engine-change", 'type': 'broll_engine_change',
+                    'engine_change': engine_change, 'action': 'hold_and_review',
+                })
             manifest_items.append({
                 'id': brief['id'],
                 'route': 'packaging',
@@ -543,22 +575,19 @@ def main():
                 'acceptance_frames': brief.get('acceptance_frames'),
                 'target_start': broll_timeline_item['targetStart'],
                 'duration': s_dur,
-                'status': 'approved',
+                'status': 'needs_review' if engine_change else 'approved',
                 'video_path': str(broll_video),
                 'source_path': render_res.get('source_path'),
                 'engine_change': engine_change,
+                'transparency': brief.get('transparency'),
+                'overlay_mode': brief.get('overlay_mode'),
                 'receipt_path': render_res.get('receipt_path'),
                 'shot_brief': brief,
                 'attempt': int((prior_item or {}).get('attempt', 0)) + 1,
                 'error': None,
             })
             manifest['items'] = manifest_items
-            manifest['summary'] = {
-                'total_items': len(manifest_items),
-                'packaging_count': sum(1 for x in manifest_items if x.get('route') == 'packaging'),
-                'screen_demo_count': sum(1 for x in manifest_items if x.get('route') == 'screen_demo'),
-                'approved_count': sum(1 for x in manifest_items if x.get('status') == 'approved'),
-            }
+            manifest['summary'] = summarize_broll_manifest(manifest_items)
             write_broll_manifest(manifest_path, manifest)
 
             if args.apply:

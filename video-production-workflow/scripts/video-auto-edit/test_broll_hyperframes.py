@@ -275,6 +275,14 @@ class TestHyperFramesPackaging(unittest.TestCase):
                 "props": {"steps": ["one"]},
             })
 
+    def test_registry_rejects_transparency_capability_mismatch(self):
+        with self.assertRaisesRegex(ValueError, "transparency"):
+            validate_shot_brief({
+                **self._hyperframes_brief("alpha-shot"),
+                "overlay_mode": "transparent_overlay",
+                "transparency": "full_alpha",
+            }, engine="hyperframes")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -220,6 +220,15 @@ def _safe_shot_folder(out_dir: Path | str, raw_shot_id: Any) -> Tuple[Path, str]
     return shot_folder, clean_shot_id
 
 
+def _safe_output(path: Path, shot_folder: Path) -> Path:
+    """Reject pre-existing symlink artifacts before any write or overwrite."""
+    if path.exists() and path.is_symlink():
+        raise ValueError("symlinked Remotion artifact")
+    if path.parent.resolve() != shot_folder.resolve():
+        raise ValueError("Remotion artifact escaped shot folder")
+    return path
+
+
 def render_remotion_shot(shot_brief: Dict[str, Any], out_dir: Path | str) -> Dict[str, Any]:
     """Execute Remotion scene evaluation, generate frames, and encode via FFmpeg."""
     raw_shot_id = shot_brief.get("id", f"broll-{int(time.time())}")
@@ -258,12 +267,14 @@ export const MyComposition = () => {{
   return <div className="{tmpl_id}">Remotion Scene</div>;
 }};
 """
-    (shot_folder / "Composition.tsx").write_text(tsx_content, encoding="utf-8")
-    (shot_folder / "props.json").write_text(json.dumps(props, indent=2, ensure_ascii=False), encoding="utf-8")
-    (shot_folder / "shot_brief.json").write_text(json.dumps(shot_brief, indent=2, ensure_ascii=False), encoding="utf-8")
+    _safe_output(shot_folder / "Composition.tsx", shot_folder).write_text(tsx_content, encoding="utf-8")
+    _safe_output(shot_folder / "props.json", shot_folder).write_text(json.dumps(props, indent=2, ensure_ascii=False), encoding="utf-8")
+    _safe_output(shot_folder / "shot_brief.json", shot_folder).write_text(json.dumps(shot_brief, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Render frames to temp folder
     frames_dir = shot_folder / "frames"
+    if frames_dir.is_symlink():
+        raise ValueError("symlinked Remotion frames folder")
     frames_dir.mkdir(parents=True, exist_ok=True)
 
     in_f_path = shot_folder / "in_frame.png"
@@ -282,13 +293,18 @@ export const MyComposition = () => {{
                 raise ValueError(f"unsupported template_id: {tmpl_id}")
 
             f_name = frames_dir / f"frame_{idx:05d}.png"
+            if f_name.is_symlink():
+                raise ValueError("symlinked Remotion frame artifact")
             img.save(f_name)
 
             if idx == 0:
+                _safe_output(in_f_path, shot_folder)
                 img.save(in_f_path)
             if idx == total_frames // 2:
+                _safe_output(mid_f_path, shot_folder)
                 img.save(mid_f_path)
             if idx == total_frames - 1:
+                _safe_output(out_f_path, shot_folder)
                 img.save(out_f_path)
 
         # Encode with FFmpeg
@@ -296,6 +312,7 @@ export const MyComposition = () => {{
         if is_transparent:
             video_out = shot_folder / f"{clean_shot_id}.mov"
             stale_mp4 = shot_folder / f"{clean_shot_id}.mp4"
+            _safe_output(video_out, shot_folder)
             if stale_mp4.is_file():
                 stale_mp4.unlink()
             cmd = [
@@ -310,6 +327,7 @@ export const MyComposition = () => {{
         else:
             video_out = shot_folder / f"{clean_shot_id}.mp4"
             stale_mov = shot_folder / f"{clean_shot_id}.mov"
+            _safe_output(video_out, shot_folder)
             if stale_mov.is_file():
                 stale_mov.unlink()
             cmd = [
@@ -327,7 +345,7 @@ export const MyComposition = () => {{
         shutil.rmtree(frames_dir, ignore_errors=True)
 
     # Save receipt
-    receipt_path = shot_folder / "receipt.json"
+    receipt_path = _safe_output(shot_folder / "receipt.json", shot_folder)
     receipt_data = {
         "shot_id": clean_shot_id,
         "template_id": tmpl_id,

@@ -182,6 +182,10 @@ def validate_shot_brief(brief: Dict[str, Any], engine: Optional[str] = None) -> 
     low, high = template["duration_range"]
     if not low <= duration <= high:
         raise ValueError("duration outside template range")
+    if "transparency" in brief and brief["transparency"] != template["transparency"]:
+        raise ValueError("transparency capability mismatch")
+    if "overlay_mode" in brief and brief["overlay_mode"] != template["overlay_mode"]:
+        raise ValueError("overlay_mode capability mismatch")
     props = brief.get("props", {})
     if not isinstance(props, dict) or len(props) > 16:
         raise ValueError("invalid props")

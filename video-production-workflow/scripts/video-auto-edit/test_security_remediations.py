@@ -59,6 +59,21 @@ class TestSecurityRemediations(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "symlink"):
                     render_remotion_shot({"id": "safe-shot", "duration": 2.5}, root)
 
+    def test_remotion_rejects_preexisting_artifact_symlink(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            folder = root / "safe-shot"
+            folder.mkdir()
+            victim = root / "victim.tsx"
+            victim.write_text("unchanged", encoding="utf-8")
+            try:
+                (folder / "Composition.tsx").symlink_to(victim)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"symlinks unavailable: {error}")
+            with patch("lib.broll_remotion.subprocess.run"):
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    render_remotion_shot({"id": "safe-shot", "duration": 2.5}, root)
+
     def test_hyperframes_rejects_artifact_folder_symlink_before_resolve(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -75,6 +90,19 @@ class TestSecurityRemediations(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "symlink"):
                     render_hyperframes_shot(_hyperframes_brief(), root)
                 run.assert_not_called()
+
+    def test_hyperframes_rejects_symlinked_ancestor(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            real_parent = root / "real-parent"
+            real_parent.mkdir()
+            linked_parent = root / "linked-parent"
+            try:
+                linked_parent.symlink_to(real_parent, target_is_directory=True)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"symlinks unavailable: {error}")
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                render_hyperframes_shot(_hyperframes_brief(), linked_parent / "nested")
 
     def test_hyperframes_dependency_mismatch_fails_before_render(self):
         with tempfile.TemporaryDirectory() as td:
@@ -104,6 +132,27 @@ class TestSecurityRemediations(unittest.TestCase):
                     render_hyperframes_shot(_hyperframes_brief(), Path(td))
 
             self.assertEqual(len(calls), 1)
+
+    def test_hyperframes_rejects_preexisting_artifact_symlink(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            folder = root / "safe-shot"
+            folder.mkdir()
+            victim = root / "victim.html"
+            victim.write_text("unchanged", encoding="utf-8")
+            try:
+                (folder / "composition.html").symlink_to(victim)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"symlinks unavailable: {error}")
+
+            def fake_run(command, **kwargs):
+                if "--version" in command:
+                    return subprocess.CompletedProcess(command, 0, stdout=b"0.6.98", stderr=b"")
+                return subprocess.CompletedProcess(command, 0, stdout=b"", stderr=b"")
+
+            with patch("lib.broll_hyperframes.subprocess.run", side_effect=fake_run):
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    render_hyperframes_shot(_hyperframes_brief(), root)
 
     def test_hyperframes_report_tamper_cannot_pass_without_receipt_update(self):
         with tempfile.TemporaryDirectory() as td:
