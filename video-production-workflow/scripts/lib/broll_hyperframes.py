@@ -78,20 +78,37 @@ def _html(brief: Dict[str, Any], duration: float, width: int, height: int) -> st
     steps = [str(x)[:32] for x in props.get("steps", ["Plan", "Build", "Verify"])] or ["Plan"]
     cards = "".join(f'<div class="card clip" data-start="{.25+i*.22:.2f}" data-duration="{max(.2,duration-.25-i*.22):.2f}" data-track-index="1"><b>{i+1:02}</b> {json.dumps(s, ensure_ascii=False)[1:-1].replace("<", "&lt;")}</div>' for i, s in enumerate(steps))
     return f'''<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width={width}, height={height}"><style>
-*{{box-sizing:border-box}}html,body,#root{{margin:0;width:{width}px;height:{height}px;overflow:hidden;background:#201b14;color:#f1e6d2;font-family:serif}}#root{{position:relative;padding:{height*.1:.0f}px {width*.07:.0f}px}}.paper{{position:absolute;right:0;top:0;width:42%;height:100%;background:#c44927}}.paper:after{{content:'';display:block;background:#f1e6d2;height:83%;margin:8% 0 0 10%}}h1,.card{{position:relative}}h1{{font-size:{max(20,width//26)}px;margin:0 0 {height*.1:.0f}px}}.card{{width:50%;height:{max(42,height//9)}px;margin:12px 0;padding:15px 20px;border-radius:12px;background:#32291e;font-size:{max(16,width//55)}px}}.card b{{color:#e0a11f;margin-right:10px}}</style></head><body><main id="root" data-composition-id="hyperframes-editorial-process" data-start="0" data-duration="{duration}" data-width="{width}" data-height="{height}"><div class="paper"></div><h1>{title}</h1>{cards}</main><script>window.__timelines=window.__timelines||{{}};window.__timelines['hyperframes-editorial-process']={{seek:()=>{{}},pause:()=>{{}},play:()=>{{}}}};</script></body></html>'''
+*{{box-sizing:border-box}}html,body,#root{{margin:0;width:{width}px;height:{height}px;overflow:hidden;background:#201b14;color:#f1e6d2;font-family:serif}}#root{{position:relative;padding:{height*.1:.0f}px {width*.07:.0f}px}}.paper{{position:absolute;right:0;top:0;width:42%;height:100%;background:#c44927;transform:translateX(8%)}}.paper:after{{content:'';display:block;background:#f1e6d2;height:83%;margin:8% 0 0 10%}}h1,.card{{position:relative;opacity:0;transform:translateX(-7%)}}h1{{font-size:{max(20,width//26)}px;margin:0 0 {height*.1:.0f}px}}.card{{width:50%;height:{max(42,height//9)}px;margin:12px 0;padding:15px 20px;border-radius:12px;background:#32291e;font-size:{max(16,width//55)}px}}.card b{{color:#e0a11f;margin-right:10px}}</style></head><body><main id="root" data-composition-id="hyperframes-editorial-process" data-start="0" data-duration="{duration}" data-width="{width}" data-height="{height}"><div class="paper"></div><h1>{title}</h1>{cards}</main><script>
+window.__timelines=window.__timelines||{{}};
+const tl=gsap.timeline({{paused:true}});
+tl.to('.paper',{{x:'0%',duration:0.7,ease:'power2.out'}},0);
+tl.to('h1',{{x:'0%',opacity:1,duration:0.45,ease:'power2.out'}},0.2);
+tl.to('.card',{{x:'0%',opacity:1,duration:0.4,stagger:0.18,ease:'power2.out'}},0.35);
+window.__timelines['hyperframes-editorial-process']=tl;
+</script></body></html>'''
 
 
 def _hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _samples(video: Path, folder: Path, duration: float) -> list[Dict[str, Any]]:
-    output = []
-    for i, at in enumerate((0.0, duration / 2, max(0.0, duration - .04))):
-        png = folder / f"output-sample-{i}.png"
+def _samples(video: Path, folder: Path, duration: float) -> tuple[list[Dict[str, Any]], list[str], bool]:
+    times = (0.0, duration / 2, max(0.0, duration - .04))
+    seek_order = [1, 0, 2, 1]
+    output: Dict[int, Dict[str, Any]] = {}
+    repeated_hashes: Dict[int, list[str]] = {}
+    for seek_index, frame_index in enumerate(seek_order):
+        at = times[frame_index]
+        png = folder / (f"output-sample-{frame_index}.png" if frame_index not in output else f"output-repeat-{seek_index}.png")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{at:.6f}", "-i", str(video), "-frames:v", "1", str(png)], check=True, timeout=30)
-        output.append({"timestamp": at, "artifact": str(png), "actual_output_hash": _hash(png)})
-    return output
+        digest = _hash(png)
+        if frame_index not in output:
+            output[frame_index] = {"index": frame_index, "timestamp": at, "artifact": str(png), "actual_output_hash": digest}
+        else:
+            repeated_hashes.setdefault(frame_index, []).append(digest)
+    consistent = all(all(digest == output[index]["actual_output_hash"] for digest in hashes)
+                     for index, hashes in repeated_hashes.items())
+    return [output[index] for index in range(3)], seek_order, consistent
 
 
 def render_hyperframes_shot(brief: Dict[str, Any], out_dir: Path | str) -> Dict[str, Any]:
@@ -124,8 +141,9 @@ def render_hyperframes_shot(brief: Dict[str, Any], out_dir: Path | str) -> Dict[
     if not video.is_file() or video.is_symlink():
         raise ValueError("HyperFrames did not produce a regular video")
     report_path = folder / "seek-safe-report.json"
-    samples = _samples(video, folder, duration)
-    report = {"passed": True, "renderer": f"hyperframes-v{HYPERFRAMES_VERSION}", "frames": samples}
+    samples, seek_order, seek_consistent = _samples(video, folder, duration)
+    report = {"passed": True, "renderer": f"hyperframes-v{HYPERFRAMES_VERSION}", "frames": samples,
+              "seek_order": seek_order, "seek_consistent": seek_consistent}
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     receipt_path = folder / "receipt.json"
     receipt_path.write_text(json.dumps({
@@ -134,6 +152,7 @@ def render_hyperframes_shot(brief: Dict[str, Any], out_dir: Path | str) -> Dict[
         "duration": duration, "fps": fps, "composition": str(composition.resolve()),
         "template_source": template["source"], "seek_report_sha256": _hash(report_path),
         "samples": samples,
+        "adoption_scope": template.get("adoption_scope", {}),
         "renderer": {"command": ["npx", "hyperframes", "render"], "actual_command": command[:3], "arguments": command[3:]},
     }, indent=2), encoding="utf-8")
     return {"status": "rendered", "video_path": str(video), "duration": duration, "fps": fps, "source_path": str(folder), "receipt_path": str(receipt_path), "seek_report_path": str(report_path)}

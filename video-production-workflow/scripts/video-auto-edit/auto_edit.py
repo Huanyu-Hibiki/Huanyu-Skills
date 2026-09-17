@@ -394,6 +394,26 @@ def main():
                 raise ValueError(f"invalid or unsafe brief id: {raw_id}")
             brief['id'] = clean_id
 
+            # Normalize the shared shot-brief contract for authored briefs as
+            # well as generated ones.  Existing callers may provide only the
+            # minimum renderer fields; these defaults preserve their timing
+            # while making placement and provenance explicit in the manifest.
+            sentence_id = brief.get('sentence_id') or (target_sent or {}).get('id')
+            start = float(brief.get('target_start', (target_sent or {}).get('targetStart', 0.0)))
+            duration = float(brief.get('duration', 0.0))
+            brief.setdefault('anchor', (target_sent or {}).get('text', '')[:30])
+            brief.setdefault('main_visual', {'type': 'narrative_process', 'description': brief.get('visual_intent', '')})
+            brief.setdefault('composition', {'layout': 'split_frame_editorial', 'face_avoidance_zone': brief.get('face_avoidance_zone')})
+            brief.setdefault('entrance', {'semantic': 'attention_reveal', 'duration': 0.45})
+            brief.setdefault('exit', {'semantic': 'make_room', 'duration': 0.35})
+            brief.setdefault('acceptance_frames', [0.0, 0.5, 0.96])
+            brief.setdefault('source', {'type': 'a_roll_sentence', 'id': sentence_id})
+            brief.setdefault('provenance', {'generator': 'authored_shot_brief', 'sentence_id': sentence_id})
+            brief.setdefault('layer', 'B-roll Packaging')
+            brief.setdefault('start', start)
+            brief.setdefault('end', round(start + duration, 6))
+            brief.setdefault('stylePack', brief.get('style_pack'))
+
             if brief.get('engine') != args.engine:
                 raise ValueError('brief engine does not match --engine')
             validate_shot_brief(brief, engine=args.engine)
@@ -509,6 +529,18 @@ def main():
                 'engine': args.engine,
                 'template_id': brief['template_id'],
                 'style_pack': brief['style_pack'],
+                'stylePack': brief.get('stylePack', brief['style_pack']),
+                'anchor': brief.get('anchor'),
+                'start': broll_timeline_item['targetStart'],
+                'end': round(broll_timeline_item['targetStart'] + broll_timeline_item['durationFrames'] / fps, 6),
+                'layer': brief.get('layer', 'B-roll Packaging'),
+                'source': brief.get('source'),
+                'provenance': brief.get('provenance'),
+                'main_visual': brief.get('main_visual'),
+                'composition': brief.get('composition'),
+                'entrance': brief.get('entrance'),
+                'exit': brief.get('exit'),
+                'acceptance_frames': brief.get('acceptance_frames'),
                 'target_start': broll_timeline_item['targetStart'],
                 'duration': s_dur,
                 'status': 'approved',

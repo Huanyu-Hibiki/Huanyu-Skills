@@ -109,8 +109,16 @@ HYPERFRAMES_TEMPLATES: List[Dict[str, Any]] = [
         "id": "hyperframes-editorial-process",
         "name": "Editorial Process Assembly",
         "engine": "hyperframes",
-        "engine_version": "local-html-v1",
-        "source": "references/b-roll-generate/hyperframes/patterns.md",
+        "engine_version": "0.6.98",
+        "source": "references/b-roll-generate/hyperframes/patterns.md#top-level-composition",
+        "composition_source": "references/b-roll-generate/hyperframes/patterns.md#top-level-composition",
+        "registry_source": "references/b-roll-generate/hyperframes/patterns.md",
+        "design_tokens_source": "references/b-roll-generate/hyperframes/house-style.md",
+        "seek_safe_source": "references/b-roll-generate/hyperframes/references/captions.md#seekable-gsap-timeline",
+        "adoption_scope": {
+            "adopted": ["data-composition-id/data-start/data-duration", "paused GSAP timeline", "warm editorial palette"],
+            "not_adopted": ["remote assets", "shader transitions", "full Studio runtime"],
+        },
         "license": "Apache-2.0",
         "aspect_ratios": ["16:9", "9:16"],
         "duration_range": [2.5, 8.0],
@@ -199,6 +207,11 @@ def find_matching_template(visual_role: str, style_pack: Optional[str] = None,
 
     if candidates:
         return candidates[0]
+
+    # A requested style/engine is an explicit semantic constraint.  Returning
+    # a role-only template here would silently change the visual language.
+    if style_pack is not None or engine is not None:
+        return None
 
     # Fallback to role match
     for t in templates:

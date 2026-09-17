@@ -213,6 +213,8 @@ class TestHyperFramesPackaging(unittest.TestCase):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             item = manifest["items"][0]
             self.assertEqual(item["engine"], "hyperframes")
+            for field in ("anchor", "start", "end", "layer", "source", "provenance", "stylePack", "acceptance_frames"):
+                self.assertIn(field, item)
             artifact_dir = Path(item["source_path"])
             self.assertTrue((artifact_dir / "composition.html").is_file())
             self.assertTrue((artifact_dir / "seek-safe-report.json").is_file())
@@ -223,6 +225,8 @@ class TestHyperFramesPackaging(unittest.TestCase):
             seek_report = json.loads((artifact_dir / "seek-safe-report.json").read_text(encoding="utf-8"))
             self.assertTrue(seek_report["passed"])
             self.assertEqual(len(seek_report["frames"]), 3)
+            self.assertEqual(seek_report["seek_order"], [1, 0, 2, 1])
+            self.assertTrue(seek_report["seek_consistent"])
             # The samples must come from the encoded HyperFrames output, not a
             # second Python/Pillow implementation of the scene.
             self.assertTrue(all("actual_output_hash" in sample for sample in seek_report["frames"]))
