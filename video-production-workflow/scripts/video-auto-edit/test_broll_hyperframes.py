@@ -48,6 +48,7 @@ class TestHyperFramesPackaging(unittest.TestCase):
             "id": shot_id, "engine": "hyperframes",
             "template_id": "hyperframes-editorial-process", "style_pack": "vox_explainer",
             "duration": 3, "target_start": 1, "props": {"steps": ["one", "two"]},
+            "transparency": "opaque", "overlay_mode": "full_frame",
         }
 
     def test_corrupt_manifest_is_not_overwritten(self):
@@ -136,6 +137,7 @@ class TestHyperFramesPackaging(unittest.TestCase):
             "id": "safe-shot", "engine": "hyperframes",
             "template_id": "hyperframes-editorial-process", "style_pack": "vox_explainer",
             "duration": 3, "props": {"steps": ["one"]},
+            "transparency": "opaque", "overlay_mode": "full_frame",
         }
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

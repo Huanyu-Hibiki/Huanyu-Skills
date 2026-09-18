@@ -139,3 +139,40 @@ def generate_shot_brief(sentence: Dict[str, Any], style_pack: str = "vox_explain
         "status": "proposed",
     }
     return shot_brief
+
+
+def check_broll_diversity(manifest_items: list[dict[str, Any]]) -> dict[str, Any]:
+    """Inspect sequence of B-roll items for adjacent template, composition, or static repetition.
+
+    Enforces Task 9 acceptance criteria:
+    - Adjacent B-roll cannot reuse the identical template_id.
+    - Adjacent B-roll cannot reuse identical composition layout.
+    """
+    warnings = []
+    for i in range(len(manifest_items) - 1):
+        curr = manifest_items[i]
+        nxt = manifest_items[i + 1]
+
+        c_tmpl = curr.get("template_id")
+        n_tmpl = nxt.get("template_id")
+        if c_tmpl and n_tmpl and c_tmpl == n_tmpl:
+            warnings.append(
+                f"adjacent_identical_template: items '{curr.get('id')}' and '{nxt.get('id')}' both use '{c_tmpl}'"
+            )
+
+        c_comp = curr.get("composition")
+        n_comp = nxt.get("composition")
+        if isinstance(c_comp, dict):
+            c_comp = c_comp.get("layout")
+        if isinstance(n_comp, dict):
+            n_comp = n_comp.get("layout")
+        if c_comp and n_comp and c_comp == n_comp:
+            warnings.append(
+                f"adjacent_identical_composition: items '{curr.get('id')}' and '{nxt.get('id')}' both use '{c_comp}'"
+            )
+
+    return {
+        "passed": len(warnings) == 0,
+        "warnings": warnings,
+        "total_items": len(manifest_items),
+    }

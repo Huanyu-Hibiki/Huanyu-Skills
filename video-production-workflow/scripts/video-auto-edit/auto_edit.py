@@ -1,22 +1,45 @@
 #!/usr/bin/env python3
 """Explicit edit-plan workflow; no automatic speech decisions."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.edit_plan import load_plan, frame, probe
-from lib.edit_outputs import preview, subtitles, verify_draft
+from lib.edit_outputs import preview, verify_draft
 from lib.boundary_protect import analyze_cut_boundary, generate_boundary_report
 from lib.pause_tighten import tighten_pauses, generate_pauses_report
 from lib.take_selection import convert_takes_to_plan, evaluate_circuit_breaker, restore_take_in_plan
-from lib.screen_demo import match_screen_anchors, generate_broll_manifest
-from lib.broll_registry import validate_shot_brief
+from lib.screen_demo import match_screen_anchors
+from lib.broll_registry import get_template, validate_shot_brief
+
+
+def _is_link_like(path: Path) -> bool:
+    if path.is_symlink() or (hasattr(path, 'is_junction') and path.is_junction()):
+        return True
+    try:
+        return bool(getattr(path.lstat(), 'st_file_attributes', 0) & getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0x400))
+    except OSError:
+        return False
+
+
+def _assert_safe_write_target(path: Path) -> None:
+    if _is_link_like(path):
+        raise ValueError(f'symlinked write target: {path}')
+    current = path.parent
+    while True:
+        if _is_link_like(current):
+            raise ValueError(f'symlinked write parent: {current}')
+        if current.parent == current:
+            break
+        current = current.parent
 
 
 def load_broll_manifest(path):
@@ -34,6 +57,8 @@ def load_broll_manifest(path):
 
 def write_broll_manifest(path, manifest):
     """Atomically publish a complete manifest after every item state change."""
+    path = Path(path)
+    _assert_safe_write_target(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = None
     try:
@@ -45,6 +70,68 @@ def write_broll_manifest(path, manifest):
     finally:
         if tmp and tmp.exists():
             tmp.unlink()
+
+
+def _atomic_write_bytes(path: Path, payload: bytes) -> None:
+    """Write a file through a same-directory temp and atomic replace."""
+    path = Path(path)
+    _assert_safe_write_target(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='wb', dir=path.parent,
+                                         prefix=f'.{path.name}.', suffix='.tmp', delete=False) as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+            tmp = Path(handle.name)
+        os.replace(tmp, path)
+    finally:
+        if tmp and tmp.exists():
+            tmp.unlink()
+
+
+def _safe_write_text(path: Path, text: str) -> None:
+    _atomic_write_bytes(Path(path), text.encode('utf-8'))
+
+
+def _transaction_journal_path(plan_path: Path) -> Path:
+    return plan_path.with_name(f'.{plan_path.name}.broll-journal.json')
+
+
+def _publish_plan_and_manifest(plan_path: Path, plan: dict, manifest_path: Path, manifest: dict) -> dict:
+    """Publish normalized plan + manifest as one recoverable state transition."""
+    previous_plan = plan_path.read_bytes() if plan_path.exists() else None
+    previous_manifest = manifest_path.read_bytes() if manifest_path.exists() else None
+    journal_path = _transaction_journal_path(plan_path)
+    _atomic_write_bytes(journal_path, json.dumps({
+        'version': 1,
+        'plan_path': str(plan_path),
+        'manifest_path': str(manifest_path),
+        'previous_plan_sha256': hashlib.sha256(previous_plan or b'').hexdigest(),
+        'previous_manifest_sha256': hashlib.sha256(previous_manifest or b'').hexdigest(),
+    }, ensure_ascii=False).encode('utf-8'))
+    try:
+        _atomic_write_bytes(plan_path, json.dumps(plan, indent=2, ensure_ascii=False).encode('utf-8'))
+        normalized = load_plan(plan_path)
+        _atomic_write_bytes(plan_path, json.dumps(normalized, indent=2, ensure_ascii=False).encode('utf-8'))
+        manifest['planHash'] = normalized['planHash']
+        write_broll_manifest(manifest_path, manifest)
+        if journal_path.exists():
+            journal_path.unlink()
+        return normalized
+    except Exception:
+        if previous_plan is not None:
+            _atomic_write_bytes(plan_path, previous_plan)
+        elif plan_path.exists():
+            plan_path.unlink()
+        if previous_manifest is not None:
+            _atomic_write_bytes(manifest_path, previous_manifest)
+        elif manifest_path.exists():
+            manifest_path.unlink()
+        if journal_path.exists():
+            journal_path.unlink()
+        raise
 
 
 def summarize_broll_manifest(items):
@@ -88,7 +175,7 @@ def run_boundary_check(plan):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['plan', 'validate', 'subtitles', 'preview', 'verify-draft', 'boundary-check', 'tighten', 'select-takes', 'restore', 'insert-screen-demo', 'insert-broll-packaging', 'retry-broll-item'])
+    parser.add_argument('command', choices=['plan', 'validate', 'subtitles', 'preview', 'verify-draft', 'boundary-check', 'tighten', 'select-takes', 'restore', 'insert-screen-demo', 'insert-broll-packaging', 'retry-broll-item', 'insert-broll-ai-visual', 'reconcile'])
     parser.add_argument('project', type=Path)
     parser.add_argument('--input', type=Path)
     parser.add_argument('--plan', type=Path)
@@ -114,11 +201,14 @@ def main():
         plan_path = args.input or args.plan or args.project / 'Rough/edit-plan.v1.json'
         plan = None
         if args.command != 'select-takes':
+            journal_path = _transaction_journal_path(Path(plan_path))
+            if journal_path.exists():
+                raise ValueError(f'incomplete B-roll plan/manifest transaction: {journal_path}')
             plan = load_plan(plan_path)
         if args.command == 'plan':
             output = args.project / 'Rough/edit-plan.v1.json'
             output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf-8')
+            _safe_write_text(output, json.dumps(plan, ensure_ascii=False, indent=2))
         elif args.command == 'boundary-check':
             decisions = run_boundary_check(plan)
             rep_path = args.project / 'Rough/cut-boundary-report.json'
@@ -158,9 +248,9 @@ def main():
 
                     # Save and reload to recalculate frames and planHash
                     out_plan = args.project / 'Rough/edit-plan.v1.json'
-                    out_plan.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf-8')
+                    _safe_write_text(out_plan, json.dumps(plan, ensure_ascii=False, indent=2))
                     plan = load_plan(out_plan)
-                    out_plan.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf-8')
+                    _safe_write_text(out_plan, json.dumps(plan, ensure_ascii=False, indent=2))
             review_req = b_summary.get('review_required', 0)
             status = 'review_required' if review_req > 0 else 'ok'
             print(json.dumps({'status': status, 'report': str(rep_path), 'summary': b_summary}))
@@ -194,9 +284,9 @@ def main():
             generate_pauses_report(p_report, rep_path)
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
-                out_plan.write_text(json.dumps(tightened_plan, ensure_ascii=False, indent=2), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(tightened_plan, ensure_ascii=False, indent=2))
                 plan = load_plan(out_plan)
-                out_plan.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(plan, ensure_ascii=False, indent=2))
             print(json.dumps({'status': 'ok', 'report': str(rep_path), 'summary': p_report['summary']}))
             return 0
         elif args.command == 'select-takes':
@@ -226,7 +316,7 @@ def main():
             new_plan, report = convert_takes_to_plan(takes_data, sources, fps=fps, project_root=str(args.project))
             rep_path = args.project / 'Rough/takes-selection-report.json'
             rep_path.parent.mkdir(parents=True, exist_ok=True)
-            rep_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
+            _safe_write_text(rep_path, json.dumps(report, indent=2, ensure_ascii=False))
 
             cb_result = evaluate_circuit_breaker(
                 new_plan,
@@ -234,14 +324,14 @@ def main():
                 unmatched_sentences=report['summary']['unmatched_sentences']
             )
             cb_path = args.project / 'Rough/circuit-breaker.json'
-            cb_path.write_text(json.dumps(cb_result, indent=2, ensure_ascii=False), encoding='utf-8')
+            _safe_write_text(cb_path, json.dumps(cb_result, indent=2, ensure_ascii=False))
 
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
                 out_plan.parent.mkdir(parents=True, exist_ok=True)
-                out_plan.write_text(json.dumps(new_plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(new_plan, indent=2, ensure_ascii=False))
                 plan = load_plan(out_plan)
-                out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(plan, indent=2, ensure_ascii=False))
             else:
                 plan = new_plan
 
@@ -267,9 +357,9 @@ def main():
             )
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
-                out_plan.write_text(json.dumps(restored_plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(restored_plan, indent=2, ensure_ascii=False))
                 plan = load_plan(out_plan)
-                out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(plan, indent=2, ensure_ascii=False))
                 cb_path = args.project / 'Rough/circuit-breaker.json'
                 if cb_path.is_file():
                     cb_path.unlink()
@@ -336,13 +426,13 @@ def main():
 
             manifest_path = args.project / 'Polished/broll-manifest.v1.json'
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
+            _safe_write_text(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
 
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
-                out_plan.write_text(json.dumps(updated_plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(updated_plan, indent=2, ensure_ascii=False))
                 plan = load_plan(out_plan)
-                out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(out_plan, json.dumps(plan, indent=2, ensure_ascii=False))
             else:
                 plan = updated_plan
 
@@ -359,6 +449,9 @@ def main():
 
             manifest_path = args.project / 'Polished/broll-manifest.v1.json'
             manifest = load_broll_manifest(manifest_path)
+            if manifest.get('planHash') not in (None, plan.get('planHash')):
+                raise ValueError('B-roll manifest planHash does not match edit plan; reconcile before retrying')
+            manifest['planHash'] = plan.get('planHash')
 
             # Locate target sentence in plan['timeline']
             target_sent = None
@@ -423,6 +516,10 @@ def main():
             brief.setdefault('start', start)
             brief.setdefault('end', round(start + duration, 6))
             brief.setdefault('stylePack', brief.get('style_pack'))
+            contract_template = get_template(str(brief.get('template_id', '')))
+            if contract_template:
+                brief.setdefault('transparency', contract_template['transparency'])
+                brief.setdefault('overlay_mode', contract_template['overlay_mode'])
 
             if brief.get('engine') != args.engine:
                 raise ValueError('brief engine does not match --engine')
@@ -441,18 +538,35 @@ def main():
                 failure = {'id': f"{brief['id']}-render-failed", 'type': 'broll_render_failed', 'engine': args.engine,
                            'reason': str(error), 'shot_brief': brief, 'action': 'retry_this_item_only'}
                 plan['reviewQueue'] = [item for item in plan.get('reviewQueue', []) if item.get('id') != failure['id']] + [failure]
-                if args.apply:
-                    out_plan = args.project / 'Rough/edit-plan.v1.json'
-                    out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
                 old = next((entry for entry in manifest['items'] if entry.get('id') == brief['id']), {})
-                manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [{
+                failed_entry = {
                     'id': brief['id'], 'route': 'packaging', 'engine': args.engine,
                     'template_id': brief.get('template_id'), 'style_pack': brief.get('style_pack'),
+                    'stylePack': brief.get('stylePack', brief.get('style_pack')), 'anchor': brief.get('anchor'),
+                    'start': brief.get('start'), 'end': brief.get('end'), 'layer': brief.get('layer'),
+                    'source': brief.get('source'), 'provenance': brief.get('provenance'),
+                    'main_visual': brief.get('main_visual'), 'composition': brief.get('composition'),
+                    'entrance': brief.get('entrance'), 'exit': brief.get('exit'),
+                    'acceptance_frames': brief.get('acceptance_frames'),
+                    'transparency': brief.get('transparency'), 'overlay_mode': brief.get('overlay_mode'),
                     'shot_brief': brief, 'status': 'failed', 'attempt': int(old.get('attempt', 0)) + 1,
                     'error': str(error), 'action': 'retry_this_item_only',
-                }]
+                }
+                prior_video = old.get('video_path')
+                if old and prior_video and Path(prior_video).is_file():
+                    # Preserve the last known-good segment in sync with the
+                    # edit plan and append the failed attempt separately.
+                    failed_entry['id'] = f"{brief['id']}-attempt-{failed_entry['attempt']}"
+                    preserved = dict(old, last_error=str(error), last_failed_attempt=failed_entry['id'])
+                    manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [preserved, failed_entry]
+                else:
+                    manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [failed_entry]
                 manifest['summary'] = summarize_broll_manifest(manifest['items'])
-                write_broll_manifest(manifest_path, manifest)
+                if args.apply:
+                    out_plan = args.project / 'Rough/edit-plan.v1.json'
+                    plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+                else:
+                    write_broll_manifest(manifest_path, manifest)
                 print(json.dumps({'status': 'render_failed', 'engine': args.engine, 'reason': str(error)}))
                 return 0
             rq_fail_id = f"{brief['id']}-qa-failed"
@@ -467,22 +581,28 @@ def main():
                 # STATE-01 Clean existing and recalculate hash
                 plan['reviewQueue'] = [rq for rq in plan.get('reviewQueue', []) if rq.get('id') != rq_fail_id]
                 plan['reviewQueue'].append(rq_item)
-                if args.apply:
-                    out_plan = args.project / 'Rough/edit-plan.v1.json'
-                    out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
-                    plan = load_plan(out_plan)
-                    out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
                 old = next((entry for entry in manifest['items'] if entry.get('id') == brief['id']), {})
                 failed_item = {
                     'id': brief['id'], 'route': 'packaging', 'engine': args.engine,
                     'template_id': brief.get('template_id'), 'style_pack': brief.get('style_pack'),
+                    'stylePack': brief.get('stylePack', brief.get('style_pack')), 'anchor': brief.get('anchor'),
+                    'start': brief.get('start'), 'end': brief.get('end'), 'layer': brief.get('layer'),
+                    'source': brief.get('source'), 'provenance': brief.get('provenance'),
+                    'main_visual': brief.get('main_visual'), 'composition': brief.get('composition'),
+                    'entrance': brief.get('entrance'), 'exit': brief.get('exit'),
+                    'acceptance_frames': brief.get('acceptance_frames'),
+                    'transparency': brief.get('transparency'), 'overlay_mode': brief.get('overlay_mode'),
                     'shot_brief': brief, 'status': 'failed',
                     'attempt': int(old.get('attempt', 0)) + 1,
                     'error': qa_res.get('reason', 'qa_rejected'), 'action': 'retry_this_item_only',
                 }
                 manifest['items'] = [entry for entry in manifest['items'] if entry.get('id') != brief['id']] + [failed_item]
                 manifest['summary'] = summarize_broll_manifest(manifest['items'])
-                write_broll_manifest(manifest_path, manifest)
+                if args.apply:
+                    out_plan = args.project / 'Rough/edit-plan.v1.json'
+                    plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+                else:
+                    write_broll_manifest(manifest_path, manifest)
                 print(json.dumps({'status': 'qa_rejected', 'reason': qa_res.get('reason')}))
                 return 0
 
@@ -588,18 +708,189 @@ def main():
             })
             manifest['items'] = manifest_items
             manifest['summary'] = summarize_broll_manifest(manifest_items)
-            write_broll_manifest(manifest_path, manifest)
-
             if args.apply:
                 out_plan = args.project / 'Rough/edit-plan.v1.json'
-                out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
-                plan = load_plan(out_plan)
-                out_plan.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding='utf-8')
+                plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+            else:
+                write_broll_manifest(manifest_path, manifest)
 
             print(json.dumps({
                 'status': 'ok',
                 'shot_id': brief['id'],
                 'video_path': str(broll_video),
+                'manifest': str(manifest_path),
+                'planHash': plan['planHash'],
+            }))
+            return 0
+        elif args.command == 'insert-broll-ai-visual':
+            from lib.broll_ai_visual import generate_ai_visual_shot, resolve_ai_visual_budget, verify_ai_visual_shot
+
+            manifest_path = args.project / 'Polished/broll-manifest.v1.json'
+            manifest = load_broll_manifest(manifest_path)
+            if manifest.get('planHash') not in (None, plan.get('planHash')):
+                raise ValueError('B-roll manifest planHash does not match edit plan; reconcile before retrying')
+            manifest['planHash'] = plan.get('planHash')
+
+            # Locate target sentence in plan['timeline']
+            target_sent = None
+            if args.sentence:
+                for it in plan['timeline']:
+                    if it.get('id') == args.sentence:
+                        if it.get('op') != 'keep':
+                            raise ValueError(f"sentence '{args.sentence}' is not an active keep item (op={it.get('op')})")
+                        target_sent = it
+                        break
+                if not target_sent:
+                    raise ValueError(f"sentence '{args.sentence}' not found in plan timeline")
+            else:
+                keeps_items = [it for it in plan['timeline'] if it.get('op') == 'keep']
+                if keeps_items:
+                    target_sent = keeps_items[0]
+                else:
+                    raise ValueError("no keep sentence available in timeline")
+
+            if args.brief and args.brief.is_file():
+                brief = json.loads(args.brief.read_text(encoding='utf-8'))
+            else:
+                # Default AI Visual brief based on target sentence
+                sent_text = (target_sent or {}).get('text', '')
+                sent_dur = float((target_sent or {}).get('durationFrames', 75)) / plan['fps']
+                shot_dur = round(max(2.0, min(8.0, sent_dur)), 2)
+                brief = {
+                    'id': f"ai_shot_{target_sent['id']}",
+                    'engine': 'ai_visual',
+                    'template_id': args.template or 'ai-visual-vox-metaphor',
+                    'style_pack': args.style_pack,
+                    'prompt': f"Conceptual visual metaphor for: {sent_text}",
+                    'target_start': float(target_sent.get('targetStart', 0.0)),
+                    'duration': shot_dur,
+                    'fps': plan['fps'],
+                    'transparency': 'opaque',
+                    'overlay_mode': 'full_frame',
+                    'props': {
+                        'prompt': f"Conceptual visual metaphor for: {sent_text}",
+                        'provider': 'gemini',
+                    }
+                }
+
+            # Sanitize brief ID
+            raw_id = str(brief.get('id', ''))
+            clean_id = Path(raw_id).name
+            if not clean_id or not re.match(r'^[a-zA-Z0-9_-]+$', clean_id) or '..' in raw_id:
+                raise ValueError(f"invalid or unsafe brief id: {raw_id}")
+            brief['id'] = clean_id
+
+            # Parse budget & check credentials
+            budget = resolve_ai_visual_budget(brief)
+            ai_out = args.project / 'Polished/ai_visual'
+            gen_res = generate_ai_visual_shot(brief, out_dir=ai_out, budget_spec=budget)
+
+            if gen_res.get('status') == 'pending_credentials':
+                # Route to reviewQueue
+                rq_item = {
+                    'id': f"{brief['id']}-pending-credentials",
+                    'type': 'ai_visual_pending_credentials',
+                    'reason': gen_res.get('reason'),
+                    'shot_brief': brief,
+                    'prompt_package': gen_res.get('prompt_package'),
+                    'action': 'provide_api_key_or_skip'
+                }
+                plan['reviewQueue'] = [rq for rq in plan.get('reviewQueue', []) if rq.get('id') != rq_item['id']]
+                plan['reviewQueue'].append(rq_item)
+                if args.apply:
+                    out_plan = args.project / 'Rough/edit-plan.v1.json'
+                    plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+                print(json.dumps({'status': 'pending_credentials', 'reason': gen_res.get('reason')}))
+                return 0
+
+            # QA Verification
+            qa_res = verify_ai_visual_shot(gen_res, brief)
+            rq_fail_id = f"{brief['id']}-qa-failed"
+            if qa_res.get('status') != 'passed':
+                rq_item = {
+                    'id': rq_fail_id,
+                    'type': 'ai_visual_qa_rejected',
+                    'reason': qa_res.get('reason', 'unknown_qa_failure'),
+                    'shot_brief': brief,
+                    'action': 'hold_and_review'
+                }
+                plan['reviewQueue'] = [rq for rq in plan.get('reviewQueue', []) if rq.get('id') != rq_fail_id]
+                plan['reviewQueue'].append(rq_item)
+                if args.apply:
+                    out_plan = args.project / 'Rough/edit-plan.v1.json'
+                    plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+                print(json.dumps({'status': 'qa_rejected', 'reason': qa_res.get('reason')}))
+                return 0
+
+            # Register source and timeline item
+            ai_video = Path(gen_res['video_path']).resolve()
+            source_id = f"ai_visual_src_{brief['id']}"
+            plan['sources'][source_id] = {
+                'path': str(ai_video),
+                'duration': float(gen_res['duration'])
+            }
+
+            fps = plan['fps']
+            s_dur = float(gen_res['duration'])
+            t_start_f = frame(float(brief['target_start']), fps)
+            dur_f = frame(s_dur, fps)
+
+            updated_timeline = [
+                it for it in plan['timeline']
+                if not (it.get('op') == 'insert_broll_ai_visual' and it.get('id') == brief['id'])
+            ]
+            ai_timeline_item = {
+                'id': brief['id'],
+                'op': 'insert_broll_ai_visual',
+                'sourceId': source_id,
+                'sourceStart': 0.0,
+                'sourceEnd': round(dur_f / fps, 6),
+                'targetStart': round(t_start_f / fps, 6),
+                'track': 'B-roll AI Visual',
+                'stylePack': brief['style_pack'],
+                'overlayMode': brief.get('overlay_mode', 'full_frame'),
+                'engine': 'ai_visual',
+                'sourceStartFrame': 0,
+                'sourceEndFrame': dur_f,
+                'durationFrames': dur_f,
+                'targetStartFrame': t_start_f,
+            }
+            updated_timeline.append(ai_timeline_item)
+
+            def _timeline_sort(it):
+                t_name = it.get('track', 'A-roll Final')
+                order = {'A-roll Final': 0, 'Screen Demo': 1, 'B-roll Packaging': 2, 'B-roll AI Visual': 3, 'A-roll Recovery': 4}
+                return (order.get(t_name, 9), it.get('targetStartFrame', 0))
+            updated_timeline.sort(key=_timeline_sort)
+            plan['timeline'] = updated_timeline
+
+            manifest_items = [it for it in manifest.get('items', []) if it.get('id') != brief['id']]
+            manifest_items.append({
+                'id': brief['id'],
+                'route': 'ai_visual',
+                'engine': 'ai_visual',
+                'template_id': brief.get('template_id', 'ai-visual-vox-metaphor'),
+                'style_pack': brief['style_pack'],
+                'target_start': ai_timeline_item['targetStart'],
+                'duration': s_dur,
+                'status': 'approved',
+                'video_path': str(ai_video),
+                'receipt_path': gen_res.get('receipt_path'),
+                'shot_brief': brief,
+            })
+            manifest['items'] = manifest_items
+            manifest['summary'] = summarize_broll_manifest(manifest_items)
+
+            if args.apply:
+                out_plan = args.project / 'Rough/edit-plan.v1.json'
+                plan = _publish_plan_and_manifest(out_plan, plan, manifest_path, manifest)
+            else:
+                write_broll_manifest(manifest_path, manifest)
+
+            print(json.dumps({
+                'status': 'ok',
+                'shot_id': brief['id'],
+                'video_path': str(ai_video),
                 'manifest': str(manifest_path),
                 'planHash': plan['planHash'],
             }))
@@ -643,7 +934,7 @@ def main():
                         pass
                 cb_summary = evaluate_circuit_breaker(plan, total_sentences=total_s, unmatched_sentences=unmatched_s)
                 cb_path.parent.mkdir(parents=True, exist_ok=True)
-                cb_path.write_text(json.dumps(cb_summary, indent=2, ensure_ascii=False), encoding='utf-8')
+                _safe_write_text(cb_path, json.dumps(cb_summary, indent=2, ensure_ascii=False))
 
             has_rq = len(plan.get('reviewQueue', [])) > 0
             circuit_broken = cb_summary.get('circuit_broken', False)
@@ -658,7 +949,7 @@ def main():
             }
             val_file = args.project / 'Rough/auto-cut-validation.json'
             val_file.parent.mkdir(parents=True, exist_ok=True)
-            val_file.write_text(json.dumps(val_result, indent=2, ensure_ascii=False), encoding='utf-8')
+            _safe_write_text(val_file, json.dumps(val_result, indent=2, ensure_ascii=False))
             report_file = args.project / 'Rough/auto-cut-report.md'
             keeps_count = len([x for x in plan['timeline'] if x.get('op') == 'keep'])
             removes_count = len([x for x in plan['timeline'] if x.get('op') == 'remove'])
@@ -693,18 +984,68 @@ def main():
                 f"{p_line}"
                 f"{cb_line}"
             )
-            report_file.write_text(report_content, encoding='utf-8')
+            _safe_write_text(report_file, report_content)
             if (circuit_broken or review_req > 0 or pauses_summary.get('pauses_flagged_review', 0) > 0 or has_rq) and args.strict:
                 print(json.dumps(val_result), file=sys.stderr)
                 return 1
         elif args.command == 'subtitles':
-            subtitles(plan, args.project / 'Rough/auto-cut.srt')
+            from lib.draft_reconcile import rebuild_subtitles_for_plan
+            rebuild_subtitles_for_plan(plan, args.project / 'Rough/auto-cut.srt')
         elif args.command == 'preview':
             preview(plan, args.project / 'Rough/auto-cut-preview.mp4')
         elif args.command == 'verify-draft':
             if not args.draft:
                 raise ValueError('--draft is required')
             print(json.dumps(verify_draft(plan, args.draft)))
+            return 0
+        elif args.command == 'reconcile':
+            if not args.draft:
+                raise ValueError('--draft is required for reconcile')
+            from lib.draft_reconcile import (
+                reconcile_plan_from_draft,
+                realign_broll_manifest,
+                rebuild_subtitles_for_plan,
+                check_subtitles_compatible,
+                audit_broll_manifest,
+            )
+            reconciled_plan = reconcile_plan_from_draft(plan, args.draft)
+            manifest_path = args.project / 'Polished/broll-manifest.v1.json'
+            if not manifest_path.is_file():
+                alt = args.project / 'Rough/broll-manifest.json'
+                if alt.is_file():
+                    manifest_path = alt
+            realigned_manifest = None
+            audit_issues = []
+            if manifest_path.is_file():
+                manifest = load_broll_manifest(manifest_path)
+                realigned_manifest, reconciled_plan = realign_broll_manifest(manifest, reconciled_plan)
+                realigned_manifest, audit_issues = audit_broll_manifest(realigned_manifest)
+
+            if args.apply:
+                out_plan = args.project / 'Rough/edit-plan.v1.json'
+                if realigned_manifest is not None:
+                    reconciled_plan = _publish_plan_and_manifest(out_plan, reconciled_plan, manifest_path, realigned_manifest)
+                else:
+                    _safe_write_text(out_plan, json.dumps(reconciled_plan, indent=2, ensure_ascii=False))
+                    reconciled_plan = load_plan(out_plan)
+                    _safe_write_text(out_plan, json.dumps(reconciled_plan, indent=2, ensure_ascii=False))
+
+            srt_path = args.project / 'Rough/auto-cut.srt'
+            is_compat = False
+            if srt_path.is_file():
+                is_compat, _ = check_subtitles_compatible(srt_path, reconciled_plan)
+            if not is_compat:
+                rebuild_subtitles_for_plan(reconciled_plan, srt_path)
+
+            orphaned_count = len([x for x in reconciled_plan.get('reviewQueue', []) if x.get('type') == 'broll_anchor_orphaned'])
+            res = {
+                'status': 'ok',
+                'planHash': reconciled_plan['planHash'],
+                'durationFrames': reconciled_plan['durationFrames'],
+                'orphaned_broll_count': orphaned_count,
+                'audit_issues': audit_issues,
+            }
+            print(json.dumps(res))
             return 0
         print(json.dumps({'status': 'ok', 'planHash': plan['planHash'], 'durationFrames': plan['durationFrames']}))
     except subprocess.CalledProcessError as error:

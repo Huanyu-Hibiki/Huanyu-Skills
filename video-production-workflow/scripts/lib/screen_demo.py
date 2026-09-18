@@ -252,6 +252,8 @@ def match_screen_anchors(
             "targetStart": round(float(t_start_f) / fps, 6),
             "track": "Screen Demo",
             "anchor": anchor,
+            "target_item_id": matched_seg.get("id"),
+            "anchor_offset": round(float(t_start_f) / fps - base_target_start, 6),
             "status": "approved",
             "stylePack": "documentary_observe",
             "zoom": float(marker.get("zoom", 1.0)),
@@ -295,6 +297,13 @@ def generate_broll_manifest(
     output_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """Generate canonical Polished/broll-manifest.v1.json structure."""
+    items = []
+    for d in approved_demos:
+        item = copy.deepcopy(d)
+        item.setdefault("route", "screen_demo")
+        if "target_start" not in item and "targetStart" in item:
+            item["target_start"] = item["targetStart"]
+        items.append(item)
     manifest = {
         "version": "1",
         "route": "screen_demo",
@@ -302,6 +311,7 @@ def generate_broll_manifest(
             "approved_count": len(approved_demos),
             "pending_count": len(pending_markers),
         },
+        "items": items,
         "screen_demos": approved_demos,
         "pending_markers": pending_markers,
     }
