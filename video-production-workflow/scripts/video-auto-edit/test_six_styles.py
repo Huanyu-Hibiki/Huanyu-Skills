@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,8 +11,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from lib.broll_registry import find_matching_template, get_template, list_templates, validate_shot_brief
-from lib.broll_narrative import generate_shot_brief
+from lib.broll_registry import get_template, validate_shot_brief
 from lib.broll_remotion import render_remotion_shot, verify_broll_shot
 from lib.edit_plan import load_plan
 from lib.edit_outputs import preview, verify_draft
@@ -209,7 +207,7 @@ class TestSixStylesBroll(unittest.TestCase):
                 s_video = root / f"broll_{style}.mp4"
                 subprocess.run([
                     'ffmpeg', '-v', 'error', '-y',
-                    '-f', 'lavfi', '-i', f'color=c=blue:s=320x180:rate=25:d=2.5',
+                    '-f', 'lavfi', '-i', 'color=c=blue:s=320x180:rate=25:d=2.5',
                     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', str(s_video)
                 ], check=True)
                 sid = f"src_{style}"

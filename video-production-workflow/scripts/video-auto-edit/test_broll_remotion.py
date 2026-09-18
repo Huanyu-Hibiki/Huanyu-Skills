@@ -9,12 +9,11 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.broll_registry import list_templates, get_template, find_matching_template
+from lib.broll_registry import list_templates, find_matching_template
 from lib.broll_narrative import generate_shot_brief
 from lib.broll_remotion import render_remotion_shot, verify_broll_shot
 from lib.edit_plan import load_plan
 from lib.edit_outputs import preview, verify_draft
-import lib.edit_draft as edit_draft
 
 
 class TestRemotionBroll(unittest.TestCase):

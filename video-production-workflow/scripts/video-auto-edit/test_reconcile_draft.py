@@ -3,7 +3,6 @@ import copy
 import hashlib
 import json
 from pathlib import Path
-import shutil
 import tempfile
 import sys
 import unittest
@@ -21,7 +20,6 @@ from lib.draft_reconcile import (
 )
 from lib.edit_draft import apply_edit_plan
 from lib.edit_outputs import micros
-from lib.edit_plan import load_plan
 
 
 class MockJianYing:

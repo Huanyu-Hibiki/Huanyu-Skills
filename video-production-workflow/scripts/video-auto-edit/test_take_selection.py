@@ -10,14 +10,11 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.edit_plan import load_plan, frame
 from lib.take_selection import (
     convert_takes_to_plan,
     evaluate_circuit_breaker,
     restore_take_in_plan,
 )
-from lib.edit_outputs import subtitles, verify_draft
-import lib.edit_draft as edit_draft
 
 
 class TestTakeSelection(unittest.TestCase):

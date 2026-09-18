@@ -1,10 +1,6 @@
 """End-to-end integration acceptance tests for Task 11: full pipeline from raw to draft."""
-import copy
-import hashlib
 import json
-import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile

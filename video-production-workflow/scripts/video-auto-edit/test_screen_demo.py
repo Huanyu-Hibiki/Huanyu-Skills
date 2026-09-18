@@ -9,10 +9,9 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.edit_plan import load_plan, frame
-from lib.screen_demo import match_screen_anchors, generate_broll_manifest
+from lib.edit_plan import load_plan
+from lib.screen_demo import match_screen_anchors
 from lib.edit_outputs import preview, verify_draft
-import lib.edit_draft as edit_draft
 
 
 class TestScreenDemo(unittest.TestCase):
@@ -656,7 +655,6 @@ class TestScreenDemo(unittest.TestCase):
             draft_content = json.loads((root / "Drafts/zoom_screen_draft/draft_content.json").read_text(encoding="utf-8"))
             scr_tracks = [t for t in draft_content["tracks"] if t.get("name") == "Screen Demo"]
             self.assertEqual(len(scr_tracks), 1)
-            seg_id = scr_tracks[0]["segments"][0]["id"]
 
             # Check materials.videos or clip settings
             # In pyJianYingDraft, clip_settings are attached to segment or material

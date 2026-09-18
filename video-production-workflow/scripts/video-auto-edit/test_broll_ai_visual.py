@@ -9,7 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -19,9 +19,7 @@ from lib.broll_ai_visual import (
     verify_ai_visual_shot,
     AIProviderClient,
 )
-from lib.broll_registry import validate_shot_brief
 from lib.edit_plan import load_plan
-from lib.edit_draft import apply_edit_plan
 from lib.edit_outputs import preview, verify_draft
 
 
@@ -109,7 +107,7 @@ class TestAIVisualBroll(unittest.TestCase):
                 "status": "running",
                 "operation_id": "operations/generate-12345",
             }
-            res2 = generate_ai_visual_shot(brief, out_dir=out_dir, budget_spec=spec, provider_client=mock_client)
+            generate_ai_visual_shot(brief, out_dir=out_dir, budget_spec=spec, provider_client=mock_client)
             self.assertEqual(mock_client.submit_job.call_count, 1)  # NOT called again!
             self.assertEqual(mock_client.check_job_status.call_count, 1)
 

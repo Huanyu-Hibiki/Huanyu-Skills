@@ -11,7 +11,7 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.edit_plan import load_plan, frame
+from lib.edit_plan import frame
 from lib.pause_tighten import tighten_pauses, generate_pauses_report
 
 
