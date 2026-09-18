@@ -1,6 +1,6 @@
 # cover-patterns — 对标封面拆解档案
 
-> 维护者：/oracle-cover-analyze（append-only，用户确认后落盘）。
+> 维护者：/oracle-cover --mode analyze（append-only，用户确认后落盘）。
 > 消费方：/oracle-cover 生成封面时按需引用"复用配方"。
 > 纪律：借结构 / 层级 / 视觉逻辑；不复制人物身份、logo、品牌元素、原文案、水印。
 > 本档案只存文字结构描述，不嵌原图、不存图片副本。

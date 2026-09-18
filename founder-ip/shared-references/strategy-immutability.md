@@ -7,7 +7,7 @@
 
 ## 为什么战略文档要 immutable
 
-战略文档的价值 = **可追溯的决策锚点**。下游（persona / content-funnel / business-model / opc-system）和执行层（cheat-on-content）都把它当上下文引用。如果随手可改：
+战略文档的价值 = **可追溯的决策锚点**。下游（persona / content-funnel / business-model / opc-system）和执行层（oracle-bone）都把它当上下文引用。如果随手可改：
 
 1. 修订历史丢失 → 无法复盘"当时为什么这么定"
 2. 下游引用漂移 → 本 session 改了战略、下个 session 的执行层还在按旧值跑

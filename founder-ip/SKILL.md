@@ -1,6 +1,6 @@
 ---
 name: founder-ip
-description: 创始人 IP 战略层 skill 系统，基于徐沪生《徐沪生个人IP全流程拆解》方法论 + 用户深度访谈结论。覆盖**战略/人设/内容漏斗/商业模式/OPC系统**五层，专门为"非娱乐类创始人 IP"设计。与 `cheat-on-content`（执行层：选题/打分/预测/复盘）互补——本系统产出**战略文档**喂给 cheat-on-content 的执行循环。**不重复造执行层轮子**。适用对象：产品已上线、通过内容获客的创始人/OPC/主理人，尤其是垂直专业领域（工程/法律/医疗/教育等）的非娱乐型 IP。触发词："创始人IP战略"/"ip战略"/"人设定位"/"内容漏斗"/"商业画布"/"OPC系统"/"立项"/"起号"/"founder ip"。**首次使用建议从 /ip-strategy 开始**。
+description: 创始人 IP 战略层 skill 系统，基于徐沪生《徐沪生个人IP全流程拆解》方法论 + 用户深度访谈结论。覆盖**战略/人设/内容漏斗/商业模式/OPC系统**五层，专门为"非娱乐类创始人 IP"设计。与 `oracle-bone`（执行层：选题/打分/预测/复盘）互补——本系统产出**战略文档**喂给 oracle-bone 的执行循环。**不重复造执行层轮子**。适用对象：产品已上线、通过内容获客的创始人/OPC/主理人，尤其是垂直专业领域（工程/法律/医疗/教育等）的非娱乐型 IP。触发词："创始人IP战略"/"ip战略"/"人设定位"/"内容漏斗"/"商业画布"/"OPC系统"/"立项"/"起号"/"founder ip"。**首次使用建议从 /ip-strategy 开始**。
 argument-hint: "[— phase: strategy|persona|content-funnel|business-model|opc-system]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 ---
@@ -13,10 +13,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 >
 > **核心定位**：创始人 IP ≠ 网红 IP。娱乐网红那套（抄爆款、蹭热点、搞笑耍宝、每天 10 条盲盒）对创始人不仅无效，而且有毒。
 >
-> **与 cheat-on-content 的分工**：
+> **与 oracle-bone 的分工**：
 > - `founder-ip` = **战略层**（一次性/低频决策）：为什么做、人设怎么定、内容漏斗怎么设计、商业模式怎么搭、OPC 流水线怎么整合
-> - `cheat-on-content` = **执行层**（每周循环）：选题/打分/盲预测/拍摄/发布/复盘
-> - founder-ip 产出的战略文档，作为 cheat-on-content 执行循环的**上下文和约束**
+> - `oracle-bone` = **执行层**（每周循环）：选题/打分/盲预测/拍摄/发布/复盘
+> - founder-ip 产出的战略文档，作为 oracle-bone 执行循环的**上下文和约束**
 
 ---
 
@@ -28,7 +28,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 2. **战略文档 immutable，变更需 version bump**：分级保护——**strategy-memo / persona-charter 严格不可改**（`## 决策` 段定稿后只能往 `## 修订记录` 追加，改战略 = 重大事件，需明示理由 + 影响评估）；**business-model-canvas / content-funnel 季度可调但留痕**（调整必须写入修订记录段并附数据依据）。完整规范：[shared-references/strategy-immutability.md](shared-references/strategy-immutability.md)。
 
-3. **执行层不重造**：本系统**不**生成单条视频的选题/脚本/预测/复盘——那是 cheat-on-content 的领地。本系统只产出**战略/规划/SOP 文档**。如用户要求"帮我写这条视频的脚本"，路由到 `/cheat-seed` 而非在本系统内处理。
+3. **执行层不重造**：本系统**不**生成单条视频的选题/脚本/预测/复盘——那是 oracle-bone 的领地。本系统只产出**战略/规划/SOP 文档**。如用户要求"帮我写这条视频的脚本"，路由到 `/oracle-seed` 而非在本系统内处理。
 
 ---
 
@@ -46,8 +46,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 └──────────────────┬──────────────────────────────┘
                    ↓ 喂弹药
 ┌──────────────────────────────────────────────────┐
-│  执行层（每周循环）← 复用 cheat-on-content       │
-│  cheat-seed → score → predict → shoot →          │
+│  执行层（每周循环）← 复用 oracle-bone       │
+│  oracle-seed → score → predict → shoot →          │
 │  publish → retro                                  │
 └──────────────────┬──────────────────────────────┘
                    ↑ 整合 + SOP
@@ -133,8 +133,8 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
   - 稳定上升期（2026-08-20 诊断，依据见 strategy-memo 修订记录）
   - 未诊断 → 下次进入时按"阶段诊断与路径裁剪"补
 
-与 cheat-on-content 的衔接：
-  - 上次 /cheat-retro: 2026-07-20
+与 oracle-bone 的衔接：
+  - 上次 /oracle-retro: 2026-07-20
   - 下次建议: 本周内
 ```
 
@@ -144,7 +144,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 | 触发条件 | 一线处理 | 仍失败兜底 |
 |---|---|---|
-| 路由目标不存在（如 `cheat-on-content` 未安装，`/cheat-seed` 不可达） | 告知缺失项 + 指向其 README 安装章节 | 把待执行需求暂记 `founder-ip/pending-routes.md`（一行一条：日期 + 需求 + 目标 skill；该文件由本表创建，安装后按行补跑、跑完划掉）；**不硬生成执行层产物** |
+| 路由目标不存在（如 `oracle-bone` 未安装，`/oracle-seed` 不可达） | 告知缺失项 + 指向其 README 安装章节 | 把待执行需求暂记 `founder-ip/pending-routes.md`（一行一条：日期 + 需求 + 目标 skill；该文件由本表创建，安装后按行补跑、跑完划掉）；**不硬生成执行层产物** |
 | 子 skill 产出文档互相矛盾（如 strategy 使命 vs canvas 变现策略） | 以 strategy-memo（L1 根基）为准，向用户明示冲突 | 提示跑矛盾方的 `--review` 修订对齐；对齐前该组文档不作为 cheat 执行层的上下文 |
 | 当前目录不是 IP 项目目录（无 `founder-ip/`，用户只是咨询） | 正常路由，提示"产出将落在 `<当前目录>/founder-ip/`" | 用户指定其他目录 → 按指定目录落盘并回显路径 |
 
@@ -154,7 +154,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 | 用户说 | 为什么拒 | 拒后出路 |
 |---|---|---|
-| 「帮我直接写这条视频的脚本」 | 执行层不重造（原则 #3） | 路由 `/cheat-seed`；未安装则走上方失败分支表第 1 行 |
+| 「帮我直接写这条视频的脚本」 | 执行层不重造（原则 #3） | 路由 `/oracle-seed`；未安装则走上方失败分支表第 1 行 |
 | 「战略文档我改个字就行，不用记录修订」 | 违反原则 #2，改战略必须留痕 | 走 [strategy-immutability.md](shared-references/strategy-immutability.md) 修订记录格式，改一个字也追加记录 |
 | 「这个建议不用依据徐沪生或访谈，按你经验来」 | 违反原则 #1，无据建议 = 凭空发明 | 请用户给出新依据来源并记入修订记录；给不出 → 维持原建议 |
 | 「跳过 ip-strategy，直接做人设」 | 不阻断，但人设可能偏离真实战略 | 明示风险后继续；后续 /ip-strategy 定稿时若冲突 → 以 strategy-memo 为准走修订 |
@@ -175,7 +175,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 │   ├── topic-pool.md              # /ip-content-funnel 产出（选题库）
 │   ├── business-model-canvas.md   # /ip-business-model 产出
 │   └── opc-sop.md                 # /ip-opc-system 产出
-├── content ops/cheat-on-content/  # 执行层产物（cheat 系统的）
+├── content ops/oracle-bone/  # 执行层产物
 └── videos/                        # 视频工程
 ```
 
@@ -187,7 +187,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 本系统的所有判断、建议、标准，必须可追溯到以下**三个来源**之一：
 
-1. **徐沪生《个人IP全流程拆解》原书**（主方法论）：路径见 [shared-references/xu-husheng-essence.md](shared-references/xu-husheng-essence.md)（精华提炼，按章节索引）+ [shared-references/xu-content-funnel-deep.md](shared-references/xu-content-funnel-deep.md)（内容漏斗三层模型 + 蟑螂药/米其林等案例深度展开）。徐沪生讲的是创始人 IP 的"**道**"——为什么做、不做什么、长期主义。姊妹书**《做号》（完整书版，162 图）**独家增量已提炼至 [shared-references/xu-zuohao-index.md](shared-references/xu-zuohao-index.md)：自序"转型不转行"起源故事范本（ip-persona Q2 用）+ 第五章选题挖掘问题清单（cheat-seed 深挖用）。
+1. **徐沪生《个人IP全流程拆解》原书**（主方法论）：路径见 [shared-references/xu-husheng-essence.md](shared-references/xu-husheng-essence.md)（精华提炼，按章节索引）+ [shared-references/xu-content-funnel-deep.md](shared-references/xu-content-funnel-deep.md)（内容漏斗三层模型 + 蟑螂药/米其林等案例深度展开）。徐沪生讲的是创始人 IP 的"**道**"——为什么做、不做什么、长期主义。姊妹书**《做号》（完整书版，162 图）**独家增量已提炼至 [shared-references/xu-zuohao-index.md](shared-references/xu-zuohao-index.md)：自序"转型不转行"起源故事范本（ip-persona Q2 用）+ 第五章选题挖掘问题清单（oracle-seed 深挖用）。
 
 2. **使用者访谈档案**（具体场景）：路径见 [shared-references/interview-profile.md](shared-references/interview-profile.md)（28 问完整记录 + 关键决策清单——**每个使用者自己的档案**，模板见 interview-profile.example.md）。这是使用者的具体情况，优先级最高。
 
@@ -231,7 +231,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 
 | Skill | 关系 |
 |---|---|
-| `cheat-on-content` | **执行层互补**。founder-ip 产战略，cheat 跑执行循环。cheat-init 时会读取 founder-ip 文档作为 context |
+| `oracle-bone` | **执行层互补**。founder-ip 产战略，oracle-bone 跑执行循环。oracle-init 时会读取 founder-ip 文档作为 context |
 
 ---
 
@@ -244,10 +244,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 2. /ip-persona        → 基于战略定人设
 3. /ip-business-model → 基于战略 + 人设定变现路径
 4. /ip-content-funnel → 基于 persona + business-model 定内容漏斗
-5. /ip-opc-system     → 整合所有 + 现有 cheat-on-content 流水线
+5. /ip-opc-system     → 整合所有 + 现有 oracle-bone 流水线
 ```
 
-跑完这 5 步，创始人 IP 的战略层就立起来了，后续每周走 cheat-on-content 的执行循环即可。
+跑完这 5 步，创始人 IP 的战略层就立起来了，后续每周走 oracle-bone 的执行循环即可。
 
 🔴 **CHECKPOINT**：引导路径一次只跑一份文档——每份在关键决策处停下等用户拍板，定稿落盘前先展示决策摘要供确认；用户未确认不进入下一份（拒绝表第 5 行的执行化）。
 

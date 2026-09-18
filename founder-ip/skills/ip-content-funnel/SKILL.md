@@ -58,7 +58,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
        ↓
 [Phase 3: 生成 content-funnel.md + topic-pool.md]
        ↓
-[Phase 4: 与 cheat-on-content 的衔接]
+[Phase 4: 与 oracle-bone 的衔接]
 ```
 
 ---
@@ -164,7 +164,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - **扩张期（稳定付费）**：可上调 B 轨转化比重，但 B ≤30% 纪律不变
 - **其他**：自定义
 
-> 🔴 **微调模式坑（2026-08-14 实战）**：用户拍板比例后可能在同一天再微调（"总体方向不变，小调整"）。**改比例必须全链路同步**——content-funnel.md（§2 比例 + 系列定位表 + 衔接段 + 修订记录）、cheat-seed SKILL.md、track-decision-protocol.md、.cheat-state.json 的 `track_mix_ratio`。本次漏改一处就会被下一个 session 当旧值引用。**微调前必须先列出全链路清单，改完逐处核对。**
+> 🔴 **微调模式坑（2026-08-14 实战）**：用户拍板比例后可能在同一天再微调（"总体方向不变，小调整"）。**改比例必须全链路同步**——content-funnel.md（§2 比例 + 系列定位表 + 衔接段 + 修订记录）、oracle-seed SKILL.md、track-decision-protocol.md、.oracle-status.json 的 `track_mix_ratio`。本次漏改一处就会被下一个 session 当旧值引用。**微调前必须先列出全链路清单，改完逐处核对。**
 
 **配套纪律（三条，缺一不可）**：
 1. **A 轨利他检验**：A 轨每条必须过"用户看完得到什么"（[徐沪生 6.2]），纯记录心情不发——A 轨若超徐沪生"自己的故事 ≤20%"的线，靠"观点内容披自述壳"守住，防滑向纯自恋
@@ -372,11 +372,11 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - [ ] 内容是 AI 友好结构（Q&A/清单/明确数据）？
 - [ ] 产品名/公司名/创始人名出现了？
 
-### 7. 与 cheat-on-content 的衔接
-- topic-pool.md → /cheat-trends 的候选源
-- 三轨比例 → /cheat-seed 的选题约束
-- 系列定位 → /cheat-score 的打分维度
-- GEO 关键词 → /cheat-title 的标题优化约束
+### 7. 与 oracle-bone 的衔接
+- topic-pool.md → /oracle-trends 的候选源
+- 三轨比例 → /oracle-seed 的选题约束
+- 系列定位 → /oracle-score 的打分维度
+- GEO 关键词 → /oracle-title 的标题优化约束
 
 ---
 
@@ -392,7 +392,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 # 选题库
 
 > 📌 创建：YYYY-MM-DD
-> 月度补充（/cheat-trends 自动 + /cheat-recommend 排序）
+> 月度补充（/oracle-trends 自动 + /oracle-recommend 排序）
 
 ---
 
@@ -448,16 +448,16 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 ---
 
-### Phase 4 ｜ 与 cheat-on-content 的衔接
+### Phase 4 ｜ 与 oracle-bone 的衔接
 
 ```
 ✅ content-funnel.md + topic-pool.md 已落盘
 
 衔接说明：
-  - topic-pool.md 会被 /cheat-trends 读取作为初始候选池
-  - 三轨比例会约束 /cheat-seed 的选题推荐
-  - 系列定位会作为 /cheat-score 的打分维度
-  - 比喻库会辅助 /cheat-seed 写脚本时的"导演意识"
+  - topic-pool.md 会被 /oracle-trends 读取作为初始候选池
+  - 三轨比例会约束 /oracle-seed 的选题推荐
+  - 系列定位会作为 /oracle-score 的打分维度
+  - 比喻库会辅助 /oracle-seed 写脚本时的"导演意识"
 
 建议跑完本 skill 后：
   → /ip-business-model（定商业模式 + 咨询漏斗）
@@ -486,6 +486,6 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 2026-08-26（四次） | 分发通用化补强：confirm 模式"系列定位"标注档案字段边界（明细无字段→转 Q3 现场定）；"比喻库"标注无字段跳过 |
 | 2026-08-26（三次） | Refusals 升级三段式表（拒绝请求/依据/拒后出路），并新增"三杠杆"替代方案（提单条效率 / 守正出奇升档 / C 轨软植入）|
 | 2026-08-26（二次） | 新增 3 处显性检查点：首屏启动门（🔴 等确认后开始）、比例微调门（🔴 全链路清单先行）、落盘前 CHECKPOINT（🔴 复述 6 项决策逐条确认后才生成文件，interview 模式拉齐 confirm 模式标准）|
-| 2026-08-14（二次） | 比例定稿微调：C 40/B 30/A 30 → **A 40/B 30/C 30（A 轨为轴）**，用户"总体方向不变"微调；同步改 content-funnel.md 六处 + cheat-seed + track-decision-protocol + .cheat-state.json track_mix_ratio（4:3:3）|
+| 2026-08-14（二次） | 比例定稿微调：C 40/B 30/A 30 → **A 40/B 30/C 30（A 轨为轴）**，用户"总体方向不变"微调；同步改 content-funnel.md 六处 + oracle-seed + track-decision-protocol + .oracle-status.json track_mix_ratio（4:3:3）|
 | 2026-08-14 | Q2 重写：旧"ABC 比例"（徐沪生 6.1 语义）因与轨道 ABC 字母撞车被弃用，改为"轨 + 漏斗层"命名（《做号》第 4 章漏斗三层）；新增三轨配套纪律（A 轨利他检验 / B 轨转化味控制 / C 轨无史料出处不发）+ 合集栏目化形态（视频节目杂志）；content-funnel.md 模板同步更新为三轨结构 |
 | 2026-07-27 | 初版创建，对应徐沪生第 3/6.1/6.2 章 |

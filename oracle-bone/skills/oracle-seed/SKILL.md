@@ -47,8 +47,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 3. **context 来源 A**：已有 predictions（含 init import 的 reconstructed）——用户历史
 4. **context 来源 B**：`benchmark.md`（如 imported）——对标账号
 5. 检查入参决定 Mode
-
-**context 优先级**：用户数据能驱动方向（该轨样本 ≥10，或出现 ≥3 个与 benchmark 不一致的强样本）→ A 主导；数据少 + benchmark 有货 → B 主导；都缺 → 用户输入 + 抓热点，提示先跑 /oracle-learn-from。
+**context 优先级**：用户数据能驱动方向（该轨样本 ≥10，或出现 ≥3 个与 benchmark 不一致的强样本）→ A 主导；数据少 + benchmark 有货 → B 主导；都缺 → 输入 + 抓热点，先跑 /oracle-study --mode benchmark。
 
 ### Phase 1: Mode 分流
 
@@ -79,7 +78,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 读 `state.stage_constraint`（字段缺失按 `none`；判定表见主 SKILL.md「stage_constraint」段）：
 
 - `positioning_unclear` → 本期优先 Mode A 经历锚点（init Q4 锚点库优先于热点）；走 Mode C 热点路径前提示"定位未明期追热点易产出同质化内容——建议先挖 1 条你自己的经历"
-- `expression_unstable` → 提示"/oracle-apprentice 拆 1-2 条对标稿补 pattern 后再批量起稿"
+- `expression_unstable` → 提示"/oracle-study --mode practice 拆 1-2 条对标稿补 pattern 后再批量起稿"
 - `capacity_limited` → 单条深做优先于 batch；提示规划 derivative（一期多发）
 - `conversion_blocked` → 转化轨选题必过 conversion-track-playbook"极刚痛点 6 问"（Phase 1.5 已加载时不重复）
 - `none` → 无额外动作

@@ -86,7 +86,7 @@ if not state:
 14. **hooks_installed=false** → "immutability 是君子协定，建议补装"
 15. **last_bump_self_audited=true** → "上次 bump 是自审，建议配置跨模型审核通道"
 16. **rubric_form_mismatch=true** → "形态与 starter 不完全匹配，下次 bump 建议调权重"
-17. **benchmark_status=pending** → "答应找的对标账号还没找——跑 /oracle-learn-from"
+17. **benchmark_status=pending** → "答应找的对标账号还没找——跑 /oracle-study --mode benchmark"
 18. **benchmark 影响淡出判断**（该轨样本 ≥10 且与 benchmark pattern 出现 ≥3 条不一致）→ "你的真实数据已成主信号"（通知不 gate，benchmark 保留作 sanity check）
 19. **retroactive 残留 ≥20%** → "总样本中 N 条 retroactive 不计校准，bump 触发只看有效数"
 20. **mix_ratio 之和 ≠ 1.0 / tracks 定义异常** → 报警等用户拍板修正

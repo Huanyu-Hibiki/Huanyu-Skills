@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — 工作流入口合并与制作边界收敛（2026-09-18）
+
+- `oracle-learn-from` 与 `oracle-apprentice` 合并为 `oracle-study`，提供 `benchmark` / `practice` / `dual` 三种模式；旧名称变为薄兼容别名，只读迁移由新入口负责。
+- `oracle-cover` 合并封面生成与参考封面分析，通过 `--mode generate|analyze` 选择；旧 `oracle-cover-analyze` 变为薄兼容别名转发到 `analyze`。
+- 移除运行时 `oracle-edit-plan`；剪辑计划、视觉包装、动效逆向、B-roll 与成片 QA 统一路由 `video-production-workflow`。历史协议和词典移入 `references/legacy-*`，不删除用户资料。
+- 根 `/oracle-bone` 改为最小任务路由器：明确请求直接进入 leaf skill，跨层请求只做必要组合；交互中区分事实、经验、推断与待验证假设。
+- 安装清单从 29 个收敛为 26 个运行时 skill，并补充 study/cover/routing 契约测试。
+
 ### Added — 视觉拆解模式 + 包装规格 + VPW 交接（2026-09-12，第二十批，方法论原理参考 hypit）
 
 - **新增共享规格语言 `references/packaging-vocabulary.md`**：视觉系统六元组（内容外观/空间关系/入场/活跃行为/持续/退场，绑定转写段落）/ 动效四语义（入场抓注意/落定建状态/替换保可读/退场让位）+ 描述纪律（动效名字只是起点，要写路径/缩放/透明度/节奏/过冲）/ 声音四层（语音主轴/音乐情绪底/环境跨切延续/音效挂感知事件）/ **词锚规格**（锚"transcript 第 N 段"不锚秒——换文案规格仍有效，执行侧词级时间戳兑现成秒）

@@ -113,16 +113,16 @@
 
 | 信息 | 唯一主档 | 写入者 | 只读消费方 |
 |---|---|---|---|
-| 创作者档案（变现/优势/形象/风格/红线） | `user-profile.md` | init / 用户拍板修订 | seed / learn-from / who-for / cover |
+| 创作者档案（变现/优势/形象/风格/红线） | `user-profile.md` | init / 用户拍板修订 | seed / study / who-for / cover |
 | 内容规划（轨道定义/占比/成功指标） | `content-plan.md`（人读版）+ `state.tracks`（机读缓存） | init / compass-retro 建议+用户拍板 | seed 分流 / recommend / bump / status |
 | 受众画像 | `audience-profiles.md` | init / who-for 逐稿深化 | simulate-audience / seed |
 | rubric（各轨维度/权重/bucket） | `rubric_notes.md`（分轨节） | oracle-bump | score / predict / trends 粗打分 |
-| 写作 pattern（含 source/status 标记） | `script_patterns.md`（分轨节） | retro 4b / learn-from / apprentice 验证后 | seed 选结构 / bump（只信 self+verified） |
-| 候选项 | `candidates.md` | seed / trends / learn-from | recommend |
+| 写作 pattern（含 source/status 标记） | `script_patterns.md`（分轨节） | retro 4b / study practice 验证后 | seed 选结构 / bump（只信 self+verified） |
+| 候选项 | `candidates.md` | seed / trends / study | recommend |
 | 预测（含 Track 字段） | `predictions/*.md` | oracle-predict（immutable） | retro / bump / status |
-| 对标账号统计信号 | `benchmark.md` | oracle-learn-from | seed context / bump 参考 |
-| 对标封面拆解与视觉配方 | `cover-patterns.md` | oracle-cover-analyze（用户确认后 append） | oracle-cover（框架来源 #2） |
-| 对标写法拆解（知识卡片） | `study/<博主>-apprentice/` | oracle-apprentice | seed 写稿提醒 |
+| 对标账号统计信号 | `benchmark.md`（项目根汇总；证据源见 `study/<对象>/`） | oracle-study benchmark 用户确认后汇总 | seed context / bump 参考 |
+| 对标封面拆解与视觉配方 | `cover-patterns.md` | oracle-cover analyze（用户确认后 append） | oracle-cover（框架来源 #2） |
+| 对标写法拆解（知识卡片） | `study/<对象>/samples/<content-id>/`；通过验证后摘要入 `script_patterns.md` Imported 区 | oracle-study practice | seed 写稿提醒 |
 | 产品反馈（对 skill 的评价） | `meta-retros/product-feedback.md` | 用户确认后 | compass-retro 自进化 |
 | 运行时状态 / 累计指标 | `.oracle-state.json` | 各 skill 按上方责任表 | 全部 |
 

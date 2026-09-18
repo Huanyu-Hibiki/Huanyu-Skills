@@ -59,9 +59,9 @@ composite = ...
 
 ### Benchmark-derived initial signals
 
-> /oracle-learn-from 完成后填入。**仅定性方向，不直接采纳为数值权重**。
+> /oracle-study 完成后填入。**仅定性方向，不直接采纳为数值权重**。
 
-（待 learn-from 填入）
+（待 oracle-study benchmark / practice 填入）
 
 ### 待验证假设
 

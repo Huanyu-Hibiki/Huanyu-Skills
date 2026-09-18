@@ -2,7 +2,7 @@
 
 > **来源**：徐沪生《做号》（书版转录，见 `references/做号.md`）+《个人IP全流程拆解》
 > **性质**：概念与框架的**原创表述提炼**，不含原文段落复制；引用格式 `[做号·第N章]` 供回查
-> **用途**：oracle-init（cheat-init）Phase 2 用户档案 / Phase 3 内容规划 / Phase 4 用户画像采访的方法论依据
+> **用途**：oracle-init Phase 2 用户档案 / Phase 3 内容规划 / Phase 4 用户画像采访的方法论依据
 > **配套**：内容漏斗三层模型详见 `xu-content-funnel-deep.md`（已提炼，本文不重复展开）
 
 ---
@@ -130,7 +130,7 @@
 
 ---
 
-## 7. 与 oracle-bone / cheat-on-content 的接线
+## 7. 与 oracle-bone 的接线（历史前身：cheat-on-content）
 
 | 消费方 | 用本文哪段 |
 |---|---|

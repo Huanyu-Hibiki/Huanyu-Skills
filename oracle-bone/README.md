@@ -4,7 +4,7 @@
 
 **凭感觉发是"猜"，这套让你"算"——打分 → 盲预测 → 发布 → 复盘 → 进化你的爆款公式**
 
-29 个子 skill · 商王烧龟壳式的 3000 年校准循环，还给内容创作者
+26 个 canonical 子 skill + 3 个兼容别名 · 商王烧龟壳式的 3000 年校准循环，还给内容创作者
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -91,7 +91,7 @@ git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
 | OpenCode | 项目或全局 `.opencode/skills/` |
 | Cursor / Codex | 项目内任意目录，用 `AGENTS.md` 指向它 |
 
-### 第 2 步：运行安装脚本（一键链接 29 个子 skill）
+### 第 2 步：运行安装脚本（一键链接 26 个 canonical skill + 3 个兼容别名）
 
 **macOS / Linux（终端）：**
 
@@ -111,7 +111,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 | 参数 | 作用 |
 |---|---|
 | `-Target <路径>` | 指定其他 Agent 的 skills 目录 |
-| `-Copy` | 冻结模式：复制而非链接（仓库更新后需重新运行） |
+| `-Copy` | 冻结模式：复制而非链接；已有目录不会覆盖，升级请使用新的 Target 或先移除旧副本 |
 | `-Remove` | 卸载：移除已安装的链接（不动你的内容数据） |
 
 | Runtime | skills 目录 |
@@ -120,17 +120,17 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 | OpenCode | `<project>/.opencode/skills/` 或 `~/.config/opencode/skills/` |
 | Codex CLI / 其他 | 见各 runtime 文档，`--target` 指过去即可 |
 
-> Windows 无 bash？用 `install.ps1` 或把文件夹整个复制到上表对应目录也可以。
+> Windows 无 bash？用 `install.ps1` 或把文件夹整个复制到上表对应目录也可以。复制模式会同时带上协议、模板和工具资源；已有同名目录会保留并提示人工处理。
 
 ### 常见问题（FAQ）
 
 | 问题 | 解决 |
 |---|---|
 | `install.sh` 报权限错误 | 运行 `chmod +x install.sh` 后重试 |
-| Agent 没识别到 skill | 确认 29 个子 skill 目录已正确链接/复制到 skills 目录，重启 Agent |
+| Agent 没识别到 skill | 确认 26 个 canonical 目录与兼容别名已正确链接/复制到 skills 目录，重启 Agent |
 | 找不到 skills 目录 | 各 Agent 官方文档会说明；一般在用户主目录下的隐藏文件夹里 |
 | Windows 没有 bash | 用 `install.ps1` 或直接复制文件夹 |
-| 想卸载 | `bash uninstall.sh` 或 `powershell -ExecutionPolicy Bypass -File uninstall.ps1`（不动内容数据） |
+| 想卸载 | macOS/Linux 用 `bash uninstall.sh`；Windows 用 `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Remove`（不动内容数据） |
 
 ---
 

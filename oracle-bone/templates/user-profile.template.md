@@ -1,6 +1,6 @@
 # 用户档案（User Profile）
 
-> oracle-init Phase 2 产出。创作者侧档案——**商业模式决定内容定位**。被 oracle-seed / learn-from / who-for / cover / pinned-comment 消费。
+> oracle-init Phase 2 产出。创作者侧档案——**商业模式决定内容定位**。被 oracle-seed / oracle-study / oracle-who-for / oracle-cover / oracle-pinned-comment 消费。
 > 修订：内容大变时手动更新，或 oracle-compass-retro 建议后拍板更新。
 
 ---

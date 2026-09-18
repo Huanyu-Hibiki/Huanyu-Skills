@@ -434,7 +434,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
      把三轨比例 + 系列定位 + 利他选题库规划出来
 
   4. → /ip-opc-system（整合 + SOP）
-     最后跑，把战略层和现有 cheat-on-content 执行层串起来
+     最后跑，把战略层和现有 oracle-bone 执行层串起来
 
   季度回顾：建议每 90 天用 /ip-strategy --review 复盘一次
 ```
@@ -450,7 +450,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 「成功标准先空着」 | 无标准 = 无法复盘 | 用 Q7 候选 a-f 最低配（内容流程跑通 + 1 个数字指标）先定一版 |
 | 「能不能跳过 4 个错误观点自检」 | 防坑核心，跳过 = 带毒立项 | 逐条过（2 分钟）；确有把握的用户走 g"都没想过"快速通道 |
 | 「我觉得 [徐沪生 X.Y] 这条不适合我」 | 可以反对，但必须留痕 | 明示理由 + 记入 `## 修订记录`（三档标 ❌ 并写原因） |
-| 「帮我预测一下能不能成功」 | 本 skill 不做预测，只帮你想清楚 | 路由 cheat-on-content 的盲预测流程；未安装 → 失败分支表处理 |
+| 「帮我预测一下能不能成功」 | 本 skill 不做预测，只帮你想清楚 | 路由 oracle-bone 的盲预测流程；未安装 → 失败分支表处理 |
 
 ---
 
@@ -462,7 +462,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | `/ip-business-model` | 下游。读取 strategy-memo.md 的 ip_mission 作为商业画布的起点 |
 | `/ip-content-funnel` | 下游。读取反对清单 + 第一受众作为内容漏斗的约束 |
 | `/ip-opc-system` | 下游。读取时间承诺作为 OPC SOP 的资源边界 |
-| `cheat-on-content` | 执行层。strategy-memo.md 是 cheat-init 时的重要 context |
+| `oracle-bone` | 执行层。strategy-memo.md 是 oracle-init 时的重要 context |
 
 ---
 

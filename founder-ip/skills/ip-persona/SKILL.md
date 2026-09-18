@@ -386,9 +386,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
   → /ip-content-funnel（基于 persona + business-model 定内容漏斗）
 
 注意：persona-charter.md 会被以下 skill 引用：
-  - cheat-on-content 的 cheat-seed（选题时检查是否偏离人设）
-  - cheat-on-content 的 cheat-score（打分时人设一致性维度）
-  - cheat-who-for（受众分析时引用第一受众）
+  - oracle-bone 的 oracle-seed（选题时检查是否偏离人设）
+  - oracle-bone 的 oracle-score（打分时人设一致性维度）
+  - oracle-who-for（受众分析时引用第一受众）
 ```
 
 ---

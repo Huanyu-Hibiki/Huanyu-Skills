@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我分析这个账号的 5 条公开样本，看看哪些表现信号值得参考",
+    "expected": "进入 benchmark：记录表现数据与用户印象，只产出定性信号，不直接改 rubric 权重"
+  },
+  {
+    "id": 2,
+    "prompt": "拆这条稿，帮我把一个机制练到我的转化轨",
+    "expected": "进入 practice：用户复述、质疑、迁移到轨道并通过 V1/V2/V3 后写知识卡片"
+  },
+  {
+    "id": 3,
+    "prompt": "既看这个博主的规律，也练其中一条；但不要拆视频包装",
+    "expected": "进入 dual：共享样本归档后分开输出 benchmark/practice；包装请求交给 video-production-workflow"
+  },
+  {
+    "id": 4,
+    "prompt": "用旧的 learn-from 命令继续导入账号",
+    "expected": "先显示兼容迁移提示，再转 oracle-study benchmark；不自动改写旧目录或 state"
+  },
+  {
+    "id": 5,
+    "prompt": "dual 模式直接替我选最值得拆的样本并写卡片",
+    "expected": "先推荐一个深拆样本并说明依据，等待用户确认；确认后才进入 practice 与 V1/V2/V3"
+  }
+]

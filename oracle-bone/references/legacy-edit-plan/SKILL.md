@@ -5,6 +5,8 @@ argument-hint: "<作品目录> [— mode: plan|accept]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
 
+> 历史归档，仅供迁移与来源审计；不作为可安装入口。当前制作计划、包装和成片 QA 统一使用 `video-production-workflow`。
+
 # /oracle-edit-plan — 剪辑计划与成片验收
 
 把"实际制作"从黑箱变成**可计划、可验收**：拍摄登记后出一份剪辑计划（AI 按稿子的调性和钩子设计镜头节奏），用户照着剪（或剪完拿来对照），成片回来后逐条验收——验收过了才值得发布。

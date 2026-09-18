@@ -7,7 +7,7 @@
 
 ## 1. 上下文预算（棘轮）
 
-oracle-bone 是 29 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
+oracle-bone 是 26 子 skill + 13 协议的大家族，上下文是稀缺资源：入口越肥，注意力和
 token 双输。以下数字由 [tests/test_context_budget.py](tests/test_context_budget.py) 机械执行：
 
 | 对象 | 预算（bytes） | 基线说明 |
@@ -87,14 +87,14 @@ oracle-voice 的「个人词典 + 转写纠错规则」「文字轮润色纪律�
 在**机制思想**上借鉴了 [OpenTypeless](https://github.com/tover0314-w/opentypeless)（MIT）的
 本地词典、correction rules 与润色 prompt 设计。
 
-第十六批的四处补强借鉴了四个参考项目：oracle-apprentice 的三重验证门 / 触发场景 / 反例结构化
+第十六批的四处补强借鉴了四个参考项目：旧 oracle-apprentice（现并入 oracle-study practice）的三重验证门 / 触发场景 / 反例结构化
 借鉴 [cangjie-skill](https://github.com/kangarooking/cangjie-skill)（MIT）；oracle-recommend 的置信度地板
 与诚实空池、oracle-trends 的 velocity 热度修正与四态信封借鉴
 [last30days-skill](https://github.com/mvanhorn/last30days-skill)（MIT）与
 [union-search-skill](https://github.com/runningZ1/union-search-skill)（README/代码头声明 MIT，仓库无 LICENSE 文件）；
 交互预算三档借鉴 huashu-skills（**该仓库无 License**——仅借鉴机制思想，零文本复制，不引入其任何内容）。
 
-oracle-edit-plan 的「剪辑计划工件 + 成片分层验收 + 审稿三轴」在**方法论原理**上参考了
+历史 oracle-edit-plan 原型的「剪辑计划工件 + 成片分层验收 + 审稿三轴」在**方法论原理**上参考了
 OpenMontage（本地参考项目，**AGPLv3**）的剪辑决策与成片质检门设计——**仅学习原理，
 未复制其任何代码或文本**（AGPL 传染性约束下必须如此），实现全部原创、oracle-bone 维持 MIT。
 
@@ -106,7 +106,7 @@ Trae 插件）的竞争情报五态模型与评分硬门设计——仅学习原
 在**原理**上参考了 hypit（本地参考项目，**修改版 Apache 2.0**）的参考视频拆解方法——
 仅学习原理，未复制其任何代码或文本，实现全部原创。
 与 video-production-workflow（同仓库姊妹 skill，MIT）的交接走其既有 handoff-contracts
-（oracle-edit-plan Integration 段登记；对应其 external-references.md 吸收本系统词典格式的先例）。
+（现由 video-production-workflow 的 handoff-contracts 承担；保留该段仅作历史来源登记）。
 
 借鉴边界（clean-room 声明）：
 

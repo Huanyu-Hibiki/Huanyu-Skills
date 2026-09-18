@@ -41,7 +41,7 @@
 
 ## 对标借鉴（Imported, untested）
 
-> oracle-learn-from 产出的 pattern。**未在自己账号验证**——实拍验证 ≥2 次复盘确认有效后去掉标记升正式。
+> oracle-study 产出的 pattern。**未在自己账号验证**——实拍验证 ≥2 次复盘确认有效后去掉标记升正式。
 
 ### Pattern A: <名>（来自 <账号>）
 **描述**: ...

@@ -153,13 +153,13 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 > "你现在的内容生产用哪些工具？逐个盘点。"
 
 按生产环节问：
-- **选题**：用什么？（cheat-on-content / 手动 / AI 参谋）
+- **选题**：用什么？（oracle-bone / 手动 / AI 参谋）
 - **脚本**：用什么？（手写 / AI 辅助 / 录音转文字）
 - **拍摄**：用什么？（手机/相机/ webcam / OBS 录屏）
 - **剪辑**：用什么？（剪映 / Premiere / DaVinci / AI 自动剪辑）
 - **包装**：用什么？（Hyperframe / Remotion / 模板 / 手工）
 - **分发**：用什么？（AI Agent / 手动多平台）
-- **复盘**：用什么？（cheat-retro / 手动看数据）
+- **复盘**：用什么？（oracle-retro / 手动看数据）
 
 **记录字段**：`toolchain`
 
@@ -174,7 +174,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 **Day 1（创作日，6-8h）**：
 | 时段 | 任务 | 工具 | 产出 |
 |---|---|---|---|
-| 上午 | 选题确认（cheat-recommend 推荐） | cheat-on-content | 选题锁定 |
+| 上午 | 选题确认（oracle-recommend 推荐） | oracle-bone | 选题锁定 |
 | 上午 | 脚本初稿（录音转文字 / AI 参谋） | 剪辑 skill / Otter | 脚本初稿 |
 | 下午 | 精简脚本（分行、5W、夹叙夹议） | 手动 | 脚本定稿 [徐沪生 6.3] |
 | 下午 | 拍摄（口播 + 录屏 + 白板） | OBS / 相机 | 素材 |
@@ -186,7 +186,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 上午 | 精剪（手动） | 剪映 | 精剪 |
 | 下午 | 包装（动画/字幕） | Hyperframe/Remotion | 成片 |
 | 下午 | 分发（自动） | AI Agent | 多平台发布 |
-| 下午 | 复盘准备（cheat-retro） | cheat-on-content | 预测 + 待复盘 |
+| 下午 | 复盘准备（oracle-retro） | oracle-bone | 预测 + 待复盘 |
 
 **让用户确认或调整这个日程**。
 
@@ -327,7 +327,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 - 每月跑 /ip-opc-system --optimize（基于上月数据调整）
 - **每月跑 GEO 自检**（AI 引用监测，见 [geo-china-guide.md](../../shared-references/geo-china-guide.md) 第 6 章）
 - 每季度跑 /ip-strategy --review（战略层复盘）
-- 每条视频跑 /cheat-retro（执行层复盘）
+- 每条视频跑 /oracle-retro（执行层复盘）
 
 ---
 
@@ -354,17 +354,17 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 
 接下来你该做什么？
 
-  1. **跑 /cheat-init**（如果还没跑）
-     让 cheat-on-content 读取 founder-ip 的战略文档作为 context
+  1. **跑 /oracle-init**（如果还没跑）
+     让 oracle-bone 读取 founder-ip 的战略文档作为 context
 
   2. **开始每周循环**：
-     - 周一：/cheat-recommend（从 topic-pool 排序推荐）
-     - 周一：/cheat-seed（选定本周选题 + 写 draft）
+     - 周一：/oracle-recommend（从 topic-pool 排序推荐）
+     - 周一：/oracle-seed（选定本周选题 + 写 draft）
      - 周一/周二：按 opc-sop 拍摄 + 制作
-     - 周三：/cheat-shoot（登记已拍）
-     - 发布前：/cheat-title + /cheat-cover + /cheat-description
-     - 发布后：/cheat-publish（登记链接）
-     - T+3d：/cheat-retro（复盘）
+     - 周三：/oracle-shoot（登记已拍）
+     - 发布前：/oracle-title + /oracle-cover + /oracle-description
+     - 发布后：/oracle-publish（登记链接）
+     - T+3d：/oracle-retro（复盘）
 
   3. **定期复盘**：
      - 每月：/ip-opc-system --optimize
@@ -389,7 +389,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 | 「每周 5 条视频」 | OPC 不可持续，崩了就全停 [徐沪生 8.5] | 先跑通 2 天 1 期（周 2 条）连续 8 周，再谈提频；提频前先核对 strategy-memo 的每周时间承诺是否撑得住 |
 | 「每天拍 10 条找爆款」 | 网红逻辑，对创始人有毒 [徐沪生 8.5] | 守正出奇：70 分铺量 + 定期试爆（节奏档见 ip-content-funnel Q2.5，方法论源 [loop-diagnostics.md](../../shared-references/loop-diagnostics.md) 第三部分），爆款靠深度不靠抽奖 |
 | 「让 AI 生成完整脚本我不改」 | AI 风格凌驾于你 = 调性崩坏 [徐沪生 8.8] | AI 只出初稿，逐行取舍定稿必须亲自；嫌慢 → 用"录音转文字 + AI 整理"提效，取舍不外包 |
-| 「跳过复盘直接发」 | 无复盘 = 无法进化 | 最低配复盘 3 问（哪条最好/最差/为什么）；T+3d 跑 cheat-retro，未安装 → 失败分支表第 1 行 |
+| 「跳过复盘直接发」 | 无复盘 = 无法进化 | 最低配复盘 3 问（哪条最好/最差/为什么）；T+3d 跑 oracle-retro，未安装 → 失败分支表第 1 行 |
 
 ---
 

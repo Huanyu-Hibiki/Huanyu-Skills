@@ -24,7 +24,6 @@
 │   ├── _README.md             # prompt 管理规范
 │   └── [video|audio|animation]/  # 可选扩展位：AI 视频/音频/动画 prompt
 ├── derivatives/               # 衍生内容（oracle-derivative 输出：图文/短文/切片稿）
-├── edits/                     # 剪辑计划与成片验收（oracle-edit-plan 输出：edit-plan.md + acceptance.md）
 └── [制作管线目录]              # 可选：用户自己的制作产物（见下方"制作管线边界"）
 ```
 
@@ -65,8 +64,7 @@
 | 发布文案 | `scripts/<定稿>.md` 末尾 `## 发布文案` 段（**不建独立文件**） |
 | 置顶评论 | `scripts/<定稿>.md` 末尾 `## 置顶评论` 段 |
 | 衍生内容 | `derivatives/<形式>_<短名>.md` |
-| 剪辑计划 | `edits/edit-plan.md`（oracle-edit-plan plan 模式） |
-| 成片验收 | `edits/acceptance.md`（oracle-edit-plan accept 模式） |
+| 视频制作与成片验收 | 交给 `video-production-workflow`，不写入 oracle-bone 作品目录 schema |
 
 ## 制作管线边界
 
@@ -87,7 +85,8 @@ oracle-bone **只管链路产物**：`scripts/` `predictions/` `prompt/` `deriva
 | `rubric_notes.md` | 项目根（按轨道分节） |
 | `script_patterns.md` | 项目根（按轨道分节） |
 | `candidates.md` | 项目根（oracle-trends / oracle-seed 累积） |
-| `benchmark.md` | 项目根（oracle-learn-from 产出） |
+| `benchmark.md` | 项目根汇总（oracle-study benchmark 用户确认后写入；证据源在 `study/<对象>/`） |
+| `study/<对象>/` | 项目根对象级证据档案（source / meta / analysis / benchmark / techniques） |
 | `voice-lexicon.md` | 项目根（oracle-voice 维护，可选——个人词典与转写纠错规则） |
 
 这些是跨期的元数据，每期作品共享。**作品目录只放本期作品的产物**。

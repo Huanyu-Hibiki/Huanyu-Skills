@@ -105,7 +105,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 **纪律**：分类必须引用具体数字（"点击率 2.1%、2s 跳出 68%"），禁"偏低"式含糊话。
 
-**quantile 建议联动**：dashboard.py 的 `recommendations`（高互动低播放 / 高播放低互动 / 增长最快旧作品）在 plays>0 样本上算分位阈值生成，每条带证据作品——直接作为 Phase 3 问题表和 Phase 6 动作清单的素材（建议里的 actions 已对接 oracle-title / oracle-derivative / oracle-who-for / oracle-apprentice 等子 skill）。样本 <4 条时 dashboard 不给建议（分位不稳定），回到 AI 手工诊断。
+**quantile 建议联动**：dashboard.py 的 `recommendations`（高互动低播放 / 高播放低互动 / 增长最快旧作品）在 plays>0 样本上算分位阈值生成，每条带证据作品——直接作为 Phase 3 问题表和 Phase 6 动作清单的素材（建议里的 actions 已对接 oracle-title / oracle-derivative / oracle-who-for / oracle-study 等子 skill）。样本 <4 条时 dashboard 不给建议（分位不稳定），回到 AI 手工诊断。
 
 ### Phase 3: 四阶段罗盘诊断
 

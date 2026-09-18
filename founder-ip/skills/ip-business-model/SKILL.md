@@ -326,10 +326,10 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob
 ✅ business-model-canvas.md 已落盘
 
 衔接说明：
-  - 本文档会被 /cheat-predict 读取，作为"商业转化"维度的打分依据
-  - 流量/转化比例会约束 /cheat-seed 的选题推荐
-  - 季度指标会成为 /cheat-retro 的复盘锚点
-  - 反卖货腔清单会被 cheat-open-source 引用做真诚度审查
+  - 本文档会被 /oracle-predict 读取，作为"商业转化"维度的打分依据
+  - 流量/转化比例会约束 /oracle-seed 的选题推荐
+  - 季度指标会成为 /oracle-retro 的复盘锚点
+  - 反卖货腔清单会被 oracle-open-source 引用做真诚度审查
 
 建议跑完本 skill 后：
   → /ip-content-funnel（定内容漏斗，如果还没跑）

@@ -290,7 +290,7 @@ def main():
 
     ap = argparse.ArgumentParser(description="oracle-bone script-extraction：视频/音频 → transcript.md（字幕轨优先，whisper 兜底）")
     ap.add_argument("input", help="视频/音频 URL 或本地文件路径")
-    ap.add_argument("--out", default=".", help="输出目录（transcript.md 落这里；建议传 study/<博主>-apprentice/<标题>/）")
+    ap.add_argument("--out", default=".", help="输出目录（transcript.md 落这里；建议传 study/<对象>/samples/<content-id>/）")
     ap.add_argument("--model", default=DEFAULT_MODEL, help=f"faster-whisper 模型档位（默认 {DEFAULT_MODEL}：tiny/base/small/medium/large-v3/large-v3-turbo）")
     ap.add_argument("--model-dir", default=None, help="本地模型目录（含 model.bin）；默认自动找本目录 models/faster-whisper-<size>/")
     ap.add_argument("--lang", default=None, help="强制语言（如 zh / en）；默认自动检测")
@@ -314,7 +314,7 @@ def main():
     if platform == "wechat-channels":
         die("视频号没有公开网页播放器，yt-dlp 无提取器。改用：\n"
             "  a) 手机导出/录屏拿到本地视频文件 → transcribe.py <本地文件>\n"
-            "  b) 手动粘稿（apprentice 零依赖主路径）")
+            "  b) 手动粘稿（oracle-study practice 零依赖主路径）")
 
     # 装配拟人化配置：平台档案打底，用户参数覆盖
     prof = PLATFORM_PROFILES.get(platform, {})

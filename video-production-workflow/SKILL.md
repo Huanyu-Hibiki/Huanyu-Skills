@@ -19,13 +19,31 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 
 本 Skill 根目录的 `.venv` 是唯一 Python 环境。运行 Python 脚本必须使用 `uv run --project <Skill根目录> python ...`；不得调用系统 Python、Anaconda 或其他虚拟环境。初始化和依赖说明见 [DEPENDENCIES.md](DEPENDENCIES.md)。默认安装不包含 PyTorch（默认引擎 faster-whisper 走 ctranslate2，`.venv` 约 0.7GB）；备选引擎 openai-whisper 才需要 `uv sync --extra whisper`（CUDA 12.6 wheel）。
 
+### 动效逆向分析 CLI
+
+`scripts/motion_analyzer/cli.py` 提供统一的 `analyze` 和 `synthesize` 子命令：
+
+```powershell
+uv run python scripts/motion_analyzer/cli.py analyze `
+  --input "<短视频>" --start 00:01 --end 00:04 --output-dir "<分析目录>"
+uv run python scripts/motion_analyzer/cli.py synthesize `
+  --input "<分析目录>/motion_ir.json" --engine remotion --output-dir "<合成目录>"
+```
+
+两个子命令都支持 `--input`、`--start`、`--end`、`--engine` 和 `--output-dir`。分析命令
+首先运行 FFmpeg 抽帧与音频卡点提取，再调用离线 Agent；如果没有
+`GEMINI_API_KEY`、`OPENAI_API_KEY` 或注入式适配器，会输出 `motion_analysis_prompt.json`
+并将状态标为 `awaiting_agent`，不会伪造分析结果。合成命令消费经过验证的 Motion IR，
+输出模板路径、探针状态和注册回执 JSON；Remotion 模板必须通过 30 帧真实探针后才会
+标记为 `approved`。
+
 ## 模型调用约定
 
 对话、分析、规划和校对统一使用当前 Agent 提供的模型，不在 Skill 中配置固定对话模型或供应商级对话密钥。faster-whisper / Whisper 是本地转录工具（默认 faster-whisper，Windows 友好；备选 openai-whisper）；Gemini/Veo 的模型参数只服务于明确的专用图像或视频生成 API，不代表对话模型选择。
 
 ## 部署边界
 
-内容校准由 `cheat-on-content` 负责，通常运行在 AI Agent 或内容管理环境；本 Skill 负责工作站上的视频制作。两者的衔接物是已经确认的终稿，通常放在：
+内容校准由 `oracle-bone` 负责，通常运行在 AI Agent 或内容管理环境；本 Skill 负责工作站上的视频制作。两者的衔接物是已经确认的终稿，通常放在：
 
 ```text
 <视频项目根>\{第X期：视频标题}\video scripts\
@@ -64,42 +82,36 @@ OBS 不是固定的 A-roll 或 B-roll：人物边操作边讲解时是 A-roll；
   ↓
 用户拍摄 / OBS 录制 —— 素材进入 Raw\
   ↓
-  03 /video-rough-cut —— faster-whisper（备选 Whisper）+ 文稿 + FFmpeg → 粗剪
-       └ 内含自动文稿校对：字幕按文稿拼写产出 Sub/caption_corrected.srt，
-         ASR↔文稿偏差/口癖候选/低置信句落盘待复核
-       └ 内含卡顿/重复剪除：词级结巴与"说一半重说"的首次尝试自动从时间线剪除
-         （相似重说/整句重读只列 repeats_report 待人工裁决）
-  ↓（仅当对齐报告有问题或用户要求时）03b /video-caption-correct —— 词级人工复核
+03 /video-rough-cut & 智能口播粗剪 (auto_edit.py)
+     └ 内含多 Take 择优与完整性硬闸（select-takes）
+     └ 内含气口自适应压减（tighten）与清辅音尾音边界保护（boundary-check）
+     └ 内含电路熔断机制（circuit-breaker）评估
   ↓
-05 /video-jianying-draft —— 根据剪辑决策生成剪映原生 Draft
+04 /b-roll-finder & 生成装配（默认并行分析，无需等待人工精剪）
+     └ 屏幕录制锚定上轨（Screen Demo，独立静音轨）
+     └ 6 大风格程序化动效包装（B-roll Packaging: Remotion / HyperFrames）
+     └ 概念隐喻生成上轨（B-roll AI Visual: Veo/Imagen，幂等凭据脱敏）
   ↓
-06 /video-assets —— 搜索下载 + 合规转码归档（分镜确认后即可并行，Draft 需要音频素材）
+05 /video-jianying-draft —— 一键导出原生剪映草稿（含 A-roll、三路 B-roll、恢复材料与字幕轨）
+  ↓（可选）用户剪映内人工微调
+     └ auto_edit.py reconcile —— 草稿回读调和，B-roll 自动重定位，脱靶入复核，字幕版本强绑定
   ↓
-07 /video-fine-cut —— 剪映内部剪气口、精剪、输出 master.srt
-  ↓
-08 /b-roll-finder —— 精剪 SRT → B-roll 机会表 + 母片段设计表
-  ↓
-09 /b-roll-generate —— 选择真实素材 / 拼贴 AI / Remotion / HyperFrames 生成 B-roll
-  ↓
-10 /video-polish —— B-roll、音效、音乐、字幕和 A-roll 装配，反复 QA
+06 /video-polish —— 成片合成、卡点装配、QA 验收
   ↓
 Final\video_final.mp4
 ```
 
 ## 阶段路由表
 
-| 用户意图 / 触发词 | 子 Skill | 前置条件 | 主要结果 |
+| 用户意图 / 触发词 | 子 Skill / 命令 | 前置条件 | 主要结果 |
 |---|---|---|---|
 | 初始化、创建视频项目、首次使用 | `/video-init` | 无 | 项目目录、状态文件、`WORKFLOW.md`、`STATUS.md` |
 | 看状态、现在做到哪一步、下一步做什么 | `/video-status` | 可选项目目录 | 只读状态看板和下一步建议 |
 | 规划分镜、文稿转分镜、列素材 | `/video-plan` | 终稿文稿 | `storyboard.md`、`storyboard.json`（含交付承诺）、素材和动效候选、风格档、幻灯片风险闸报告 |
-| 转录、粗剪、剪口播、按文稿剪视频、自动校对字幕 | `/video-rough-cut` | `Raw\` 原片 + 终稿文稿 | 词级转录、`Sub/caption_corrected.srt`、对齐报告、EDL、粗剪预览 |
-| 复核低置信字幕、裁决口误、沉淀个人词典 | `/video-caption-correct`（条件触发） | `Rough/analysis/alignment_report.json` 显示低置信/偏差，或用户主动要求 | 复核后的 `caption_corrected-vN.srt`、`speech_errors` 裁决、词典更新 |
-| 创建剪映草稿、导入视频和字幕 | `/video-jianying-draft` | EDL/剪辑决策 + 字幕 + 音频等素材 | 剪映原生草稿和素材副本 |
-| 下载素材、找图片、找视频、找音乐、找音效 | `/video-assets` | `asset_request_list.md` 或明确需求 | 素材文件、转码副本、许可证清单 |
-| 剪映内部剪辑、剪气口、导出精剪字幕 | `/video-fine-cut` | 剪映 Draft / Filmora 工程 + 校对字幕 | `Polished/fine_cut.mp4`、`Sub/master.srt` |
-| B-roll 机会分析、素材落位匹配、设计 B-roll | `/b-roll-finder` | 剪映精剪后的 SRT + 手头素材 | B-roll 机会表、母片段设计、风格建议、素材落位骨架（确认闸后进装配） |
-| 生成 B-roll、做 Remotion/HyperFrames/拼贴动画 | `/b-roll-generate` | 已确认的 B-roll 设计 | B-roll 视频、透明素材、静帧和提示词 |
+| 转录、粗剪、智能口播裁切、多 Take 择优、气口收紧 | `/video-rough-cut` / `auto_edit.py` | `Raw\` 原片 + 终稿文稿 | `edit-plan.v1.json`、词级转录、边界保护报告、气口压减报告、电路熔断判定 |
+| B-roll 机会分析、录屏锚定、三路 B-roll 上轨 | `/b-roll-finder` / `/b-roll-generate` | `edit-plan.v1.json` + 文稿/素材 | `broll-manifest.v1.json`、三路 B-roll 样片、多风格镜头组装（默认步骤） |
+| 创建剪映草稿、导入视频、三路 B-roll 与字幕 | `/video-jianying-draft` | 剪辑决策 + B-roll manifest + 字幕 | 剪映原生草稿（多轨静音保护）、恢复轨（不出画不出声）与素材副本 |
+| 剪映微调后时间线调和、B-roll 重定位、重建字幕 | `auto_edit.py reconcile` | 微调后的剪映 `draft_content.json` | 调和后 plan、自动重定位的 B-roll、脱靶复核队列、版本绑定字幕 |
 | 调整 B-roll 位置、合成音效、输出成片 | `/video-polish` | 精剪视频 + B-roll + SRT | `Polished\`、`Final\video_final.mp4`、QA 记录 |
 | 把成片导出为可编辑剪映工程（改字幕/变速/换音频） | `/video-jianying-draft`（成片导出模式） | 成片 + manifest + 字幕/SFX 钉帧表 | 可编辑剪映草稿（底片切段 + 原生字幕/音频轨） |
 | 迁移旧状态、升级 schema、修复项目结构 | `/video-migrate` | 旧版 state 或目录 | 备份、迁移报告、更新后的 state |
@@ -146,6 +158,7 @@ not_started -> in_progress -> awaiting_approval -> completed
 | 半调纸拼贴 AI B-roll、HyperFrames 检查 | `scripts/b-roll-generate/` |
 | Remotion / HyperFrames 技术规则 | `references/b-roll-generate/remotion-best-practices/`、`references/b-roll-generate/hyperframes/` |
 | BGM 卡点装配 | `references/video-polish/music-beat-sync.md`（`video-polish` 装配时读取） |
+| 动效逆向分析与模板合成 | `scripts/motion_analyzer/cli.py`（`analyze` / `synthesize`）+ `scripts/motion_analyzer/` |
 | 任务证据、候选 Skill 和验证闸门 | `scripts/video-skill-optimize/` + `skills/video-skill-optimize/SKILL.md` |
 | 风险闸与机检（幻灯片风险评分 / 交付承诺核对 / cue 对齐断言 / 成片探针 / 素材技术准入） | `scripts/video-plan/slideshow_risk.py`、`scripts/video-polish/check_delivery_promise.py`、`check_cue_alignment.py`、`final_probe.py`、`scripts/video-assets/probe_source.py` |
 | 跨阶段决策审计 | `shared-references/decision-log.md` + `templates/decision-log.template.json`（项目根 `decision_log.json`） |
@@ -205,6 +218,11 @@ video-production-workflow/          # 合集根（部署时位于 01-制作管�
 单期视频项目目录（`<视频项目根>\{第X期：标题}\`）的结构见 [shared-references/video-folder-schema.md](shared-references/video-folder-schema.md)，与本合集根分开维护。
 
 ## 常见拒绝与降级
+
+动效逆向 CLI 在分析阶段未配置 LLM 时保留协作提示并返回
+`awaiting_agent`；真实 Agent/API、FFmpeg、模板合成或探针错误则返回结构化错误和非零退出码。
+生产探针固定使用受信任的合成根和绝对依赖路径；测试 runner 仅存在于私有测试 seam，
+不作为 CLI 参数暴露。
 
 - 用户要求跳过文稿/分镜直接批量生成大量 B-roll：先拒绝批量生成，要求先完成 B-roll 机会表和风格确认。
 - 用户要求覆盖 `Raw\` 原片：拒绝，写处理副本到 `Rough\` 或 `assets\raw\`。

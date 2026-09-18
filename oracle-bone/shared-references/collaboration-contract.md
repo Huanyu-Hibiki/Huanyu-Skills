@@ -171,7 +171,7 @@ score 重打: composite vN vs vN-1 + 哪几个维度变了
 
 ## 契约 12：审稿三轴（质检 / review 类输出的质量标准）
 
-**规则**：所有审查类输出（no-ai-slop 检测报告 / who-for 采访结论 / open-source 审查 / edit-plan 成片验收 / retro 诊断）逐条过三轴：
+**规则**：所有审查类输出（no-ai-slop 检测报告 / who-for 采访结论 / open-source 审查 / video-production-workflow 成片验收 / retro 诊断）逐条过三轴：
 
 1. **准确**——每个 finding 指到具体位置（行号 / 镜头时间点 / 段落 / 字段），禁止"整体感觉 X"式的幻觉批评
 2. **完整**——发现一处同类问题，扫完全文同类（报了 3 处破折号 → 全文破折号都报）

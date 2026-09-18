@@ -110,7 +110,7 @@ def quantile_recommendations(diff_rows, top_n=3):
             "title": "两次采集间增长最快的旧作品：正在被算法重新推荐",
             "why": "这些旧作品的播放增量最高——平台在二次分发或外部流量带动，拆解它们比做新选题性价比高。",
             "actions": [
-                "逐条拆解标题结构 / 开头 3 秒 / 节奏点（/oracle-apprentice 拜师自己的爆款）",
+                "逐条拆解标题结构 / 开头 3 秒 / 节奏点（/oracle-study --mode practice 拜师自己的爆款）",
                 "同主题做系列（合集 + 固定栏目名），承接二推流量",
             ],
             "examples": [brief(r) | {"播放增量": _num(r.get("播放增量"))} for r in gainers[:top_n]],

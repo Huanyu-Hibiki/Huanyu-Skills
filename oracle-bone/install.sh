@@ -2,10 +2,11 @@
 #
 # oracle-bone / install.sh
 #
-# Symlinks the 29 sub-skills into your agent's global skills directory.
+# Symlinks the root router plus 26 canonical sub-skills and 3 compatibility
+# aliases into your agent's global skills directory.
 # Default target: ~/.claude/skills/ (read by Claude Code and most skills-compatible
-# runtimes). Other runtimes: pass --target <dir>. Re-runnable safely (existing
-# links/dirs are overwritten).
+# runtimes). Other runtimes: pass --target <dir>. Re-runnable safely: owned
+# links are refreshed, while existing directories and foreign links are skipped.
 #
 # After install, in any content project directory: open your agent
 # (Claude Code / OpenCode / Codex CLI ...) → say "初始化" → /oracle-init runs
@@ -26,8 +27,10 @@ set -euo pipefail
 
 SKILLS=(
   oracle-init
+  oracle-study
   oracle-learn-from
   oracle-apprentice
+  oracle-cover-analyze
   oracle-migrate
   oracle-trends
   oracle-recommend
@@ -44,7 +47,6 @@ SKILLS=(
   oracle-compliance
   oracle-predict
   oracle-shoot
-  oracle-edit-plan
   oracle-publish
   oracle-pinned-comment
   oracle-derivative
@@ -128,6 +130,25 @@ while [[ $# -gt 0 ]]; do
 done
 TARGET_DIR="${TARGET_DIR:-$HOME/.claude/skills}"
 
+# Retire the removed production skill on upgrade only when the old entry is a
+# symlink owned by an oracle-bone checkout. Non-symlink copies are left for
+# manual review so an unrelated skill is never deleted.
+RETIRED=(oracle-edit-plan)
+for retired in "${RETIRED[@]}"; do
+  RETIRED_TARGET="$TARGET_DIR/$retired"
+  if [[ -L "$RETIRED_TARGET" ]]; then
+    RETIRED_LINK=$(readlink "$RETIRED_TARGET")
+    if [[ "$RETIRED_LINK" == */oracle-bone/skills/$retired ]]; then
+      rm "$RETIRED_TARGET"
+      echo "  ✓ retired legacy symlink: $retired"
+    else
+      echo "  ⚠️  retired entry points elsewhere, skipped: $retired"
+    fi
+  elif [[ -d "$RETIRED_TARGET" ]]; then
+    echo "  ⚠️  retired directory remains for manual review: $retired"
+  fi
+done
+
 # Sanity check: confirm we're in the oracle-bone root
 for s in "${SKILLS[@]}"; do
   if [[ ! -f "$SCRIPT_DIR/skills/$s/SKILL.md" ]]; then
@@ -154,11 +175,11 @@ for s in "${SKILLS[@]}"; do
     if [[ -L "$TARGET" ]]; then
       EXISTING=$(readlink "$TARGET")
       if [[ "$EXISTING" != "$SCRIPT_DIR/skills/$s" ]]; then
-        echo "⚠️  $TARGET already symlinked to: $EXISTING"
+        echo "⚠️  $TARGET already symlinked to another source: $EXISTING (will skip)"
         WARNED=1
       fi
     else
-      echo "⚠️  $TARGET exists (not a symlink) — will be overwritten"
+      echo "⚠️  $TARGET exists (not a symlink) — will be skipped"
       WARNED=1
     fi
   fi
@@ -166,7 +187,7 @@ done
 
 if [[ $WARNED -eq 1 ]]; then
   echo ""
-  read -p "Continue and overwrite? (y/N) " -n 1 -r
+  read -p "Continue (conflicting entries will be skipped)? (y/N) " -n 1 -r
   echo ""
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Aborted."
@@ -179,9 +200,18 @@ for s in "${SKILLS[@]}"; do
   SRC="$SCRIPT_DIR/skills/$s"
   DST="$TARGET_DIR/$s"
 
-  # Remove any existing entry first (to allow overwriting non-symlink dirs)
-  if [[ -e "$DST" || -L "$DST" ]]; then
-    rm -rf "$DST"
+  # Only replace symlinks; never recursively delete a non-symlink directory.
+  if [[ -L "$DST" ]]; then
+    EXISTING=$(readlink "$DST")
+    if [[ "$EXISTING" == "$SCRIPT_DIR/skills/$s" ]]; then
+      rm "$DST"
+    else
+      echo "⏭️  symlink points elsewhere, skipped: $s"
+      continue
+    fi
+  elif [[ -d "$DST" ]]; then
+    echo "⚠️  existing directory skipped: $s (it may be an older copy; remove it manually on a clean upgrade)"
+    continue
   fi
 
   if [[ "$MODE" == "symlink" ]]; then
@@ -189,9 +219,102 @@ for s in "${SKILLS[@]}"; do
     echo "  ✓ symlinked: $s"
   else
     cp -R "$SRC" "$DST"
+    touch "$DST/.oracle-bone-copy"
     echo "  ✓ copied:    $s"
   fi
 done
+
+# Install the workflow router itself as /oracle-bone. It is intentionally not
+# counted in SKILLS because the public inventory counts sub-skills only.
+MAIN_SRC="$SCRIPT_DIR"
+MAIN_DST="$TARGET_DIR/oracle-bone"
+PACKAGE_ROOT_OWNED=0
+if [[ -L "$MAIN_DST" ]]; then
+  EXISTING=$(readlink "$MAIN_DST")
+  if [[ "$EXISTING" == "$MAIN_SRC" ]]; then
+    rm "$MAIN_DST"
+  else
+    echo "⏭️  root symlink points elsewhere, skipped: oracle-bone"
+    MAIN_DST=""
+  fi
+elif [[ -d "$MAIN_DST" ]]; then
+  if [[ -f "$MAIN_DST/.oracle-bone-copy" ]]; then
+    echo "⚠️  existing oracle-bone copy skipped (use a clean target to refresh)"
+    PACKAGE_ROOT_OWNED=1
+  else
+    echo "⚠️  existing root directory skipped: oracle-bone (remove it manually to refresh)"
+  fi
+  MAIN_DST=""
+fi
+if [[ -n "$MAIN_DST" ]]; then
+  if [[ "$MODE" == "symlink" ]]; then
+    ln -s "$MAIN_SRC" "$MAIN_DST"
+    echo "  ✓ symlinked: oracle-bone"
+  else
+    mkdir -p "$MAIN_DST"
+    cp "$MAIN_SRC/SKILL.md" "$MAIN_DST/SKILL.md"
+    for doc in DESIGN.md MAINTENANCE.md README.md CHANGELOG.md LICENSE; do
+      if [[ -f "$MAIN_SRC/$doc" ]]; then
+        cp "$MAIN_SRC/$doc" "$MAIN_DST/$doc"
+      fi
+    done
+    touch "$MAIN_DST/.oracle-bone-copy"
+    PACKAGE_ROOT_OWNED=1
+    echo "  ✓ copied:    oracle-bone"
+  fi
+fi
+
+# Copy mode must carry the shared protocol tree with the frozen skill copies;
+# many SKILL.md files resolve ../../references and ../../shared-references.
+# Never overwrite an existing top-level directory owned by another package.
+if [[ "$MODE" == "copy" ]]; then
+  RUNTIME_DIRS=(references shared-references templates starter-rubrics tools adapters hooks examples)
+  # The canonical SKILL.md files keep repository-relative links such as
+  # ../../shared-references. With direct copies in <skills-dir>/oracle-*,
+  # those links resolve from the parent of <skills-dir>; keep a package-local
+  # copy beside the root entry as well so both direct and root routes work.
+  RESOURCE_ROOT="$(cd -- "$(dirname "$TARGET_DIR")" &> /dev/null && pwd)"
+  PACKAGE_ROOT="$TARGET_DIR/oracle-bone"
+  if [[ ! -d "$PACKAGE_ROOT" ]]; then
+    mkdir -p "$PACKAGE_ROOT"
+  fi
+  RESOURCE_CONFLICT=0
+  for d in "${RUNTIME_DIRS[@]}"; do
+    for DST in "$RESOURCE_ROOT/$d"; do
+      if [[ -e "$DST" || -L "$DST" ]] && [[ ! -f "$DST/.oracle-bone-resource" ]]; then
+        echo "❌ shared resource exists without oracle-bone ownership marker: $DST"
+        RESOURCE_CONFLICT=1
+      fi
+    done
+    if [[ "$PACKAGE_ROOT_OWNED" -eq 1 ]]; then
+      DST="$PACKAGE_ROOT/$d"
+      if [[ -e "$DST" || -L "$DST" ]] && [[ ! -f "$DST/.oracle-bone-resource" ]]; then
+        echo "❌ package resource exists without oracle-bone ownership marker: $DST"
+        RESOURCE_CONFLICT=1
+      fi
+    fi
+  done
+  if [[ "$RESOURCE_CONFLICT" -eq 1 ]]; then
+    echo "   Copy install aborted. Use a clean target or review the conflicting directories manually."
+    exit 1
+  fi
+  for d in "${RUNTIME_DIRS[@]}"; do
+    SRC="$SCRIPT_DIR/$d"
+    DESTINATIONS=("$RESOURCE_ROOT/$d")
+    if [[ "$PACKAGE_ROOT_OWNED" -eq 1 ]]; then
+      DESTINATIONS+=("$PACKAGE_ROOT/$d")
+    fi
+    for DST in "${DESTINATIONS[@]}"; do
+      if [[ -e "$DST" || -L "$DST" ]]; then
+        echo "⚠️  shared resource exists, skipped: $DST"
+      else
+        cp -R "$SRC" "$DST"
+        touch "$DST/.oracle-bone-resource"
+        echo "  ✓ copied shared resources: $DST"
+      fi
+    done
+  done
+fi
 
 echo ""
 echo "✅ Install complete!"
@@ -211,6 +334,6 @@ if [[ "$MODE" == "symlink" ]]; then
   echo "ℹ️  Mode: symlink — edits to source SKILL.md files take effect immediately."
   echo "   To switch to frozen copy: bash install.sh --copy"
 else
-  echo "ℹ️  Mode: copy — frozen at install time. Re-run install.sh to update."
+  echo "ℹ️  Mode: copy — frozen at install time. Existing directories are never overwritten; use a clean target to update."
 fi
 echo ""

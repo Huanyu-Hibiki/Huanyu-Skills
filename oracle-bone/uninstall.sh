@@ -2,7 +2,10 @@
 #
 # oracle-bone / uninstall.sh
 #
-# Removes the 29 sub-skills from ~/.claude/skills/.
+# Removes the root router plus symlinks for the 26 current sub-skills and
+# legacy entries (aliases and retired skills) from ~/.claude/skills/.
+# Copied directories are reported
+# but never deleted automatically, because they may contain user edits.
 #
 # Does NOT touch any content project's data (.oracle-state.json, predictions/,
 # rubric_notes.md, user-profile.md, content-plan.md, candidates.md, etc.) — those
@@ -12,8 +15,11 @@
 
 set -euo pipefail
 
+SOURCE_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
 SKILLS=(
   oracle-init
+  oracle-study
   oracle-learn-from
   oracle-apprentice
   oracle-migrate
@@ -25,6 +31,7 @@ SKILLS=(
   oracle-title
   oracle-description
   oracle-cover
+  oracle-cover-analyze
   oracle-no-ai-slop
   oracle-who-for
   oracle-open-source
@@ -51,17 +58,37 @@ REMOVED=0
 for s in "${SKILLS[@]}"; do
   TARGET="$HOME/.claude/skills/$s"
   if [[ -L "$TARGET" ]]; then
-    rm "$TARGET"
-    echo "  ✓ removed symlink:   $s"
-    REMOVED=$((REMOVED + 1))
+    LINK_TARGET=$(readlink "$TARGET")
+    if [[ "$LINK_TARGET" == "$SOURCE_ROOT/skills/$s" ]]; then
+      rm "$TARGET"
+      echo "  ✓ removed symlink:   $s"
+      REMOVED=$((REMOVED + 1))
+    else
+      echo "  · skipped foreign symlink: $s -> $LINK_TARGET"
+    fi
   elif [[ -d "$TARGET" ]]; then
-    rm -rf "$TARGET"
-    echo "  ✓ removed directory: $s"
-    REMOVED=$((REMOVED + 1))
+    echo "  · skipped directory:  $s (manual review required; not deleted)"
   else
     echo "  · not found:         $s (skipped)"
   fi
 done
+
+# Remove the root workflow router only when it points at this checkout.
+ROOT_TARGET="$HOME/.claude/skills/oracle-bone"
+if [[ -L "$ROOT_TARGET" ]]; then
+  ROOT_LINK_TARGET=$(readlink "$ROOT_TARGET")
+  if [[ "$ROOT_LINK_TARGET" == "$SOURCE_ROOT" ]]; then
+    rm "$ROOT_TARGET"
+    echo "  ✓ removed symlink:   oracle-bone"
+    REMOVED=$((REMOVED + 1))
+  else
+    echo "  · skipped foreign symlink: oracle-bone -> $ROOT_LINK_TARGET"
+  fi
+elif [[ -d "$ROOT_TARGET" ]]; then
+  echo "  · skipped directory:  oracle-bone (manual review required; not deleted)"
+else
+  echo "  · not found:         oracle-bone (skipped)"
+fi
 
 echo ""
 if [[ $REMOVED -gt 0 ]]; then

@@ -1,6 +1,6 @@
 # script-extraction — 视频/音频转脚本
 
-/oracle-learn-from（Way b）/ /oracle-apprentice 的转录管线。
+/oracle-study（Way b）/ /oracle-study 的转录管线。
 
 ## 依赖
 
@@ -37,7 +37,7 @@ transcribe.py 按 URL 自动识别平台，套用对应拟人化档案（TLS 指
 ### 抖音实操序列（反爬最严，按序尝试）
 
 ```bash
-$PY transcribe.py "<分享短链 v.douyin.com/...>" --out study/<博主>-apprentice/<标题>/ --cookies-from-browser chrome
+$PY transcribe.py "<分享短链 v.douyin.com/...>" --out study/<对象>/samples/<content-id>/ --cookies-from-browser chrome
 # 1️⃣ 浏览器先登录 douyin.com；2️⃣ 关闭浏览器（解锁 cookie 库）；3️⃣ 跑上面的命令
 # 仍被拦（风控期）→ 换手动方案：网页播放视频 → 复制"文案/字幕"或录屏导出本地文件 → 本地路径跑 whisper
 ```
@@ -157,10 +157,10 @@ uv pip install --python .venv/Scripts/python.exe -r requirements-sensevoice.txt 
 PY=.venv/Scripts/python.exe            # macOS/Linux: PY=.venv/bin/python
 
 # URL（字幕轨优先——有字幕不耗 whisper，无字幕自动走 whisper）
-$PY transcribe.py "https://www.bilibili.com/video/BVxxxx" --out study/某博主-apprentice/某标题/
+$PY transcribe.py "https://www.bilibili.com/video/BVxxxx" --out study/某对象/samples/某内容/
 
 # 本地文件（跳过 yt-dlp，直接 ffmpeg + whisper）
-$PY transcribe.py "D:\downloads\demo.mp4" --out study/某博主-apprentice/某标题/
+$PY transcribe.py "D:\downloads\demo.mp4" --out study/某对象/samples/某内容/
 
 # 指定档位 / 指定模型目录 / 强制 whisper / 复用浏览器登录态（B站字幕、抖音、小红书）
 $PY transcribe.py <url> --model large-v3-turbo
@@ -192,7 +192,7 @@ URL ──yt-dlp──> 字幕轨？──有──> VTT/SRT 清洗 ────
 - **hf CLI 走镜像下载报 401（CAS Client Error / cas-server.xethub.hf.co）**：Xet 存储仓库绕过了 HF_ENDPOINT 镜像直连官方 CAS——加 `HF_HUB_DISABLE_XET=1` 强制回退普通 CDN 下载（镜像可代理）。turbo 档实测中招，命令见上节
 - **SenseVoice 输出无标点**：属预期（模型本身不产标点）——标点恢复在 oracle-voice 文字轮；要在脚本层解决可另接 FunASR 的 ct-punc 标点模型
 - **SenseVoice 可能带 emoji 事件标记**（🎼音乐/😡愤怒等）：模型的多模态标签，纯音乐/静音段必出现；文字轮整理时随语气词一起清掉。实测 CPU RTF≈0.26（比 whisper medium 的 ~1:1 快约 4 倍）
-- **转录产物立刻落盘**（`--out` 直接指向 `study/<博主>-apprentice/<标题>/`）——临时目录会被清
+- **转录产物立刻落盘**（`--out` 直接指向 `study/<对象>/samples/<content-id>/`）——临时目录会被清
 - **转录准确度低于粘贴文本**（错字/漏字/标点不准）——能用"文案提取小程序/字幕导出"就别用 whisper
 - **模型在线下载在国内大概率失败**——按「模型下载」节预下载到 `models/`，一劳永逸
 - 代理环境注意：国内平台下载常需绕过系统代理（NO_PROXY）

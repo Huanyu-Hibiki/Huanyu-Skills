@@ -119,7 +119,7 @@
 
 **国内映射**：完全适用，甚至更严格。国内用户对"AI 生成内容"越来越警惕（AIGC 矩阵号泛滥）。
 
-**与 founder-ip 关联**：直接对应 `ip-persona` 的"真实型人设"+ cheat-open-source 的"反端着教人"。**略显笨拙但真实 > 完美但 AI 化**。
+**与 founder-ip 关联**：直接对应 `ip-persona` 的"真实型人设"+ oracle-open-source 的"反端着教人"。**略显笨拙但真实 > 完美但 AI 化**。
 
 ---
 
@@ -277,7 +277,7 @@
 | 首批用户偏执 | `ip-business-model` 咨询枢纽 | 种子客户 = 咨询枢纽启动 |
 | CLG 社群主导增长 | PLG 三大资产的"渠道" | CLG 是 PLG 的具体落地 |
 | 品牌基调（选一种坚守）| `ip-persona` 表达风格 | 直接对应 |
-| AI 内容真实性 | `ip-persona` 真实型人设 + cheat-open-source | 直接对应 |
+| AI 内容真实性 | `ip-persona` 真实型人设 + oracle-open-source | 直接对应 |
 | 7 次法则（B2B 12+ 触点）| `ip-content-funnel` 内容漏斗 | 内容漏斗 = 触点设计系统 |
 | 深耕 2-3 场活动 | `ip-opc-system` 流水线（新维度）| 补充线下深耕动作 |
 | **KOC > KOL** ⭐ | `ip-business-model` 渠道 | **新维度，建议补充** |

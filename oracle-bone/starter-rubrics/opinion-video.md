@@ -187,9 +187,9 @@ composite = (ER×1.5 + SR×1.5 + HP×1.5 + QL + NA + AB + SAT) / 8.5 × 2.0
 
 ---
 
-## 与 `cheat-on-content` 子 skill 的对应
+## 与 `oracle-bone` 的对应（历史前身：cheat-on-content）
 
 这份 starter rubric 被以下 skill 读取：
 - `/oracle-init` cold-start 模式 → 默认复制本文件到 `rubric_notes.md`（如选择 calibration 模式且 mode 决定能用 v2 公式）
-- `/cheat-score` 和 `/oracle-predict` → 读 `rubric_notes.md` 拿当前公式
+- `/oracle-score` 和 `/oracle-predict` → 读 `rubric_notes.md` 拿当前公式
 - `/oracle-bump` → 这份 starter 是 bump 的"先验起点"，bump 后被替换为用户自己拟合的版本

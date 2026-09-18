@@ -1,6 +1,6 @@
 # 对标账号档案（benchmark.md）
 
-> oracle-learn-from 产出。工具早期最重要的信号源；该轨样本 ≥10 后影响淡出（保留作 sanity check）。
+> oracle-study 产出。工具早期最重要的信号源；该轨样本 ≥10 后影响淡出（保留作 sanity check）。
 
 ---
 

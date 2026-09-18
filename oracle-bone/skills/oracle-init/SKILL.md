@@ -28,7 +28,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
   ↓
 [Phase 5: 脚手架落盘（state + rubric + 目录 + hooks）]
   ↓
-[Phase 5.5: 对标账号询问 → （选"现在找"则 dispatch /oracle-learn-from）]
+[Phase 5.5: 对标账号询问 → （选"现在找"则 dispatch /oracle-study --mode benchmark）]
   ↓
 [Phase 6: 测试 hook + 给"下一步该说什么"清单]
 ```
@@ -216,7 +216,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 
 4. **`script_patterns.md`**（复制 template，按轨道分节）+ **`candidates.md`**（空池）+ **`WORKFLOW.md`** / **`STATUS.md`**
 
-5. **目录**：项目根下建 `study/`（对标样本，oracle-learn-from 用）——`scripts/` `predictions/` 不建平铺目录，**每期作品一个 `<NNN>_<标题>/` 目录**（oracle-seed 时建，见 [content-folder-schema.md](../../shared-references/content-folder-schema.md)）
+5. **目录**：项目根下建 `study/`（对标样本，oracle-study 用）——`scripts/` `predictions/` 不建平铺目录，**每期作品一个 `<NNN>_<标题>/` 目录**（oracle-seed 时建，见 [content-folder-schema.md](../../shared-references/content-folder-schema.md)）
 
 6. **装 hooks**（默认装）：
    - merge `hooks/prediction-immutability.json` + `session-start.json` + `meta-logging.json` 进 `.claude/settings.json`
@@ -232,14 +232,14 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 工具早期最重要的信号源是对标账号——你 init 完没数据，rubric 等权 v0 等于占星。
 找一个你想做成那样的账号，导入 5-10 条高/中/低样本，工具就有 anchor。
 
-a) 现在找 → 立刻进入 /oracle-learn-from（5-15 分钟）
+a) 现在找 → 立刻进入 /oracle-study --mode benchmark（5-15 分钟）
 b) 等下找 → 标 pending，状态看板持续提醒
 c) 不找 → 用通用 v0 起步
 
 回 a / b / c。
 ```
 
-- 选 a → Phase 6 hook 测试完毕后 **自动 dispatch 到 /oracle-learn-from**（不让用户手动跑）
+- 选 a → Phase 6 hook 测试完毕后 **自动 dispatch 到 /oracle-study --mode benchmark**
 - 选 b → `benchmark_status: pending`；选 c → `none`
 
 ### Phase 6: 测试 hook + 下一步清单

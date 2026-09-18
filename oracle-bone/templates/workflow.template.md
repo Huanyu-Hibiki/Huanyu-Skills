@@ -25,7 +25,7 @@ oracle-predict v1（盲预测，预测段锁定）
   ↓
 oracle-shoot（登记 + buffer+1；定稿 diff ≥30% → predict v2）
   ↓
-oracle-edit-plan（剪辑计划 → 用户剪辑 → 成片验收；可选）
+video-production-workflow（剪辑计划 → 用户剪辑 → 成片验收；可选）
   ↓
 实际发布
   ↓

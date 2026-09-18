@@ -40,11 +40,11 @@ dontbesilent 讲的是**商业变现的"术"**——怎么定价、怎么对标�
 | `diagnosis_公理与诊断框架.md` | 500 | 222.7 KB | **ip-strategy**（立项自检）+ **ip-business-model**（商业模式诊断）|
 | `diagnosis_问题消解案例库.md` | — | 85 KB | **ip-business-model**（变现路径案例）|
 
-### 🔍 对标类（补充 cheat-learn-from）
+### 🔍 对标类（补充 oracle-study --mode benchmark）
 
 | 知识包 | 原子数 | 大小 | 对应 founder-ip 子 skill |
 |---|---|---|---|
-| `benchmark_对标方法论.md` | — | 65.4 KB | **ip-strategy**（立项时找对标）+ cheat-learn-from |
+| `benchmark_对标方法论.md` | — | 65.4 KB | **ip-strategy**（立项时找对标）+ oracle-study --mode benchmark |
 | `benchmark_平台运营知识.md` | — | 23.4 KB | **ip-opc-system**（平台运营）|
 
 ### 🧠 心理与行动类（对应 ip-strategy 立项 + ip-opc-system）
@@ -54,12 +54,12 @@ dontbesilent 讲的是**商业变现的"术"**——怎么定价、怎么对标�
 | `action_心理诊断框架.md` | — | 76.8 KB | **ip-strategy**（立项决心 + 反"随便做做"）|
 | `action_信号案例库.md` | — | 27.2 KB | **ip-strategy**（什么时候该做/不该做的信号）|
 
-### 🔬 解构类（补充 cheat-learn-from + ip-persona）
+### 🔬 解构类（补充 oracle-study --mode benchmark + ip-persona）
 
 | 知识包 | 原子数 | 大小 | 对应 founder-ip 子 skill |
 |---|---|---|---|
-| `deconstruct_解构案例库.md` | — | 61.7 KB | **ip-persona**（人设解构）+ cheat-learn-from |
-| `deconstruct_语言与概念框架.md` | — | 228.5 KB | **ip-persona**（表达风格）+ cheat-title |
+| `deconstruct_解构案例库.md` | — | 61.7 KB | **ip-persona**（人设解构）+ oracle-study --mode benchmark |
+| `deconstruct_语言与概念框架.md` | — | 228.5 KB | **ip-persona**（表达风格）+ oracle-title |
 
 ### 📋 决策类（对应 ip-strategy + 所有子 skill）
 
@@ -157,10 +157,10 @@ Top 10 术语（按出现次数）：
 | 提示词 | 195 | AI、内容创作 | ip-opc-system（AI 协作）|
 | 需求 | 184 | 商业模式、价值观 | ip-strategy（动机）|
 | 智能体 | 163 | AI、内容创作 | ip-opc-system（你的产品就是 Agent）|
-| 对标 | 119 | 对标、商业模式 | ip-strategy + cheat-learn-from |
+| 对标 | 119 | 对标、商业模式 | ip-strategy + oracle-study --mode benchmark |
 | 知识付费 | 104 | 商业模式、教育 | ip-business-model（咨询分支）|
 | 算法 | 98 | 内容创作、案例 | ip-content-funnel |
-| 标题 | 97 | 内容创作、语言 | cheat-title（已有）|
+| 标题 | 97 | 内容创作、语言 | oracle-title（已有）|
 | 转化 | 74 | 商业模式、内容 | ip-business-model |
 | 私域 | 70 | 商业模式、内容 | ip-business-model + ip-opc-system |
 
