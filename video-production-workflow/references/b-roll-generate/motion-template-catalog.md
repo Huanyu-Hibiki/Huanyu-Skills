@@ -69,3 +69,14 @@ Gate（三帧静图 + 3s 短样片）之前加一道**机械快检**，把"渲�
 | remotion-templates（1000 模板库） | **无 LICENSE 声明** | ⚠️ 只允许分析思路与机制（registry/变体派生/gate 设计），**禁止复制其代码、模板或资产** |
 | video-shotcraft | Apache-2.0 | 可改编，署名登记 |
 | video-talkcraft | PolyForm-NC | 只允许分析原理，禁止复制代码/文本/模板 |
+
+## 8. 六个参考目录的实际采用与不采用清单（Task 9 证据）
+
+| 参考目录 | 采用机制 (Adopted) | 不采用机制 (Not Adopted) 与理由 | 对应落地代码 |
+|---|---|---|---|
+| `remotion-best-practices` | 参数化 props 校验、静音 B-roll 约定、单帧时长公差与 Alpha 通道（ProRes 4444 yuva444p10le） | 全套官方云端渲染集群（AWS Lambda / Cloud Run），当前单机管线使用本地 FFmpeg 管道更轻量安全 | `lib/broll_remotion.py` (ProRes 4444 编码) |
+| `hyperframes` | `data-composition-id/data-start/data-duration` 声明式属性、seek-safe 离散帧渲染、GSAP 3.14.2 动效、暖色设计令牌 | 远程在线资源加载、动态 Shader 滤镜、完整桌面 Studio 编辑器环境（避免引入庞大 Electron/Web 运行时依赖） | `lib/broll_hyperframes.py`, `references/b-roll-generate/hyperframes/index.html` |
+| `remotion-material` | 定格手作质感（`remotion-stop-motion-craft`）、撕纸阶梯步进（quantized stepped frames）、粗糙质感边框 | 复杂的物理重力模拟引擎（避免增加不可控的耗时与非确定性随机抖动） | `lib/broll_remotion.py` (`_draw_stop_motion_craft_frame`) |
+| `remotion-scenes` | 分步流程进度（`remotion-process-breakdown`）、模块化激活装配、状态卡片布局 | 嵌套的三层以上子场景过渡动效（遵循极简主义，防止遮挡口播与分散视觉焦点） | `lib/broll_remotion.py` (`_draw_process_breakdown_frame`) |
+| `remotion-templates` | 数据因果对比图表（`remotion-data-causality`）、指数级数字滚动（`remotion-stat-counter`） | 无 License 声明的 1000 套源码/二进制模板（严格遵守许可证边界，仅吸收参数化图表与计数器设计思想） | `lib/broll_remotion.py` (`_draw_data_causality_frame`, `_draw_stat_counter_frame`) |
+| `motion` (Shotcraft/Talkcraft) | 人物面部安全避让区（`face_avoidance_zone`）、入中出三关键帧非黑帧质检、相机平移引导（`remotion-observe-focus`） | 商业闭源人脸检测模型推理（使用标准化几何安全窗 `x:0.65, y:0.50, w:0.35, h:0.50` 进行轻量快速求交拦截） | `lib/broll_remotion.py` (`check_face_avoidance`, `_draw_observe_focus_frame`) |

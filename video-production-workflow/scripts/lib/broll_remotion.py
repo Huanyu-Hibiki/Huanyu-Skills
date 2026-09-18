@@ -2,15 +2,34 @@
 from __future__ import annotations
 
 import json
-import math
+import hashlib
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
-from PIL import Image, ImageDraw, ImageFont, ImageStat
+from PIL import Image, ImageDraw, ImageStat
+
+_MAX_PIXEL_FRAMES = 500_000_000
+
+
+def _is_link_like(path: Path) -> bool:
+    """Reject symlinks, junctions, and Windows reparse points without resolving."""
+    if path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()):
+        return True
+    try:
+        return bool(getattr(path.lstat(), "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
+    except OSError:
+        return False
+
+
+def _brief_hash(brief: Dict[str, Any]) -> str:
+    """Hash the canonical shot brief so receipts cannot be replayed for another shot."""
+    canonical = json.dumps(brief, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def _interpolate(frame: float, in_range: Tuple[float, float], out_range: Tuple[float, float],
@@ -190,12 +209,105 @@ def _draw_stat_counter_frame(frame_idx: int, total_frames: int, width: int, heig
     return im
 
 
+def _draw_stop_motion_craft_frame(frame_idx: int, total_frames: int, width: int, height: int,
+                                  props: Dict[str, Any], is_transparent: bool) -> Image.Image:
+    """Draw a frame for stop-motion craft / tactile paper cutout scene with stepped motion."""
+    # Stop-motion tactile feel: step frame calculation (simulating 8-12 fps stop motion steps)
+    step_frame = (frame_idx // 3) * 3
+
+    if is_transparent:
+        im = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    else:
+        # Warm kraft paper texture background
+        im = Image.new("RGBA", (width, height), (44, 38, 30, 255))
+
+    draw = ImageDraw.Draw(im)
+
+    # Box coordinates
+    box_w = int(width * 0.52)
+    box_h = int(height * 0.68)
+    box_x = int(width * 0.08)
+    box_y = int(height * 0.16)
+
+    # Kraft card with paper cutout rough edge simulation
+    card_bg = (62, 54, 43, 230 if is_transparent else 255)
+    draw.rounded_rectangle([box_x, box_y, box_x + box_w, box_y + box_h], radius=12, fill=card_bg,
+                           outline=(168, 148, 120, 255), width=3)
+
+    title = str(props.get("title", "手作卡片逐帧拆解"))
+    draw.text((box_x + 24, box_y + 20), title, fill=(245, 235, 215, 255))
+
+    steps = list(props.get("steps", ["剪裁", "拼贴", "组合"]))
+    active_idx = int(props.get("activeStep", 1))
+
+    # Stepped progress representation
+    step_h = int((box_h - 70) / max(len(steps), 1))
+    for i, st in enumerate(steps):
+        st_start = 6 + i * 12
+        # Stepped interpolation (quantized progress)
+        raw_prog = _interpolate(step_frame, (st_start, st_start + 12), (0.0, 1.0))
+        prog = round(raw_prog * 4) / 4.0  # 4 distinct stop-motion steps
+        if prog <= 0.01:
+            continue
+
+        sy = box_y + 60 + i * step_h
+        cur_w = int((box_w - 48) * prog)
+        is_active = (i == active_idx)
+        # Cutout tactile colors
+        cutout_col = (196, 73, 39, 255) if is_active else (115, 95, 75, 220)
+        draw.rounded_rectangle([box_x + 24, sy, box_x + 24 + cur_w, sy + step_h - 10], radius=6, fill=cutout_col)
+        draw.text((box_x + 36, sy + 6), f"【{i+1}】 {st}", fill=(255, 255, 255, 255))
+
+    return im
+
+
+def _draw_observe_focus_frame(frame_idx: int, total_frames: int, width: int, height: int,
+                              props: Dict[str, Any], is_transparent: bool) -> Image.Image:
+    """Draw a frame for observational evidence / focal reticle inspection scene."""
+    if is_transparent:
+        im = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    else:
+        im = Image.new("RGBA", (width, height), (18, 22, 28, 255))
+
+    draw = ImageDraw.Draw(im)
+
+    # Box coordinates placed left
+    box_w = int(width * 0.50)
+    box_h = int(height * 0.60)
+    box_x = int(width * 0.08)
+    box_y = int(height * 0.18)
+
+    # Semi-transparent observational HUD card
+    card_bg = (24, 30, 40, 220 if is_transparent else 255)
+    draw.rounded_rectangle([box_x, box_y, box_x + box_w, box_y + box_h], radius=10, fill=card_bg,
+                           outline=(70, 85, 105, 255), width=2)
+
+    title = str(props.get("title", "系统运行现场观察"))
+    draw.text((box_x + 20, box_y + 16), title, fill=(226, 232, 240, 255))
+
+    # Inspection reticle animation (smooth camera pan & scan simulation)
+    pan_x = _interpolate(frame_idx, (0, total_frames), (box_x + 60, box_x + box_w - 80))
+    pan_y = box_y + box_h // 2 + 10
+
+    # Draw reticle target corners
+    r_size = 28
+    draw.line([pan_x - r_size, pan_y - r_size, pan_x - r_size + 10, pan_y - r_size], fill=(56, 189, 248, 255), width=2)
+    draw.line([pan_x - r_size, pan_y - r_size, pan_x - r_size, pan_y - r_size + 10], fill=(56, 189, 248, 255), width=2)
+    draw.line([pan_x + r_size, pan_y + r_size, pan_x + r_size - 10, pan_y + r_size], fill=(56, 189, 248, 255), width=2)
+    draw.line([pan_x + r_size, pan_y + r_size, pan_x + r_size, pan_y + r_size - 10], fill=(56, 189, 248, 255), width=2)
+
+    focus_text = str(props.get("focusArea", "核心指标追踪"))
+    draw.text((box_x + 24, box_y + box_h - 32), f"[OBSERVE] {focus_text}", fill=(148, 163, 184, 255))
+
+    return im
+
+
 def _safe_shot_folder(out_dir: Path | str, raw_shot_id: Any) -> Tuple[Path, str]:
     """Resolve an output folder without following user-controlled symlinks."""
     requested_root = Path(out_dir)
     current = requested_root
     while True:
-        if current.is_symlink():
+        if _is_link_like(current):
             raise ValueError("symlinked Remotion output path")
         if current.parent == current:
             break
@@ -210,7 +322,7 @@ def _safe_shot_folder(out_dir: Path | str, raw_shot_id: Any) -> Tuple[Path, str]
         raise ValueError(f"invalid or unsafe shot_id: {raw_shot_id}")
 
     candidate = root / clean_shot_id
-    if candidate.is_symlink():
+    if _is_link_like(candidate):
         raise ValueError("symlinked Remotion artifact folder")
     try:
         shot_folder = candidate.resolve()
@@ -222,7 +334,7 @@ def _safe_shot_folder(out_dir: Path | str, raw_shot_id: Any) -> Tuple[Path, str]
 
 def _safe_output(path: Path, shot_folder: Path) -> Path:
     """Reject pre-existing symlink artifacts before any write or overwrite."""
-    if path.exists() and path.is_symlink():
+    if _is_link_like(path):
         raise ValueError("symlinked Remotion artifact")
     if path.parent.resolve() != shot_folder.resolve():
         raise ValueError("Remotion artifact escaped shot folder")
@@ -234,7 +346,7 @@ def render_remotion_shot(shot_brief: Dict[str, Any], out_dir: Path | str) -> Dic
     raw_shot_id = shot_brief.get("id", f"broll-{int(time.time())}")
     shot_folder, clean_shot_id = _safe_shot_folder(out_dir, raw_shot_id)
     shot_folder.mkdir(parents=True, exist_ok=True)
-    if shot_folder.is_symlink():
+    if _is_link_like(shot_folder):
         raise ValueError("symlinked Remotion artifact folder")
 
     # SEC-02 Bounds checking for DoS prevention
@@ -250,6 +362,8 @@ def render_remotion_shot(shot_brief: Dict[str, Any], out_dir: Path | str) -> Dic
         raise ValueError(f"fps out of bounds [1, 60]: {fps}")
 
     total_frames = max(1, int(round(dur * fps)))
+    if total_frames * width * height > _MAX_PIXEL_FRAMES:
+        raise ValueError("Remotion render exceeds pixel-frame safety limit")
     overlay_mode = shot_brief.get("overlay_mode", "full_frame")
     transparency = shot_brief.get("transparency", "opaque")
     is_transparent = (transparency == "full_alpha" and overlay_mode == "transparent_overlay")
@@ -273,7 +387,7 @@ export const MyComposition = () => {{
 
     # Render frames to temp folder
     frames_dir = shot_folder / "frames"
-    if frames_dir.is_symlink():
+    if _is_link_like(frames_dir):
         raise ValueError("symlinked Remotion frames folder")
     frames_dir.mkdir(parents=True, exist_ok=True)
 
@@ -289,11 +403,15 @@ export const MyComposition = () => {{
                 img = _draw_stat_counter_frame(idx, total_frames, width, height, props, is_transparent)
             elif tmpl_id == "remotion-data-causality":
                 img = _draw_data_causality_frame(idx, total_frames, width, height, props, is_transparent)
+            elif tmpl_id == "remotion-stop-motion-craft":
+                img = _draw_stop_motion_craft_frame(idx, total_frames, width, height, props, is_transparent)
+            elif tmpl_id == "remotion-observe-focus":
+                img = _draw_observe_focus_frame(idx, total_frames, width, height, props, is_transparent)
             else:
                 raise ValueError(f"unsupported template_id: {tmpl_id}")
 
             f_name = frames_dir / f"frame_{idx:05d}.png"
-            if f_name.is_symlink():
+            if _is_link_like(f_name):
                 raise ValueError("symlinked Remotion frame artifact")
             img.save(f_name)
 
@@ -346,10 +464,14 @@ export const MyComposition = () => {{
 
     # Save receipt
     receipt_path = _safe_output(shot_folder / "receipt.json", shot_folder)
+    video_resolved = video_out.resolve()
     receipt_data = {
+        "engine": "remotion",
         "shot_id": clean_shot_id,
         "template_id": tmpl_id,
-        "video_path": str(video_out.resolve()),
+        "brief_sha256": _brief_hash(shot_brief),
+        "video_path": str(video_resolved),
+        "video_sha256": hashlib.sha256(video_out.read_bytes()).hexdigest(),
         "duration": dur,
         "total_frames": total_frames,
         "fps": fps,
@@ -398,7 +520,7 @@ def verify_broll_shot(result: Dict[str, Any], shot_brief: Dict[str, Any]) -> Dic
     5. Facecam talking-head avoidance safety check.
     """
     v_path = Path(result["video_path"])
-    if not v_path.is_file():
+    if _is_link_like(v_path) or not v_path.is_file():
         return {"status": "rejected", "reason": "video_file_not_found"}
 
     # Probe format and streams
@@ -436,14 +558,40 @@ def verify_broll_shot(result: Dict[str, Any], shot_brief: Dict[str, Any]) -> Dic
             "pix_fmt": pix_fmt
         }
 
+    # Bind QA to the renderer receipt and the exact source brief.  The
+    # transparency gate intentionally runs first so an opaque fallback is
+    # rejected with the actionable reason above even when no receipt exists.
+    receipt_path = Path(result.get("receipt_path", v_path.parent / "receipt.json"))
+    try:
+        if (_is_link_like(receipt_path) or not receipt_path.is_file()
+                or receipt_path.parent.resolve() != v_path.parent.resolve()):
+            return {"status": "rejected", "reason": "remotion_receipt_missing_or_symlinked"}
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        expected_video_hash = hashlib.sha256(v_path.read_bytes()).hexdigest()
+        if (receipt.get("engine") != "remotion"
+                or receipt.get("shot_id") != shot_brief.get("id")
+                or receipt.get("template_id") != shot_brief.get("template_id", "remotion-data-causality")
+                or receipt.get("brief_sha256") != _brief_hash(shot_brief)
+                or receipt.get("video_path") != str(v_path.resolve())
+                or receipt.get("video_sha256") != expected_video_hash
+                or receipt.get("duration") != exp_dur
+                or receipt.get("fps") != fps
+                or receipt.get("transparency") != req_trans
+                or receipt.get("overlay_mode") != req_overlay):
+            return {"status": "rejected", "reason": "remotion_receipt_metadata_mismatch"}
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return {"status": "rejected", "reason": "remotion_receipt_invalid"}
+
     # GATE-01 & RES-01: In/mid/out deterministic frame checks with safe context manager
     for f_label, f_path_str in (("in_frame", result.get("in_frame")),
                                 ("mid_frame", result.get("mid_frame")),
                                 ("out_frame", result.get("out_frame"))):
-        if not f_path_str or not Path(f_path_str).is_file():
+        frame_path = Path(f_path_str) if f_path_str else None
+        if (frame_path is None or _is_link_like(frame_path) or not frame_path.is_file()
+                or frame_path.parent.resolve() != v_path.parent.resolve()):
             return {"status": "rejected", "reason": f"missing_{f_label}"}
         try:
-            with Image.open(f_path_str) as im:
+            with Image.open(frame_path) as im:
                 stat = ImageStat.Stat(im)
                 if max(stat.stddev) < 3.0:
                     return {"status": "rejected", "reason": f"blank_or_black_frame_detected: {f_label}"}

@@ -43,8 +43,8 @@ def load_plan(path):
         if not isinstance(identifier, str) or not identifier or identifier in seen:
             raise ValueError('segment IDs must be unique nonempty strings')
         seen.add(identifier)
-        if item['op'] not in ('keep', 'remove', 'insert_screen_demo', 'insert_broll_packaging'):
-            raise ValueError('this version supports explicit keep, remove, insert_screen_demo, or insert_broll_packaging only')
+        if item['op'] not in ('keep', 'remove', 'insert_screen_demo', 'insert_broll_packaging', 'insert_broll_ai_visual'):
+            raise ValueError('this version supports explicit keep, remove, insert_screen_demo, insert_broll_packaging, or insert_broll_ai_visual only')
         source = sources.get(item['sourceId'])
         if source is None:
             raise ValueError('unknown sourceId')
@@ -55,12 +55,14 @@ def load_plan(path):
         if item['sourceEnd'] > source['duration'] or end / fps > source['duration'] + 1e-6:
             raise ValueError('source interval out of bounds')
         normalized = dict(item, sourceStartFrame=start, sourceEndFrame=end, durationFrames=end-start)
-        if item['op'] in ('keep', 'insert_screen_demo', 'insert_broll_packaging'):
+        if item['op'] in ('keep', 'insert_screen_demo', 'insert_broll_packaging', 'insert_broll_ai_visual'):
             target = frame(item['targetStart'], fps)
             if item['op'] == 'insert_screen_demo':
                 default_track = 'Screen Demo'
             elif item['op'] == 'insert_broll_packaging':
                 default_track = 'B-roll Packaging'
+            elif item['op'] == 'insert_broll_ai_visual':
+                default_track = 'B-roll AI Visual'
             else:
                 default_track = 'A-roll Final'
             track = item.get('track', default_track)

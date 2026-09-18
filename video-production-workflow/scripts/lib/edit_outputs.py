@@ -6,7 +6,7 @@ from .edit_plan import probe
 
 
 def keeps(plan):
-    return [item for item in plan['timeline'] if item['op'] in ('keep', 'insert_screen_demo', 'insert_broll_packaging')]
+    return [item for item in plan['timeline'] if item['op'] in ('keep', 'insert_screen_demo', 'insert_broll_packaging', 'insert_broll_ai_visual')]
 
 
 def micros(frames, fps):
@@ -39,9 +39,9 @@ def preview(plan, output):
     output = Path(output)
     items = keeps(plan)
     a_roll_items = [item for item in items if item.get('track', 'A-roll Final') == 'A-roll Final']
-    overlay_items = [item for item in items if item.get('track') in ('Screen Demo', 'B-roll Packaging')]
-    if any(item.get('track') not in ('A-roll Final', 'Screen Demo', 'B-roll Packaging') for item in items):
-        raise ValueError('preview currently supports A-roll Final, Screen Demo, and B-roll Packaging tracks only; cross-track plans validate but need a later compositor')
+    overlay_items = [item for item in items if item.get('track') in ('Screen Demo', 'B-roll Packaging', 'B-roll AI Visual')]
+    if any(item.get('track') not in ('A-roll Final', 'Screen Demo', 'B-roll Packaging', 'B-roll AI Visual') for item in items):
+        raise ValueError('preview currently supports A-roll Final, Screen Demo, B-roll Packaging, and B-roll AI Visual tracks only; cross-track plans validate but need a later compositor')
     if not a_roll_items:
         raise ValueError('preview requires at least one keep on A-roll Final')
     fps = plan['fps']
@@ -147,7 +147,7 @@ def verify_draft(plan, path):
         source = segment['source_timerange']
         target = segment['target_timerange']
         fps = plan['fps']
-        if item.get('track') in ('Screen Demo', 'B-roll Packaging') and track_attributes.get(item['track']) != 1:
+        if item.get('track') in ('Screen Demo', 'B-roll Packaging', 'B-roll AI Visual') and track_attributes.get(item['track']) != 1:
             raise ValueError(f"{item['track']} track must be muted (attribute=1)")
         if (track != item['track'] or Path(materials[segment['material_id']]).resolve() != Path(plan['sources'][item['sourceId']]['path']).resolve()
                 or source['start'] != micros(item['sourceStartFrame'], fps)

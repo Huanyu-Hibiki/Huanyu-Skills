@@ -53,9 +53,9 @@ def apply_edit_plan(plan_path, output_dir, dy, draft_id=None):
                                      material_name=item['sourceId'], duration=source['duration'],
                                      width=video['width'], height=video['height'])
         if item['track'] not in script.tracks:
-            is_muted = (item['track'] in ('Screen Demo', 'B-roll Packaging'))
+            is_muted = (item['track'] in ('Screen Demo', 'B-roll Packaging', 'B-roll AI Visual'))
             script.add_track(dy.Track_type.video, item['track'], mute=is_muted)
-        seg_volume = 0.0 if item['track'] in ('Screen Demo', 'B-roll Packaging') else 1.0
+        seg_volume = 0.0 if item['track'] in ('Screen Demo', 'B-roll Packaging', 'B-roll AI Visual') else 1.0
         clip_settings = None
         zoom_val = item.get('zoom')
         if zoom_val is not None:

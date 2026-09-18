@@ -7,3 +7,7 @@
 
 # 本地对标素材（含第三方内容，不入公开仓）
 对标/
+
+# Temporary npm extraction files used while vendoring the pinned GSAP runtime
+video-production-workflow/scripts/lib/assets/package/
+video-production-workflow/scripts/lib/assets/*.tgz
