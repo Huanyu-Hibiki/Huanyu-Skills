@@ -20,6 +20,7 @@
 | `video-status/` | 只读状态看板 | `status.py` |
 | `video-skill-optimize/` | 任务证据账本、有界候选、留出验证和人工采纳 | `optimize.py` |
 | `video-migrate/` | 状态 schema 迁移 | `migrate.py` |
+| `motion_analyzer/` | 动效逆向分析、Motion IR 合成与渲染探针 | `cli.py analyze`、`cli.py synthesize` |
 
 ## 路径约定
 
@@ -28,6 +29,19 @@
 ```powershell
 cd "<合集根>"
 uv run python scripts/video-status/status.py "<项目>"
+```
+
+动效分析工具从合集根目录运行。`analyze` 会生成接触网格、音频锚点和解构报告；
+没有可用 LLM 凭证时会保留 `motion_analysis_prompt.json`，状态为
+`awaiting_agent`。`synthesize` 消费 `motion_ir.json`，并以 JSON 摘要输出模板、探针
+状态和注册结果：
+
+```powershell
+uv run python scripts/motion_analyzer/cli.py analyze `
+  --input "<视频文件>" --start 00:01 --end 00:04 --output-dir "<输出目录>"
+
+uv run python scripts/motion_analyzer/cli.py synthesize `
+  --input "<输出目录>/motion_ir.json" --engine remotion --output-dir "<输出目录>/synthesis"
 ```
 
 ## 不纳入版本的内容
