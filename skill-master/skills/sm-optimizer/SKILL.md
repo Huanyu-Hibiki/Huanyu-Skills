@@ -1,7 +1,8 @@
 ---
 name: sm-optimizer
-description: 诊断并迭代优化已存在的 skill——机器健康检查 + 四维语义诊断（触发语义/工作流/资源组织/安全边界），产出分优先级优化计划，经用户确认后单变量实施、before/after 验证。Use when 用户提到"优化这个skill"、"skill触发不准"、"改skill"、"skill不触发"、"迭代skill"时使用。
+description: 诊断并迭代优化已存在的 skill——机器健康检查 + 四维语义诊断（触发语义/工作流/资源组织/安全边界），产出分优先级优化计划，经用户确认后单变量实施、before/after 验证。Use when 用户提到"优化这个skill"、"skill触发不准"、"改skill"、"skill不触发"、"迭代skill"时使用。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # sm-optimizer — 已有 skill 迭代优化（先审查后动手）
 

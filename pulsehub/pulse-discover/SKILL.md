@@ -1,7 +1,8 @@
 ---
 name: pulse-discover
-description: Find raw Signals (URLs) from Chinese social platforms. Use when user wants to discover comment opportunities, monitor competitors, track topics, or watch trending content. 发现评论机会、监控竞品、追话题、找热门、采集URL。
+description: Find raw Signals (URLs) from Chinese social platforms. Use when user wants to discover comment opportunities, monitor competitors, track topics, or watch trending content. 发现评论机会、监控竞品、追话题、找热门、采集URL。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-discover · 发现帖子
 

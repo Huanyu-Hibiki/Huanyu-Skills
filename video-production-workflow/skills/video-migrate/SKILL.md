@@ -1,9 +1,10 @@
 ---
 name: video-migrate
-description: 视频制作管线 schema 迁移器。升级旧版 `.video-workflow-state.json`、补齐目录和交接文件，迁移前备份并输出报告；不删除用户素材和旧版本。触发词：迁移视频项目、升级制作管线、修复旧项目状态、video migrate。
+description: 视频制作管线 schema 迁移器。升级旧版 `.video-workflow-state.json`、补齐目录和交接文件，迁移前备份并输出报告；不删除用户素材和旧版本。触发词：迁移视频项目、升级制作管线、修复旧项目状态、video migrate。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[project-path] [--target 0.1]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /video-migrate
 

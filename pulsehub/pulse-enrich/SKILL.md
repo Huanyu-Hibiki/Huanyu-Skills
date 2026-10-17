@@ -1,7 +1,8 @@
 ---
 name: pulse-enrich
-description: Add metadata and AI-scored engagement value to resolved URLs. Detects purchase-intent signals, transcribes video content, ranks opportunities. Use after pulse-resolve. 补充元信息、检测求购信号、AI打分、转录视频、排序机会。
+description: Add metadata and AI-scored engagement value to resolved URLs. Detects purchase-intent signals, transcribes video content, ranks opportunities. Use after pulse-resolve. 补充元信息、检测求购信号、AI打分、转录视频、排序机会。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-enrich · 信号补全与评分
 

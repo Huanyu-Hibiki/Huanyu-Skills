@@ -1,9 +1,10 @@
 ---
 name: oracle-predict
-description: 给最终稿写一份 immutable 盲预测日志。这是 oracle-bone 整个校准循环的核心动作——预测段一旦写完不可改，由 hook 强制。**自动检测**：如目标文件已有预测段（被 oracle-shoot 或 review 改稿触发走 v2 模式），改成 append `## 预测 v2` 而非覆盖。触发词："启动预测"/"start prediction"/"给这稿子打分并预测"/"写预测日志"。
+description: 给最终稿写一份 immutable 盲预测日志。这是 oracle-bone 整个校准循环的核心动作——预测段一旦写完不可改，由 hook 强制。**自动检测**：如目标文件已有预测段（被 oracle-shoot 或 review 改稿触发走 v2 模式），改成 append `## 预测 v2` 而非覆盖。触发词："启动预测"/"start prediction"/"给这稿子打分并预测"/"写预测日志"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<script-path> [— mode: v1|v2] [— prediction-file: <path>]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-predict — AI 主导的盲预测 + 用户 review
 

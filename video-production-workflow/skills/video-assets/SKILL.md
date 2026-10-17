@@ -1,9 +1,10 @@
 ---
 name: video-assets
-description: 视频外部素材规划、搜索、下载和合规归档。获取图片、视频、音乐、音效并转码，记录具体来源和许可证。触发词：下载素材、找音乐、找音效、找图片、找视频、准备 B-roll 素材。
+description: 视频外部素材规划、搜索、下载和合规归档。获取图片、视频、音乐、音效并转码，记录具体来源和许可证。触发词：下载素材、找音乐、找音效、找图片、找视频、准备 B-roll 素材。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[project-path] [asset-request-path]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /video-assets
 

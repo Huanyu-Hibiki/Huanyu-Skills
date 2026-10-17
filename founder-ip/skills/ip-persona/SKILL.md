@@ -11,9 +11,11 @@ description: >
   (6) 反对清单——我承诺不做什么人设。
   产出 persona-charter.md（不可改的决策段 + 可追加的修订段）。
   建议在 /ip-strategy 之后跑。触发词："人设定位"/"ip-persona"/"我的人设是什么"/"张三怎么设定"/"账号定位"。
+  已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— mode: interview|confirm|review]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /ip-persona — 创始人 IP 人设总纲
 

@@ -1,7 +1,8 @@
 ---
 name: sm-manager
-description: 盘点本机各 AI Agent（opencode/claude-code/codex 等）已安装的 skill，输出清单、跨 Agent 重复对比与健康检查结论。只读，不安装、不卸载、不修改任何 skill。Use when 用户提到"盘点skill"、"我装了哪些skill"、"skill清单"、"skill健康检查"、"skill重复"时使用。
+description: 盘点本机各 AI Agent（opencode/claude-code/codex 等）已安装的 skill，输出清单、跨 Agent 重复对比与健康检查结论。只读，不安装、不卸载、不修改任何 skill。Use when 用户提到"盘点skill"、"我装了哪些skill"、"skill清单"、"skill健康检查"、"skill重复"时使用。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # sm-manager — 本地 skill 盘点（只读）
 

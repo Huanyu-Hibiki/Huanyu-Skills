@@ -2,6 +2,8 @@
 
 # shendu-yuedu · 深度阅读系统
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **把"读完就忘"变成"读完变成可调用的技能"——6 个 skill 组成的阅读闭环，越读越聪明**
 
 拆解书籍 → 带着问题预读 → 结构化精读 → 实践转化 → 自进化 · 个人知识 Wiki 三层架构

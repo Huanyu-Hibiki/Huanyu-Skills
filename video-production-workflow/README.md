@@ -2,6 +2,8 @@
 
 # video-production-workflow · 视频制作管线
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **把"写完稿之后怎么做成片"变成有阶段、有交接、有审核闸门的制作系统**
 
 终稿 → 分镜 → 粗剪 → 字幕校对 → 剪映草稿 → 素材 → 精剪 → B-roll 分析与生成 → 装配成片 QA

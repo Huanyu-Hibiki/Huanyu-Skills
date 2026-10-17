@@ -1,9 +1,10 @@
 ---
 name: oracle-cover-analyze
-description: 兼容别名：将旧的封面分析入口路由到 oracle-cover analyze 模式。本目录不包含独立实现。
+description: 兼容别名：将旧的封面分析入口路由到 oracle-cover analyze 模式。本目录不包含独立实现。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<参考封面图> [旧参数保持原样]"
 allowed-tools: Read, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # 兼容别名：/oracle-cover-analyze
 

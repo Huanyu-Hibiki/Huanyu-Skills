@@ -1,9 +1,10 @@
 ---
 name: oracle-edit-plan
-description: 剪辑计划 + 成片验收双模式。plan 模式（拍摄登记后）：探测素材清单（ffprobe 或口头盘点，禁止从文件名脑补）→ 基于 draft 调性产出可执行的剪辑计划工件（节奏区间表 / 每个剪切点带理由 / 转场词汇表收敛 / 声音设计 / 邻接多样性 / B-roll 覆盖核对）。accept 模式（成片剪完后）：对照计划机械验收 + 幻灯片感自查 + 逐条带修法的问题清单（审稿三轴），通过后才进 publish。触发词："剪辑计划"/"出剪辑计划"/"成片回来了"/"验收成片"/"成片质检"/"edit plan"。
+description: 剪辑计划 + 成片验收双模式。plan 模式（拍摄登记后）：探测素材清单（ffprobe 或口头盘点，禁止从文件名脑补）→ 基于 draft 调性产出可执行的剪辑计划工件（节奏区间表 / 每个剪切点带理由 / 转场词汇表收敛 / 声音设计 / 邻接多样性 / B-roll 覆盖核对）。accept 模式（成片剪完后）：对照计划机械验收 + 幻灯片感自查 + 逐条带修法的问题清单（审稿三轴），通过后才进 publish。触发词："剪辑计划"/"出剪辑计划"/"成片回来了"/"验收成片"/"成片质检"/"edit plan"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<作品目录> [— mode: plan|accept]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 > 历史归档，仅供迁移与来源审计；不作为可安装入口。当前制作计划、包装和成片 QA 统一使用 `video-production-workflow`。
 

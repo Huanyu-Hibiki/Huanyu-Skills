@@ -1,9 +1,10 @@
 ---
 name: oracle-pinned-comment
-description: 各平台置顶评论生成器。发布后立即跑，为 state.platforms 各生成 1 条置顶评论，引导观众讨论，撬动评论区互动。读定稿的互动设计段 + 轨道策略 + 内容核心，按平台评论文化差异化生成。Post-publish task——publish 之后、发布后 2 小时黄金互动窗口之前。触发词："置顶评论"/"发评论"/"引导评论"/"pinned comment"/"评论区引导"。
+description: 各平台置顶评论生成器。发布后立即跑，为 state.platforms 各生成 1 条置顶评论，引导观众讨论，撬动评论区互动。读定稿的互动设计段 + 轨道策略 + 内容核心，按平台评论文化差异化生成。Post-publish task——publish 之后、发布后 2 小时黄金互动窗口之前。触发词："置顶评论"/"发评论"/"引导评论"/"pinned comment"/"评论区引导"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<draft-path 或作品编号>"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-pinned-comment — 置顶评论生成器
 

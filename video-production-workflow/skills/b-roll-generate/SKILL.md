@@ -1,9 +1,10 @@
 ---
 name: b-roll-generate
-description: B-roll 生成编排器。根据已确认的 B-roll 机会表、母片段设计、精剪字幕和风格决策，路由真实素材、Remotion、HyperFrames、拼贴或 AI 生成路线，产出可交给 video-polish 的独立 B-roll、透明素材、静帧、提示词、放置 JSON 和逐条 QA。触发词：生成 B-roll、做 B-roll 动画、生成 Remotion B-roll、生成 HyperFrames B-roll、生成拼贴视频。
+description: B-roll 生成编排器。根据已确认的 B-roll 机会表、母片段设计、精剪字幕和风格决策，路由真实素材、Remotion、HyperFrames、拼贴或 AI 生成路线，产出可交给 video-polish 的独立 B-roll、透明素材、静帧、提示词、放置 JSON 和逐条 QA。触发词：生成 B-roll、做 B-roll 动画、生成 Remotion B-roll、生成 HyperFrames B-roll、生成拼贴视频。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[project-path] [--ids BROLL-001,BROLL-002]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /b-roll-generate
 

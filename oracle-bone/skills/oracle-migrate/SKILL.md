@@ -1,9 +1,10 @@
 ---
 name: oracle-migrate
-description: 把老用户的 .oracle-state.json 升级到当前 schema_version。读 migrations/registry.md 算迁移链，按顺序应用每步迁移文件。幂等、可断点续跑。触发词："迁移"/"升级 state"/"migrate"/"我的 state 是老版本"/"schema 版本不对"。
+description: 把老用户的 .oracle-state.json 升级到当前 schema_version。读 migrations/registry.md 算迁移链，按顺序应用每步迁移文件。幂等、可断点续跑。触发词："迁移"/"升级 state"/"migrate"/"我的 state 是老版本"/"schema 版本不对"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— from: <version>] [— to: <version>] [— dry-run]"
 allowed-tools: Bash(*), Read, Write, Edit, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-migrate — Schema 版本迁移
 

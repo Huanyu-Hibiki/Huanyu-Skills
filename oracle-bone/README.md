@@ -2,6 +2,8 @@
 
 # oracle-bone · 甲骨 · 内容预测校准循环
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **凭感觉发是"猜"，这套让你"算"——打分 → 盲预测 → 发布 → 复盘 → 进化你的爆款公式**
 
 26 个 canonical 子 skill + 3 个兼容别名 · 商王烧龟壳式的 3000 年校准循环，还给内容创作者

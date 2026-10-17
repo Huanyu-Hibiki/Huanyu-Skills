@@ -5,9 +5,11 @@ description: >
   通过 6 问采访定制你的：三轨内容比例（A 轨破圈 / C 轨认知 / B 轨转化，轨=漏斗层）、双系列定位、利他选题库、BiP 公开边界、历史壳子比喻库、张三系列骨架。
   产出 content-funnel.md（年度规划，季度滚动更新）+ topic-pool.md（选题库，月度补充）。
   建议在 /ip-strategy + /ip-persona 之后跑。触发词："内容漏斗"/"ip-content-funnel"/"年度规划"/"ABC比例"/"选题库"/"内容结构"。
+  已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— mode: interview|confirm|review]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /ip-content-funnel — 年度内容漏斗 + 选题库
 

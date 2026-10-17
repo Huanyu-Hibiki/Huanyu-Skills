@@ -2,6 +2,8 @@
 
 # skill-master · Skill 全生命周期管家
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **一个 skill 从装进来、看懂它、写出来到养得好——五件事各有一个子 skill 负责**
 
 盘点已装 skill · 第三方 skill 安全扫描 · 开源 skill 分析 · 从零编写新 skill · 迭代优化已有 skill

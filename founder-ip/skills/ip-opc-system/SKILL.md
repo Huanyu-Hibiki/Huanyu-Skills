@@ -6,9 +6,11 @@ description: >
   盘点你的现有工具链（选题/脚本/拍摄/剪辑/包装/分发），定制可持续的生产日程（示例：2 天 1 期）、AI 协作边界、瓶颈优化方案。
   产出 opc-sop.md（持续优化）。
   founder-ip 系统的收尾 skill，建议最后跑。触发词："OPC系统"/"ip-opc-system"/"生产流水线"/"2天1期怎么排"/"内容SOP"。
+  已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— mode: interview|confirm|optimize]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /ip-opc-system — OPC 内容生产流水线
 

@@ -1,7 +1,8 @@
 ---
 name: sm-security
-description: 静态安全扫描一个 skill 目录：规则引擎打 0-100 风险分，逐条复核 critical/high 发现并降误报，产出 SAFE/CAUTION/DO NOT INSTALL 安装建议。用于安装第三方 skill 前的安全审查。Use when 用户提到"检查这个skill安全吗"、"扫描skill"、"有没有后门"、"skill安全"、"skill恶意"时使用。
+description: 静态安全扫描一个 skill 目录：规则引擎打 0-100 风险分，逐条复核 critical/high 发现并降误报，产出 SAFE/CAUTION/DO NOT INSTALL 安装建议。用于安装第三方 skill 前的安全审查。Use when 用户提到"检查这个skill安全吗"、"扫描skill"、"有没有后门"、"skill安全"、"skill恶意"时使用。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # sm-security — skill 安全扫描与深度复核
 

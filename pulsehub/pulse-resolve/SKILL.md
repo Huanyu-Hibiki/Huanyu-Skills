@@ -1,7 +1,8 @@
 ﻿---
 name: pulse-resolve
-description: Normalize Chinese social media URLs. Resolves short links, extracts platform-native work IDs, preserves critical tokens like xsec_token. Use when user provides a messy URL or you need to deduplicate posts. 标准化URL、短链展开、提取作品ID、保留token。
+description: Normalize Chinese social media URLs. Resolves short links, extracts platform-native work IDs, preserves critical tokens like xsec_token. Use when user provides a messy URL or you need to deduplicate posts. 标准化URL、短链展开、提取作品ID、保留token。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-resolve · URL 标准化
 

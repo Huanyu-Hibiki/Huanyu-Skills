@@ -2,6 +2,8 @@
 
 # pulsehub · 获客 skill 系统
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **从项目初始化到线索转化的完整获客闭环：16 个 skill 分 4 层 + 一个随使用越养越肥的"项目大脑"**
 
 画像 / 关键词 / 选题 / 文案 / 脚本 / 私域承接 / 评论线索 · 去 AI 味 · 自进化

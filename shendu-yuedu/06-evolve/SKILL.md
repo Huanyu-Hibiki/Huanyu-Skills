@@ -1,7 +1,8 @@
 ---
 name: sy-evolve
-description: 深度阅读·第六步（自进化，元技能）。负责**迭代 #5 实践转化产出的个人技能**（即 <知识库根>/skills/INDEX.md + 阅读报告「已萃取技能索引（跨书累积）」 里的「书名\对应知识点」技能条目）——只编辑这些技能条目文本本身（add/delete/replace 步骤/触发/验收），不改 sy-* 合集的 SKILL.md。用 SkillOpt 式闭环（harvest采集→mine挖掘→reflect反思→edit编辑→validate验证门→consolidate固化）：通读 runs/ 执行日志 + 用户真实使用反馈（技能触发了吗？步骤走通了吗？验收达标了吗？）作为训练数据，挖出"某技能在真实场景失效"的根因，提案对技能条目的编辑，只在 hold-out 小样本验证通过才接受。当用户说"迭代技能""技能不好用""优化阅读技能""这个技能步骤太多了""技能用不起来"时使用。让读书萃取出的技能越用越准。方法论参考微软 SkillOpt。
+description: 深度阅读·第六步（自进化，元技能）。负责**迭代 #5 实践转化产出的个人技能**（即 <知识库根>/skills/INDEX.md + 阅读报告「已萃取技能索引（跨书累积）」 里的「书名\对应知识点」技能条目）——只编辑这些技能条目文本本身（add/delete/replace 步骤/触发/验收），不改 sy-* 合集的 SKILL.md。用 SkillOpt 式闭环（harvest采集→mine挖掘→reflect反思→edit编辑→validate验证门→consolidate固化）：通读 runs/ 执行日志 + 用户真实使用反馈（技能触发了吗？步骤走通了吗？验收达标了吗？）作为训练数据，挖出"某技能在真实场景失效"的根因，提案对技能条目的编辑，只在 hold-out 小样本验证通过才接受。当用户说"迭代技能""技能不好用""优化阅读技能""这个技能步骤太多了""技能用不起来"时使用。让读书萃取出的技能越用越准。方法论参考微软 SkillOpt。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # sy-evolve · 自进化（SkillOpt 轻量复刻）· #6
 

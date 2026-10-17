@@ -1,9 +1,10 @@
 ---
 name: oracle-cover
-description: 封面工作流统一入口，按模式生成本期封面提示词或分析参考封面并沉淀视觉配方。生成模式读取 cover-generation-protocol.md；分析模式读取 cover-analysis-protocol.md。旧 oracle-cover-analyze 触发词兼容路由到 analyze 模式。
+description: 封面工作流统一入口，按模式生成本期封面提示词或分析参考封面并沉淀视觉配方。生成模式读取 cover-generation-protocol.md；分析模式读取 cover-analysis-protocol.md。旧 oracle-cover-analyze 触发词兼容路由到 analyze 模式。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: <draft-path 或参考封面图> [--mode: generate|analyze]
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-cover — 封面工作流
 

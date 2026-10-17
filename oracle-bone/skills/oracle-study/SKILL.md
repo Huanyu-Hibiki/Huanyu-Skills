@@ -1,9 +1,10 @@
 ---
 name: oracle-study
-description: 统一的对标学习入口：以账号、作品、机制或工作流为对象，在 benchmark、practice、dual 三种模式中分别获得账号级参照信号、单条可实践机制或两者的分离产出。旧 oracle-learn-from / oracle-apprentice 仅作为兼容别名进入本 skill；视觉包装与动效逆向交给 video-production-workflow。
+description: 统一的对标学习入口：以账号、作品、机制或工作流为对象，在 benchmark、practice、dual 三种模式中分别获得账号级参照信号、单条可实践机制或两者的分离产出。旧 oracle-learn-from / oracle-apprentice 仅作为兼容别名进入本 skill；视觉包装与动效逆向交给 video-production-workflow。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<账号/作品/机制/工作流> [— mode: benchmark|practice|dual] [— track: <id>]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-study — 对标学习
 

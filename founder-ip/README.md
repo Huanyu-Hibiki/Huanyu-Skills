@@ -2,6 +2,8 @@
 
 # founder-ip · 创始人 IP 战略系统
 
+> **开源版说明**：本系统开源版完整可用，可独立完成这一类任务。更深的进阶方法论与持续更新在付费完整版 **Huanyu-Skills-Pro**：https://github.com/Huanyu-Hibiki/Huanyu-Skills。已安装 Pro 时，本类请求交给 Pro 处理。
+
 **为"非娱乐类创始人 IP"设计的战略层系统：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层，一次想清楚**
 
 5 个子 skill · 徐沪生方法论 + dontbesilent 实战库 + PLG 三源印证 · 产出战略文档喂给执行循环

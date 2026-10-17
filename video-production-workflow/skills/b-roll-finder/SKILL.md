@@ -1,9 +1,10 @@
 ---
 name: b-roll-finder
-description: B-roll 机会分析和素材路由。读取剪映内部精剪导出的 SRT，理解完整论点，判断哪里值得插入 B-roll，输出机会分析表、母片段设计表、推荐素材类型、视觉命题、风格和时间锚点。触发词：分析 B-roll、找 B-roll、哪里需要画面、设计 B-roll。
+description: B-roll 机会分析和素材路由。读取剪映内部精剪导出的 SRT，理解完整论点，判断哪里值得插入 B-roll，输出机会分析表、母片段设计表、推荐素材类型、视觉命题、风格和时间锚点。触发词：分析 B-roll、找 B-roll、哪里需要画面、设计 B-roll。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[project-path] [master-srt-path]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /b-roll-finder
 

@@ -9,9 +9,11 @@ description: >
   产出 strategy-memo.md（不可改的决策段 + 可追加的修订段）。
   founder-ip 系统的入口 skill，建议第一个跑。其他子 skill（persona/business-model/funnel/opc-system）都引用此文档。
   触发词："创始人IP战略"/"ip战略"/"ip-strategy"/"立项"/"起号"/"我该不该做IP"/" founder ip init"。
+  已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— mode: interview|confirm|review]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /ip-strategy — 创始人 IP 战略决策 + 立项
 

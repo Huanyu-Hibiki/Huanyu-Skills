@@ -1,9 +1,10 @@
 ---
 name: oracle-init
-description: oracle-bone 的首次 onboarding 与脚手架创建器。不只是建目录——通过采访为用户建立完整档案（用户档案 + 内容规划单一/双轨/三轨 + 各轨受众画像），后续所有 skill 按档案执行。触发词："初始化"/"init"/"首次使用"/"我是新用户"/"setup oracle-bone"。**必须在用户第一次会话执行；其他子 skill 在 .oracle-state.json 不存在时自动路由到此。**
+description: oracle-bone 的首次 onboarding 与脚手架创建器。不只是建目录——通过采访为用户建立完整档案（用户档案 + 内容规划单一/双轨/三轨 + 各轨受众画像），后续所有 skill 按档案执行。触发词："初始化"/"init"/"首次使用"/"我是新用户"/"setup oracle-bone"。**必须在用户第一次会话执行；其他子 skill 在 .oracle-state.json 不存在时自动路由到此。** 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— form: opinion-video|long-essay|short-text|podcast]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-init — 首次 onboarding（档案 + 规划 + 脚手架）
 

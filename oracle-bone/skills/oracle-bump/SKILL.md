@@ -1,9 +1,10 @@
 ---
 name: oracle-bump
-description: 提议并执行 rubric 或 bucket 升级，按轨道独立执行。两种模式：**完整 rubric bump**（最高风险动作，5 步强制 + 跨模型审核）和 **--bucket-only 轻量重校**（只换 bucket 边界，不动公式）。触发词："升级 rubric"/"bump rubric"/"更新公式"/"我想加一个维度"/"调整权重"/"重校桶"/"recalibrate bucket"。
+description: 提议并执行 rubric 或 bucket 升级，按轨道独立执行。两种模式：**完整 rubric bump**（最高风险动作，5 步强制 + 跨模型审核）和 **--bucket-only 轻量重校**（只换 bucket 边界，不动公式）。触发词："升级 rubric"/"bump rubric"/"更新公式"/"我想加一个维度"/"调整权重"/"重校桶"/"recalibrate bucket"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: --propose "<...>" --track <id> | --bucket-only [--scheme ratio|absolute|percentile]
 allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-bump — Rubric / Bucket 升级（按轨道）
 

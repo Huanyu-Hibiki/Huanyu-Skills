@@ -1,7 +1,8 @@
 ---
 name: pulse-evolve
-description: PulseHub 获客·自进化（元技能）。负责整个 skill 体系的升级迭代——只编辑 pulse-*/SKILL.md 文本本身。用SkillOpt式闭环（harvest采集→mine挖掘→reflect反思→edit编辑→validate验证→consolidate固化）。当用户说"优化获客skill""自进化""迭代skill""分析执行情况""skill为什么效果不好""改进获客流程""整个体系升级"时使用。也负责新旧获客体系切换（双轨期）管理：跑通闭环、用户拍板、README 同步三道门，缺一不可。自进化,优化skill,迭代,改进获客,体系升级,双轨切换,skill-切换。
+description: PulseHub 获客·自进化（元技能）。负责整个 skill 体系的升级迭代——只编辑 pulse-*/SKILL.md 文本本身。用SkillOpt式闭环（harvest采集→mine挖掘→reflect反思→edit编辑→validate验证→consolidate固化）。当用户说"优化获客skill""自进化""迭代skill""分析执行情况""skill为什么效果不好""改进获客流程""整个体系升级"时使用。也负责新旧获客体系切换（双轨期）管理：跑通闭环、用户拍板、README 同步三道门，缺一不可。自进化,优化skill,迭代,改进获客,体系升级,双轨切换,skill-切换。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-evolve · 自进化（SkillOpt 轻量复刻）
 

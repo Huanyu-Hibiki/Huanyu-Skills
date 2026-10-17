@@ -1,9 +1,10 @@
 ---
 name: oracle-derivative
-description: 从一期已发布作品提取核心观点，独立创作衍生内容（图文 + 短文两形态，平台按 state.platforms 适配）。不是复制简介，是提取可独立成立的观点重新创作。Post-publish task——发布后 T+1 跑，趁热度窗口把同一内容的价值拆成多形态触达不同人群。触发词："衍生内容"/"图文"/"拆内容"/"复用"/"1-3-5"。
+description: 从一期已发布作品提取核心观点，独立创作衍生内容（图文 + 短文两形态，平台按 state.platforms 适配）。不是复制简介，是提取可独立成立的观点重新创作。Post-publish task——发布后 T+1 跑，趁热度窗口把同一内容的价值拆成多形态触达不同人群。触发词："衍生内容"/"图文"/"拆内容"/"复用"/"1-3-5"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<作品编号 或 draft-path>"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-derivative — 内容复用工作流
 

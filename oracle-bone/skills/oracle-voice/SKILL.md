@@ -1,9 +1,10 @@
 ---
 name: oracle-voice
-description: 语音起稿循环——像和朋友聊天一样录音讲选题（情绪在前，不怕跑题不怕停顿），转文字后按双心态打磨：**文字轮只管吃透知识**（原话保真，AI 只删重复/调顺序/拆长句，不替用户圆观点），**录音轮只管表达**；收敛后基于最终转写稿出 3 条候选稿（不同开场原型/结构/金句，金句必有原话原型，破折号红线），用户迭代选定后落定稿。治 AI 直出稿的"没有我"、AI 腔、情绪后置。转写走 adapters/script-extraction。seed 定题后的默认起稿方式；支持裸转写模式（—transcribe-only）。触发词："录音起稿"/"语音起稿"/"开口聊"/"聊聊这个选题"/"转写这段录音"/"voice draft"。
+description: 语音起稿循环——像和朋友聊天一样录音讲选题（情绪在前，不怕跑题不怕停顿），转文字后按双心态打磨：**文字轮只管吃透知识**（原话保真，AI 只删重复/调顺序/拆长句，不替用户圆观点），**录音轮只管表达**；收敛后基于最终转写稿出 3 条候选稿（不同开场原型/结构/金句，金句必有原话原型，破折号红线），用户迭代选定后落定稿。治 AI 直出稿的"没有我"、AI 腔、情绪后置。转写走 adapters/script-extraction。seed 定题后的默认起稿方式；支持裸转写模式（—transcribe-only）。触发词："录音起稿"/"语音起稿"/"开口聊"/"聊聊这个选题"/"转写这段录音"/"voice draft"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[<作品目录 | 音频文件>] [— transcribe-only]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-voice — 语音起稿循环（情绪先行 · 原话保真）
 

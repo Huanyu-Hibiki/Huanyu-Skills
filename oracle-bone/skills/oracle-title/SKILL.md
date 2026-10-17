@@ -1,9 +1,10 @@
 ---
 name: oracle-title
-description: 为 draft 生成 3-5 个标题候选并淘汰制终审出最优——原料表取材 → 策略族定向 → 内部 ≥8 发散 → 合并版淘汰清单 → 5 维隐式评审标 ⭐推荐，单次 CHECKPOINT 确认后自动执行改名级联（标题行 + 作品目录 + 脚本文件名 + prediction header 同步），标题变更触发 HP 维度 v2 重判。支持自带候选直评（—candidates 或对话内贴清单）与已有标题诊断（—diagnose）。draft 后、predict 前的打磨动作。触发词："给我标题"/"备选标题"/"标题候选"/"帮我起标题"/"选标题"/"哪个标题好"/"帮我选"/"诊断这个标题"。
+description: 为 draft 生成 3-5 个标题候选并淘汰制终审出最优——原料表取材 → 策略族定向 → 内部 ≥8 发散 → 合并版淘汰清单 → 5 维隐式评审标 ⭐推荐，单次 CHECKPOINT 确认后自动执行改名级联（标题行 + 作品目录 + 脚本文件名 + prediction header 同步），标题变更触发 HP 维度 v2 重判。支持自带候选直评（—candidates 或对话内贴清单）与已有标题诊断（—diagnose）。draft 后、predict 前的打磨动作。触发词："给我标题"/"备选标题"/"标题候选"/"帮我起标题"/"选标题"/"哪个标题好"/"帮我选"/"诊断这个标题"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<draft-path> [— diagnose: <已有标题>] [— candidates: <候选清单>]"
 allowed-tools: Bash(*), Read, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-title — 标题候选生成 + 终审选优
 

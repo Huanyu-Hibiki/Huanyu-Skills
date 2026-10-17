@@ -1,7 +1,8 @@
 ﻿---
 name: pulse-deliver
-description: Format engagement opportunities into a clickable Markdown report. Deduplicates against history, suggests comment angles, computes time windows. Use when you need a final actionable list. 输出可点击清单、去重、建议评论角度、计算时间窗口。
+description: Format engagement opportunities into a clickable Markdown report. Deduplicates against history, suggests comment angles, computes time windows. Use when you need a final actionable list. 输出可点击清单、去重、建议评论角度、计算时间窗口。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-deliver · 交付报告
 

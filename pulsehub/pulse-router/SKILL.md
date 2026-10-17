@@ -1,7 +1,8 @@
 ---
 name: pulse-router
-description: PulseHub 获客系统·第零步（决策路由）。诊断用户输入的产品方向清晰度——清晰则直接进 pulse-init；不清晰则引导用户先想清楚核心问题。Use when 用户说"开始做获客""我想找客户""怎么做新媒体获客""我是做 XX 的想在网上找客户"但还没说清"是什么/给谁/怎么收费"。位置：在 pulse-init 之前，作为整个获客系统的入口路由。决策路由,产品方向诊断,获客入口,路由器。
+description: PulseHub 获客系统·第零步（决策路由）。诊断用户输入的产品方向清晰度——清晰则直接进 pulse-init；不清晰则引导用户先想清楚核心问题。Use when 用户说"开始做获客""我想找客户""怎么做新媒体获客""我是做 XX 的想在网上找客户"但还没说清"是什么/给谁/怎么收费"。位置：在 pulse-init 之前，作为整个获客系统的入口路由。决策路由,产品方向诊断,获客入口,路由器。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # pulse-router · 决策路由
 

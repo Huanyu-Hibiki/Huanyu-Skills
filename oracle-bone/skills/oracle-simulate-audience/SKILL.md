@@ -1,9 +1,10 @@
 ---
 name: oracle-simulate-audience
-description: 换位思考模拟 · 评论区预判。基于 init 用户画像（audience-profiles.md）+ 文稿，分别模拟「核心受众」和「一般关注」两类人群的真实评论感受，差距诊断后给修改意见。发布前压力测试。触发词："模拟评论"/"换位思考"/"评论区预判"/"audience simulate"/"看看会怎么评论"。
+description: 换位思考模拟 · 评论区预判。基于 init 用户画像（audience-profiles.md）+ 文稿，分别模拟「核心受众」和「一般关注」两类人群的真实评论感受，差距诊断后给修改意见。发布前压力测试。触发词："模拟评论"/"换位思考"/"评论区预判"/"audience simulate"/"看看会怎么评论"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<draft-path>"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-simulate-audience · 换位思考模拟
 

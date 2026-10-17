@@ -1,9 +1,10 @@
 ---
 name: oracle-learn-from
-description: 兼容别名：将旧的账号级对标入口路由到 oracle-study benchmark。本目录不包含独立学习实现。
+description: 兼容别名：将旧的账号级对标入口路由到 oracle-study benchmark。本目录不包含独立学习实现。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<账号或样本> [旧参数保持原样]"
 allowed-tools: Read, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # 兼容别名：/oracle-learn-from
 

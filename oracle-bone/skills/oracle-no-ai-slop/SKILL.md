@@ -1,9 +1,10 @@
 ---
 name: oracle-no-ai-slop
-description: 检查脚本/发布文案里的 AI 味（16 模式 + 中文 AI 腔词表 + 口播适配 + 老奶奶测试 + 形容词换动词 + 信息密度），标注具体位置，给修改建议。Detect（只检测）与 Edit（直接改）双模式。**predict 锁定前必跑**。触发词："AI 味"/"检查 AI 味"/"去 AI 味"/"像不像 AI 写的"/"no-ai-slop"/"太假了"/"读着不顺"。
+description: 检查脚本/发布文案里的 AI 味（16 模式 + 中文 AI 腔词表 + 口播适配 + 老奶奶测试 + 形容词换动词 + 信息密度），标注具体位置，给修改建议。Detect（只检测）与 Edit（直接改）双模式。**predict 锁定前必跑**。触发词："AI 味"/"检查 AI 味"/"去 AI 味"/"像不像 AI 写的"/"no-ai-slop"/"太假了"/"读着不顺"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<draft-path 或作品编号>"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-no-ai-slop — AI 味检测与修正
 

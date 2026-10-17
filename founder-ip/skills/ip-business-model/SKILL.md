@@ -6,9 +6,11 @@ description: >
   核心理念：徐沪生模式 = "IP 带咨询，咨询养产品，产品等 B 端机会"。忘掉卖货卖课，反而能卖得更好。
   产出 business-model-canvas.md（季度更新）。
   建议在 /ip-strategy + /ip-persona 之后跑。触发词："商业画布"/"ip-business-model"/"怎么变现"/"咨询漏斗"/"转化路径"。
+  已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— mode: interview|confirm|review]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /ip-business-model — 创始人 IP 商业画布
 

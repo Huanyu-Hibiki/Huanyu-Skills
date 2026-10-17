@@ -1,7 +1,8 @@
 ---
 name: skill-master
-description: skill-master 合集路由器：管理 skill 全生命周期——盘点已装 skill、安全扫描第三方 skill、分析开源 skill、从零编写新 skill、迭代优化已有 skill，分别由 sm-manager / sm-security / sm-analyzer / sm-writer / sm-optimizer 五个子 skill 承担，本文件只路由不执行。Use when 用户提到"盘点skill"、"扫描skill"、"分析这个skill"、"帮我写个skill"、"优化这个skill"等 skill 相关请求，或直接提到"skill-master"时使用；完整触发词以正文路由表为准。
+description: skill-master 合集路由器：管理 skill 全生命周期——盘点已装 skill、安全扫描第三方 skill、分析开源 skill、从零编写新 skill、迭代优化已有 skill，分别由 sm-manager / sm-security / sm-analyzer / sm-writer / sm-optimizer 五个子 skill 承担，本文件只路由不执行。Use when 用户提到"盘点skill"、"扫描skill"、"分析这个skill"、"帮我写个skill"、"优化这个skill"等 skill 相关请求，或直接提到"skill-master"时使用；完整触发词以正文路由表为准。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # skill-master — skill 全生命周期合集（路由器）
 

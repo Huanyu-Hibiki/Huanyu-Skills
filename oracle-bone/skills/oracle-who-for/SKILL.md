@@ -1,9 +1,10 @@
 ---
 name: oracle-who-for
-description: 采访式受众价值审查（流量/共鸣类轨道专用，以 init 画像为基线逐稿深化）。读 draft，用 8 个问题（一次一个、每个给候选）逼创作者想清楚：拍给谁、他卡在哪、我怎么帮他、他得到什么、怎么讲他才听得进、他凭什么开口互动、干货值不值得做。产出 audience-brief.md，被 oracle-predict 读取辅助 AB/SR 判断，被 oracle-retro 复盘检验"受众猜对了吗"。补 rubric（推荐流逻辑）漏掉的搜索型/长尾价值逻辑。触发词："这是拍给谁的"/"受众是谁"/"who-for"/"受众档案"/"这条解决什么问题"。
+description: 采访式受众价值审查（流量/共鸣类轨道专用，以 init 画像为基线逐稿深化）。读 draft，用 8 个问题（一次一个、每个给候选）逼创作者想清楚：拍给谁、他卡在哪、我怎么帮他、他得到什么、怎么讲他才听得进、他凭什么开口互动、干货值不值得做。产出 audience-brief.md，被 oracle-predict 读取辅助 AB/SR 判断，被 oracle-retro 复盘检验"受众猜对了吗"。补 rubric（推荐流逻辑）漏掉的搜索型/长尾价值逻辑。触发词："这是拍给谁的"/"受众是谁"/"who-for"/"受众档案"/"这条解决什么问题"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<draft-path>"
 allowed-tools: Bash(*), Read, Write, Edit, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-who-for — 受众价值采访
 

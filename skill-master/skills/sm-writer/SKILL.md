@@ -1,7 +1,8 @@
 ---
 name: sm-writer
-description: 从零编写新 skill，一次一问访谈需求，按三阶段流程起草、自检，用户确认后落盘成新目录。Use when 用户提到"帮我写个skill"、"新做一个skill"、"写个技能"、"做个skill"、"创建skill"时使用。
+description: 从零编写新 skill，一次一问访谈需求，按三阶段流程起草、自检，用户确认后落盘成新目录。Use when 用户提到"帮我写个skill"、"新做一个skill"、"写个技能"、"做个skill"、"创建skill"时使用。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # sm-writer — skill 编写（④）
 

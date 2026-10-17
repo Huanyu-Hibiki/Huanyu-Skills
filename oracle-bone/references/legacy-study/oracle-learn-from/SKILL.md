@@ -1,9 +1,10 @@
 ---
 name: oracle-learn-from
-description: 从对标账号导入 script + 数据 → 拆 pattern + 派生 rubric 初始信号 → 写到 benchmark.md / script_patterns.md / rubric_notes.md。**工具最早期信号的来源**——cold-start 用户没自己历史时全靠对标，有历史的也建议至少 1 个对标做 sanity check。触发词："学这个账号"/"拆这几个对标视频"/"learn from"/"导入对标账号"/"找对标"。
+description: 从对标账号导入 script + 数据 → 拆 pattern + 派生 rubric 初始信号 → 写到 benchmark.md / script_patterns.md / rubric_notes.md。**工具最早期信号的来源**——cold-start 用户没自己历史时全靠对标，有历史的也建议至少 1 个对标做 sanity check。触发词："学这个账号"/"拆这几个对标视频"/"learn from"/"导入对标账号"/"找对标"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<账号名> [— append | --replace] [— track: <id>]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 > 历史归档，仅供 oracle-study 迁移时读取；不作为可安装入口。相对链接按原运行时目录保留，实际执行请使用 `skills/oracle-study/SKILL.md`。
 

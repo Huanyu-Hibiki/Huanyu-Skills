@@ -1,9 +1,10 @@
 ---
 name: oracle-feishu
-description: 把 oracle-bone 的结构化数据同步到飞书多维表格做可视化与监测——五张表（作品总表/候选池/校准样本/热点与源健康/状态快照）从本地文件确定性推导，经用户自配的飞书 CLI 推送。**单向只读镜像**：本地文件是唯一事实源，绝不从飞书回写。前置 = 用户在 Agent 配好飞书 CLI + `.oracle-secrets.json` 写 feishu 块（不入 git）。触发词："同步飞书"/"飞书看板"/"推飞书"/"feishu sync"。
+description: 把 oracle-bone 的结构化数据同步到飞书多维表格做可视化与监测——五张表（作品总表/候选池/校准样本/热点与源健康/状态快照）从本地文件确定性推导，经用户自配的飞书 CLI 推送。**单向只读镜像**：本地文件是唯一事实源，绝不从飞书回写。前置 = 用户在 Agent 配好飞书 CLI + `.oracle-secrets.json` 写 feishu 块（不入 git）。触发词："同步飞书"/"飞书看板"/"推飞书"/"feishu sync"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— tables: episodes,candidates,...] [— dry-run]"
 allowed-tools: Bash(*), Read, Write, Glob
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-feishu — 飞书多维表格同步（只读镜像）
 

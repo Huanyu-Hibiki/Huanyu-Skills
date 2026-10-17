@@ -1,9 +1,10 @@
 ---
 name: oracle-apprentice
-description: 拜师拆稿——分析对标博主/想学的稿子的撰写方式与表达方法（钩子/节奏/金句/结构/术语落地/互动设计），用四步闭环（复述→重建→迁移→实践）内化成自己的手艺；**视觉拆解模式（—visual）**：抽帧证据 + 转写词锚，拆博主的视频包装与动效（字幕/贴纸板/转场/声音/B-roll 系统），产出 packaging-notes.md 供剪辑计划消费。与 oracle-learn-from 互补：learn-from 拆账号级统计信号，apprentice 拆单条稿的写法（手艺层）。支持视频转录（走 adapters/script-extraction）或手动粘稿。触发词："拜师"/"拆这条稿"/"学这个博主的表达"/"拆这个视频的包装"/"他是怎么写的"/"apprentice"。
+description: 拜师拆稿——分析对标博主/想学的稿子的撰写方式与表达方法（钩子/节奏/金句/结构/术语落地/互动设计），用四步闭环（复述→重建→迁移→实践）内化成自己的手艺；**视觉拆解模式（—visual）**：抽帧证据 + 转写词锚，拆博主的视频包装与动效（字幕/贴纸板/转场/声音/B-roll 系统），产出 packaging-notes.md 供剪辑计划消费。与 oracle-learn-from 互补：learn-from 拆账号级统计信号，apprentice 拆单条稿的写法（手艺层）。支持视频转录（走 adapters/script-extraction）或手动粘稿。触发词："拜师"/"拆这条稿"/"学这个博主的表达"/"拆这个视频的包装"/"他是怎么写的"/"apprentice"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<博主名或视频URL> [— stage: watch|restate|rebuild|migrate] [— visual]"
 allowed-tools: Bash(*), Read, Write, Edit, Glob, WebFetch, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 > 历史归档，仅供 oracle-study 迁移时读取；不作为可安装入口。相对链接按原运行时目录保留，实际执行请使用 `skills/oracle-study/SKILL.md`。
 

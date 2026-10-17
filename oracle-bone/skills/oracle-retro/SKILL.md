@@ -1,9 +1,10 @@
 ---
 name: oracle-retro
-description: 按轨道 retro 窗口回收数据 + 复盘 + 把新观察写入 rubric_notes.md。校准循环的反馈环节——不复盘的预测等于占星。转化轨按 T+3/7/30 三窗口分阶段回收（评论/私信/付费加权）。触发词："复盘 [path]"/"retro this"/"T+3d 数据来了"/"抓数据 [path]"/"把这篇复盘了"。
+description: 按轨道 retro 窗口回收数据 + 复盘 + 把新观察写入 rubric_notes.md。校准循环的反馈环节——不复盘的预测等于占星。转化轨按 T+3/7/30 三窗口分阶段回收（评论/私信/付费加权）。触发词："复盘 [path]"/"retro this"/"T+3d 数据来了"/"抓数据 [path]"/"把这篇复盘了"。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "<prediction-file> [— window: 3|7|30] [— source: manual|adapter]"
 allowed-tools: Bash(*), Read, Edit, Write, Glob, Grep, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # /oracle-retro — 数据回收与复盘
 

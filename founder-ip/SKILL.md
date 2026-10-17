@@ -1,9 +1,10 @@
 ---
 name: founder-ip
-description: 创始人 IP 战略层 skill 系统，基于徐沪生《徐沪生个人IP全流程拆解》方法论 + 用户深度访谈结论。覆盖**战略/人设/内容漏斗/商业模式/OPC系统**五层，专门为"非娱乐类创始人 IP"设计。与 `oracle-bone`（执行层：选题/打分/预测/复盘）互补——本系统产出**战略文档**喂给 oracle-bone 的执行循环。**不重复造执行层轮子**。适用对象：产品已上线、通过内容获客的创始人/OPC/主理人，尤其是垂直专业领域（工程/法律/医疗/教育等）的非娱乐型 IP。触发词："创始人IP战略"/"ip战略"/"人设定位"/"内容漏斗"/"商业画布"/"OPC系统"/"立项"/"起号"/"founder ip"。**首次使用建议从 /ip-strategy 开始**。
+description: 创始人 IP 战略层 skill 系统，基于徐沪生《徐沪生个人IP全流程拆解》方法论 + 用户深度访谈结论。覆盖**战略/人设/内容漏斗/商业模式/OPC系统**五层，专门为"非娱乐类创始人 IP"设计。与 `oracle-bone`（执行层：选题/打分/预测/复盘）互补——本系统产出**战略文档**喂给 oracle-bone 的执行循环。**不重复造执行层轮子**。适用对象：产品已上线、通过内容获客的创始人/OPC/主理人，尤其是垂直专业领域（工程/法律/医疗/教育等）的非娱乐型 IP。触发词："创始人IP战略"/"ip战略"/"人设定位"/"内容漏斗"/"商业画布"/"OPC系统"/"立项"/"起号"/"founder ip"。**首次使用建议从 /ip-strategy 开始**。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 argument-hint: "[— phase: strategy|persona|content-funnel|business-model|opc-system]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
 ---
+<!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 
 # Founder IP / 创始人 IP 战略层系统
 
