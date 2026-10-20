@@ -1,8 +1,8 @@
 # skill-master 合集 设计文档
 
 > 状态: 已批准（2026-08-28 头脑风暴定稿）
-> 形态参考: `C:\work\huanyu-skills-project\template\cheat-on-content`（合集路由器架构）
-> 内容参考: `C:\work\HuanyuCode\template`（writer / optimizer / security 三类）
+> 形态参考: 本机 `huanyu-skills-project\template\cheat-on-content`（合集路由器架构）
+> 内容参考: 本机 `HuanyuCode\template`（writer / optimizer / security 三类）
 
 ## 目标
 
@@ -21,7 +21,7 @@
 **混合形态合集**（cheat-on-content 模式）：LLM 擅长的流程编排/分析/写作 = markdown 子 skill；确定性操作（枚举/扫描/渲染）= Python 脚本；根 SKILL.md 做路由器。环境：Windows + PowerShell 5.1，Python 3.13.5 + uv 0.8.3（已验证可用），脚本仅依赖标准库。
 
 ```
-C:\work\HuanyuCode\skill-master\
+<本机检出目录>\skill-master\
 ├── SKILL.md                      # 路由器：触发词 → 子 skill 路由表 + 总协议
 ├── skills/
 │   ├── sm-manager/SKILL.md       # ① 本地 skill 盘点（只读）

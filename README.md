@@ -1,115 +1,36 @@
-<div align="center">
+# Huanyu-Skills 合集
 
-# Huanyu-Skills · 呼风唤雨的焕羽的 Agent Skills 合集
+**9 套开箱即用的 Agent skill 系统**，覆盖内容获客、深度阅读、视频制作、
+PPT 设计、GitHub 装修、skill 工程等场景。每套系统可独立安装使用，也可互相配合。
 
-**8 套经过实战打磨的 AI Agent skill 系统：创始人 IP 战略 → 内容校准循环 → 获客闭环 → 深度阅读 → skill 工程 → 视频制作 → 闲鱼变现 → GitHub 装修**
+> 本目录由 Huanyu-Skills-Pro 构建流程自动生成，请勿手改。
 
-*Production-grade AI agent skills for Claude Code / OpenCode / Codex / Cursor — open-sourced Build-in-Public from a one-person company (OPC).*
+## 合集一览
 
-[![Skills](https://img.shields.io/badge/skills-8%20%E5%A5%97%E7%B3%BB%E7%BB%9F-059669)](#-合集一览)
-[![Agents](https://img.shields.io/badge/Claude%20Code%20·%20OpenCode%20·%20Codex%20·%20Cursor-supported-8b5cf6)](#-快速开始)
-[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/Huanyu-Hibiki/Huanyu-Skills?style=flat&color=ffd700)](https://github.com/Huanyu-Hibiki/Huanyu-Skills/stargazers)
-[![License](https://img.shields.io/badge/license-%E6%8C%89%20skill%20%E5%90%84%E5%BC%82-lightgrey)](#-license)
+| 系统 | 说明 | 子 skill | 版本 | 许可 |
+|---|---|---:|---|---|
+| [founder-ip](founder-ip/) | 创始人 IP 战略层系统：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层一次想清楚 | 5 | 1.2.0 | AGPL-3.0 |
+| [GitHub-Renovation](GitHub-Renovation/) | GitHub 仓库门面装修：项目 README / profile 主页 / 仓库 SEO，先定位后装修，写入前必须确认 | 0 | 1.0.0 | MIT |
+| [oracle-bone](oracle-bone/) | 内容预测校准循环：打分 → 盲预测 → 发布 → 复盘 → 进化你自己的爆款公式 | 29 | 1.1.0 | MIT |
+| [PPT-design](PPT-design/) | PPT 设计与渲染系统：设计哲学推荐 + HTML 幻灯片转原生可编辑 PPTX | 0 | 1.0.0 | MIT |
+| [pulsehub](pulsehub/) | 获客系统：16 个 skill 四层闭环 + 随使用积累的"项目大脑" | 16 | 1.0.0 | MIT |
+| [shendu-yuedu](shendu-yuedu/) | 深度阅读系统：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
+| [skill-master](skill-master/) | skill 全生命周期管家：盘点 / 安全扫描 / 分析 / 编写 / 优化 | 5 | 1.0.0 | MIT |
+| [video-production-workflow](video-production-workflow/) | 视频制作管线：终稿 → 分镜 → 粗剪 → 剪映 → B-roll → 成片 QA | 13 | 0.8.7 | MIT |
+| [xianyu-skill](xianyu-skill/) | 闲鱼卖货系统：爆款拆解 → 商品文案 → 详情图，把 AI skill 挂上闲鱼卖 | 3 | 1.0.0 | MIT |
 
-</div>
+## 快速开始
 
----
+1. 前往 [INSTALL.md](INSTALL.md) 查看逐套安装说明（整套安装或单个子 skill 安装）。
+2. 把想要的系统目录复制到你的 Agent skills 目录即可，无需构建步骤。
+3. 各系统的详细用法见其目录内的 `README.md` 与 `SKILL.md`。
 
-给 AI Agent（Claude Code / OpenCode / Codex CLI / Cursor 等）用的实战 skill 合集。每个目录是一套独立系统，放进你的 skills 目录即可使用。它们不是玩具 demo——每一套都来自我经营一人公司（OPC）的真实工作流，Build in Public 全过程公开，配合我的视频教程食用效果最佳。
+## 更新记录
 
-## 📦 合集一览
+见 [CHANGELOG.md](CHANGELOG.md)。
 
-| Skill | 一句话 | 子 skill | 版本 | License |
-|---|---|---|---|---|
-| [founder-ip](founder-ip/) | 创始人 IP 战略层系统（Founder IP Strategy）：战略 / 人设 / 内容漏斗 / 商业模式 / OPC 五层一次想清楚 | 5 | 1.2.0 | AGPL-3.0 |
-| [GitHub-Renovation](GitHub-Renovation/) | GitHub 仓库门面装修（GitHub Renovation）：项目 README / profile 主页 / 仓库 SEO，先定位后装修，写入前必须确认 | 1 | 1.0.0 | MIT |
-| [oracle-bone](oracle-bone/) | 内容预测校准循环（Content Calibration Loop）：打分 → 盲预测 → 发布 → 复盘 → 进化你自己的爆款公式 | 26 | 1.0.0 | MIT |
-| [pulsehub](pulsehub/) | 获客系统（Lead Generation System）：16 个 skill 四层闭环 + 随使用积累的"项目大脑" | 16 | 1.0.0 | MIT |
-| [shendu-yuedu](shendu-yuedu/) | 深度阅读系统（Deep Reading System）：把"读完就忘"变成可调用的个人知识 Wiki | 6 | 1.0.0 | MIT |
-| [skill-master](skill-master/) | skill 全生命周期管家（Skill Lifecycle Manager）：盘点 / 安全扫描 / 分析 / 编写 / 优化 | 5 | 1.0.0 | MIT |
-| [video-production-workflow](video-production-workflow/) | 视频制作管线（Video Production Pipeline）：终稿 → 分镜 → 粗剪 → 剪映 → B-roll → 成片 QA | 13 | 0.6.0 | MIT |
-| [xianyu-skill](xianyu-skill/) | 闲鱼卖货系统（Xianyu Virtual Goods Ops）：爆款拆解 → 商品文案 → 详情图，把 AI skill 挂上闲鱼卖 | 3 | 1.0.0 | MIT |
 
-<details>
-<summary><b>📖 English</b></summary>
+## 许可
 
-**Huanyu-Skills** is a collection of 8 production-grade AI agent skill systems, extracted from a real one-person-company (OPC) workflow and open-sourced Build-in-Public. Works with any skills-compatible agent: Claude Code, OpenCode, Codex CLI, Cursor.
-
-| Skill | What it does |
-|---|---|
-| [founder-ip](founder-ip/) | Founder IP strategy layer: strategy / persona / content funnel / business model / OPC pipeline |
-| [GitHub-Renovation](GitHub-Renovation/) | GitHub repository renovation: professional project READMEs / profile homepage repos / repo SEO — positioning first, nothing written to GitHub without confirmation |
-| [oracle-bone](oracle-bone/) | Content calibration loop: score → blind-predict → publish → review → evolve your own hit formula |
-| [pulsehub](pulsehub/) | Lead generation system: 16 skills in 4 layers + a "project brain" that grows with use |
-| [shendu-yuedu](shendu-yuedu/) | Deep reading system: turn "read and forget" into a personal knowledge wiki of callable skills |
-| [skill-master](skill-master/) | Skill lifecycle manager: inventory / security scan / analyze / write / optimize skills |
-| [video-production-workflow](video-production-workflow/) | Video production pipeline: script → storyboard → rough cut → JianYing (CapCut) draft → B-roll → final QA |
-| [xianyu-skill](xianyu-skill/) | Xianyu (idle-fish marketplace) selling system: competitor teardown → listing copy → product detail images for AI skill packages |
-
-```bash
-git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone   # or your agent's skills dir
-```
-
-</details>
-
-## 🤝 它们怎么配合
-
-```
-founder-ip 定战略（为什么做、人设、漏斗、变现）
-      ↓
-oracle-bone 跑每周执行循环（选题 → 打分 → 盲预测 → 复盘 → 进化公式）
-      ↓
-pulsehub 把内容变成客户（画像 / 选题 / 文案 / 脚本 / 私域 / 评论线索）
-      ↓
-video-production-workflow 把稿子稳定做成片
-      ↓
-xianyu-skill 把成品挂上闲鱼变现（拆竞品 → 写文案 → 出详情图）
-
-shendu-yuedu 管输入：读书读完变技能，喂给上面所有环节
-skill-master 管技能本身：这套系统的"系统"，装、扫、析、写、优
-GitHub-Renovation 管门面：这套系统的"脸面"，README、主页、仓库 SEO 装修
-```
-
-每套也完全独立可用，按需取用即可。
-
-## 🚀 快速开始
-
-```bash
-git clone https://github.com/Huanyu-Hibiki/Huanyu-Skills.git
-
-# 把想要的 skill 复制进你的 Agent skills 目录，例如：
-cp -r Huanyu-Skills/oracle-bone ~/.claude/skills/oracle-bone    # Claude Code
-# OpenCode: ~/.opencode/skills/  ·  Codex: ~/.codex/skills/
-```
-
-然后对 Agent 说人话即可（"初始化 oracle-bone" / "盘点我装了哪些 skill" / "帮我写个 skill"…），各 skill 的详细用法见各自目录的 README。
-
-> 部分 skill 有可选依赖（如 video-production-workflow 需要 `uv sync` 初始化 Python 环境），见各自 README 的安装节。
-
-## 👤 关于作者 · 呼风唤雨的焕羽
-
-我是**呼风唤雨的焕羽**，**工程合规 AI 创业者**——工程管理专业出身，从央企经营部走出来，现在经营一人公司（OPC），用 AI Agent 重做工程本行（合同审查 / 招投标合规 / 资质管理），全过程 [Build in Public](https://github.com/Huanyu-Hibiki)。这个仓库不是 side project——每套系统都在我的一人公司里每天真实运转。
-
-内容母题：**「AI 时代，我的工程青春谁做主」**——工程人如何在 AI 时代重新拿回职业主动权。这里每一套 skill 的完整手把手教程与实战演示，都在我的视频里：
-
-<p>
-  <a href="https://v.douyin.com/eBJ-mM7PvIg"><img alt="在抖音关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E6%8A%96%E9%9F%B3-%E5%85%B3%E6%B3%A8%E6%88%91-000000?style=for-the-badge&logo=tiktok&logoColor=white"></a>
-  <a href="https://space.bilibili.com/338267911"><img alt="在哔哩哔哩关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9-%E5%85%B3%E6%B3%A8%E6%88%91-FB7299?style=for-the-badge&logo=bilibili&logoColor=white"></a>
-  <a href="https://www.xiaohongshu.com/user/profile/677c7be200000000140313f7"><img alt="在小红书关注作者「呼风唤雨的焕羽」" src="https://img.shields.io/badge/%E5%B0%8F%E7%BA%A2%E4%B9%A6-%E5%85%B3%E6%B3%A8%E6%88%91-FF2442?style=for-the-badge&logo=xiaohongshu&logoColor=white"></a>
-</p>
-
-<div align="center">
-
-🔍 **四个平台全同名，搜索「呼风唤雨的焕羽」看视频教程**
-
-<img src="assets/gzh-qrcode.png" width="520" alt="微信搜一搜：呼风唤雨的焕羽">
-
-<sub>微信扫一扫 / 搜一搜「**呼风唤雨的焕羽**」关注公众号，第一时间获取 skill 更新与 AI 实战干货</sub>
-
-</div>
-
-## 📄 License
-
-各 skill 协议不同（见各自目录的 LICENSE）：founder-ip 为 AGPL-3.0，oracle-bone / pulsehub / shendu-yuedu / skill-master / video-production-workflow / xianyu-skill / GitHub-Renovation 为 MIT。
+各系统许可以其目录内 `LICENSE` 为准（见表格）；`xianyu-skill/template/PPT/`
+内置的第三方模板遵循各自原许可（MIT / AGPL-3.0），已随包附带原许可文件。

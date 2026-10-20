@@ -13,7 +13,7 @@
 #   - 路径一律正斜杠写法；相对路径以本 yaml 所在目录为基准
 #   - 路径支持 ~ 与 %USERPROFILE% 前缀写法，由 scripts/inventory.py 解析时展开为绝对路径
 #
-# 本机探测校准时间：2026-08-28（Windows，用户 kabuto）。
+# 本机探测校准时间：2026-08-28（Windows；示例以 ~ 展开，按本机实际调整）。
 # 标注 [not-installed] 的路径为该 Agent 的已知默认位置，本机探测未发现，
 # 安装对应 Agent 后无需改本文件即可被自动识别。
 
@@ -27,55 +27,54 @@ agents:
     enabled: true
     paths:
       # opencode 全局目录（XDG 风格）[not-installed 2026-08-28]
-      - C:/Users/kabuto/.config/opencode/skills
+      - ~/.config/opencode/skills
 
   - name: opencode-config-repo
     enabled: true
     paths:
       # 配置源仓库（git 管理的类目式两层结构：skills/<类目>/<skill>）
-      - C:/Users/kabuto/.config/opencode/.opencode/skills
+      - ~/.config/opencode/.opencode/skills
 
   - name: opencode-workspace
     enabled: true
     paths:
-      # opencode 工作区级目录（C:\work 工作区）
-      # 2026-08-28 用户主动删除，内容已备份至
-      # C:/work/huanyu-skills-project/skills-backup-20260828（git 仓库）
-      - C:/work/.opencode/skills
+      # opencode 工作区级目录（工作区检出根下的 .opencode）
+      # 历史工作区目录已删除并另行备份（git 仓库），按本机工作区路径调整
+      - ~/work/.opencode/skills
 
   - name: opencode-project
     enabled: true
     paths:
-      # opencode 项目级目录（HuanyuCode 项目）
-      - C:/work/HuanyuCode/.opencode/skills
+      # opencode 项目级目录（示例项目；按实际项目检出路径调整）
+      - ~/work/<项目>/.opencode/skills
 
   - name: claude-code
     enabled: true
     paths:
       # Claude Code 全局目录 [not-installed 2026-08-28]
-      - C:/Users/kabuto/.claude/skills
+      - ~/.claude/skills
 
   - name: codex
     enabled: true
     paths:
       # Codex CLI 全局目录 [not-installed 2026-08-28]
-      - C:/Users/kabuto/.codex/skills
+      - ~/.codex/skills
 
   - name: trae
     enabled: true
     paths:
       # Trae 全局扩展存储下的 skills 目录；父目录 globalStorage 已确认存在，
       # 但其中尚未发现 skills 类子目录 [not-installed 2026-08-28]
-      - C:/Users/kabuto/AppData/Roaming/Trae/User/globalStorage/skills
+      - ~/AppData/Roaming/Trae/User/globalStorage/skills
 
   - name: gemini
     enabled: true
     paths:
       # Gemini CLI 全局目录 [not-installed 2026-08-28]
-      - C:/Users/kabuto/.gemini/skills
+      - ~/.gemini/skills
 
   - name: cursor
     enabled: true
     paths:
       # Cursor 全局目录 [not-installed 2026-08-28]
-      - C:/Users/kabuto/.cursor/skills
+      - ~/.cursor/skills

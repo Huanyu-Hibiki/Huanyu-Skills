@@ -1,6 +1,8 @@
 ---
 name: github-renovation
 description: GitHub 装修：为开源项目编写完整专业的 README、搭建与用户名同名的 profile 主页仓库，并完成仓库元数据（description / topics / bio）与 README 内容的 SEO 优化。Use when 用户提到"装修 GitHub"、"写 README"、"优化 README"、"GitHub 主页"、"profile README"、"个人主页仓库"、"GitHub SEO"、"仓库 description"、"topics 标签"等请求，或直接提到"GitHub-Renovation"时使用。 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
+metadata:
+  version: 1.0.0
 ---
 <!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
 

@@ -8,7 +8,7 @@
 
 - [x] 设计文档已批准（2026-08-28 头脑风暴定稿）
 - [x] 开发环境复核：`uv --version` 确认 0.8.3 可用、`python --version` 确认 3.13.5
-- [x] 确认 `C:\work\HuanyuCode\skill-master\` 为实施根目录（当前仅有 docs/）
+- [x] 确认 `<本机检出目录>\skill-master\` 为实施根目录（当前仅有 docs/）
 - [x] 任务 1 建立 pytest 空基线
 
 ## 任务列表
