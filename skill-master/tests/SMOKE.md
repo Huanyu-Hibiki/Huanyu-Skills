@@ -2,7 +2,7 @@
 
 - **日期**： 2026-08-28
 - **环境**： Windows 10 / PowerShell 5.1 / uv 0.8.3 / Python 3.12.11（venv；计划预估时写的 3.13.5，实际 venv 为 3.12.11，全部脚本仅依赖标准库，95 项测试全绿，无功能影响）
-- **仓库**： `C:\work\HuanyuCode\skill-master` @ `52feac9`（验收时 HEAD）
+- **仓库**： `<本机检出目录>\skill-master` @ `52feac9`（验收时 HEAD）
 - **对照**： 设计文档验收标准①②③ + 计划任务 23 五项走查
 
 ## 结果总表
@@ -10,11 +10,11 @@
 | 项 | 内容 | 真实输出摘要 | 结果 |
 |---|---|---|---|
 | A1 | 全量测试 `uv run pytest` | **95 passed in 3.13s**（test_inventory 26 / test_report 26 / test_scanner 43，退出码 0） | ✅ |
-| A2 | 真实枚举对照（验收标准①） | inventory 枚举 opencode **56 个 skill** = `(Get-ChildItem C:\work\.opencode\skills -Directory).Count` = **56**，一致；claude-code/codex/trae/gemini/cursor 全部 `installed: false`；`duplicates: []`；`health_issues` 8 条（见下） | ✅ |
+| A2 | 真实枚举对照（验收标准①） | inventory 枚举 opencode **56 个 skill** = `(Get-ChildItem <工作区>\.opencode\skills -Directory).Count` = **56**，一致；claude-code/codex/trae/gemini/cursor 全部 `installed: false`；`duplicates: []`；`health_issues` 8 条（见下） | ✅ |
 | A3 | 扫描器验收（验收标准②） | malicious-skill：**distinct rule_id 恰好 25**（INJ×5 / EXFIL×6 / DEST×4 / OBF×6 / PERM×4）、score=100>0；clean-skill：**findings=[]、score=0**；Python 断言全部通过 | ✅ |
 | A4 | 端到端报告（验收标准③） | clean：`smoke-report.html`（9,621 B）生成，无 `{{` 残留、含 `<!DOCTYPE html>`、`<script` 计数 0、html/body/div/table 标签配对平衡，空 findings 表正常渲染（colspan=5 空行）；malicious：`smoke-report-mal.html`（22,312 B）同项全过且 severity 徽章出现（sev-critical×23 / sev-high×59 / sev-medium×29 / sev-low×11，含计数卡+徽章+行级） | ✅ |
 | A5 | 路由 smoke（文档级走查） | 路由表 **25 条触发短语全量核对**（超出抽样 3×5=15 要求）：每条均逐字出现在对应子 skill frontmatter 且**不出现**在其他四个子 skill frontmatter（零串扰）；负例表抽 1 条走查通过（见下） | ✅ |
-| A6 | 安装干跑 `.\install.ps1 -WhatIf` | 输出：源 `C:\work\HuanyuCode\skill-master` → junction `C:\Users\kabuto\.config\opencode\skills\skill-master`，与 agents.yaml 中 opencode 全局路径声明一致；该目录本机暂不存在，脚本注明“不存在则创建”；不实际执行 | ✅ |
+| A6 | 安装干跑 `.\install.ps1 -WhatIf` | 输出：源 `<本机检出目录>\skill-master` → junction `<用户主目录>\.config\opencode\skills\skill-master`，与 agents.yaml 中 opencode 全局路径声明一致；该目录本机暂不存在，脚本注明“不存在则创建”；不实际执行 | ✅ |
 
 **结论：A1-A6 共 6 项全部通过，无一失败。**
 
@@ -54,10 +54,10 @@ INJ-001..005、EXFIL-001..006、DEST-001..004、OBF-001..006、PERM-001..004 —
 ## A6 干跑输出（UTF-8 修正后）
 
 ```
-[WhatIf] 源仓库     ：C:\work\HuanyuCode\skill-master
-[WhatIf] skill 目录 ：C:\Users\kabuto\.config\opencode\skills（不存在则创建）
-[WhatIf] 将创建 junction：C:\Users\kabuto\.config\opencode\skills\skill-master -> C:\work\HuanyuCode\skill-master
+[WhatIf] 源仓库     ：<本机检出目录>\skill-master
+[WhatIf] skill 目录 ：<用户主目录>\.config\opencode\skills（不存在则创建）
+[WhatIf] 将创建 junction：<用户主目录>\.config\opencode\skills\skill-master -> <本机检出目录>\skill-master
 [WhatIf] （junction 失败时降级为递归复制模式）
 ```
 
-注：本机当前活跃目录为工作区级 `C:\work\.opencode\skills`（56 个 skill 所在）；全局目录 `.config\opencode\skills` 尚不存在，安装时将自动创建。如需装到工作区目录，可 `.\install.ps1 -Target C:\work\.opencode\skills`。
+注：本机当前活跃目录为工作区级 `<工作区>\.opencode\skills`（56 个 skill 所在）；全局目录 `.config\opencode\skills` 尚不存在，安装时将自动创建。如需装到工作区目录，可 `.\install.ps1 -Target <工作区>\.opencode\skills`。

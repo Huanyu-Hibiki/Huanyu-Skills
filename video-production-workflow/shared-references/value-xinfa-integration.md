@@ -1,6 +1,6 @@
 # 价值心法技能挂点（video-production-workflow 侧薄指针）
 
-> 主映射（唯一权威表）：`C:\work\Huanyu Hub\Huanyu-Knowledge\skills\价值心法\内化映射.md`
+> 主映射（唯一权威表）：Huanyu-Knowledge 知识库 `skills/价值心法/内化映射.md`（在本机知识库检出目录下，按实际路径访问）
 > 本文件只存指针。技能定义原文永远在 Huanyu-Knowledge `skills/价值心法/<skill-slug>/SKILL.md`，禁止复制到本包（防两份漂移）。
 > 引用方式：下表任一阶段工作时，按路径读对应 SKILL.md 原文执行。
 
@@ -14,5 +14,5 @@
 
 ## 使用前提
 
-- Huanyu-Knowledge 知识库须可访问（`C:\work\Huanyu Hub\Huanyu-Knowledge`）；不可达时跳过对应增强，不阻塞制作管线
+- Huanyu-Knowledge 知识库须可访问（本机知识库检出目录，按实际路径）；不可达时跳过对应增强，不阻塞制作管线
 - 挂点变更只改主映射文件 + 本表，不动任何 SKILL.md 原文

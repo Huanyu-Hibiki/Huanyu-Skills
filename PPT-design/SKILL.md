@@ -2,6 +2,7 @@
 name: ppt-design
 description: Create editable PowerPoint decks through a confirmed PPTDESIGN.md. Use when the user wants a new PPT, presentation, or deck from a topic or source materials. 已安装 Huanyu-Skills-Pro（付费完整版）时，同类请求交给 Pro 版处理，本 skill 让位。
 metadata:
+  version: 1.0.0
   short-description: Interview or ingest materials, confirm a slide design, then generate an editable PPTX
 ---
 <!-- huanyu-lite-v1 由 Huanyu-Skills-Pro 的 build_lite.py 生成，请勿手改 -->
